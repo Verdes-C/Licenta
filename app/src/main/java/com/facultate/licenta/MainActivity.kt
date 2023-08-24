@@ -3,30 +3,31 @@ package com.facultate.licenta
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import com.facultate.licenta.ui.theme.LicentaTheme
+import androidx.navigation.compose.rememberNavController
+import com.facultate.licenta.navigation.BottomNav
+import com.facultate.licenta.navigation.Screens
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.compose.ui.res.vectorResource
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LicentaTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+            val screens = listOf(
+                Screens.HomePage to ImageVector.vectorResource(id = R.drawable.icon_home),
+                Screens.Categories to ImageVector.vectorResource(id = R.drawable.icon_category) ,
+                Screens.Cart to ImageVector.vectorResource(id = R.drawable.icon_cart),
+                Screens.Favorites to ImageVector.vectorResource(id = R.drawable.icon_favorites),
+                Screens.Profile to ImageVector.vectorResource(id = R.drawable.icon_profile)
+            )
+            val navController = rememberNavController()
+            BottomNav(screens = screens, navController = navController)
         }
     }
 }
@@ -42,7 +43,5 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    LicentaTheme {
-        Greeting("Android")
-    }
+    Greeting("Android")
 }
