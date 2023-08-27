@@ -18,13 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.facultate.licenta.Screens.cart.CartItem
+import com.facultate.licenta.Screens.favorites.FavoritesItem
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
-
 @Composable
-fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: ()-> Unit) {
+fun DisplayFavoritesOptionMenu(
+    modifier: Modifier,
+    favoritesItem: FavoritesItem,
+    closeTheMenu: ()-> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
         horizontalAlignment = Alignment.End,
@@ -41,7 +44,7 @@ fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: 
             .padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Text(
-            text = "Add to favorites",
+            text = "Remove from favorites",
             color = Variables.blue3,
             style = Typography.p,
             modifier = Modifier
@@ -55,21 +58,6 @@ fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: 
                     // add to favorites
                     closeTheMenu.invoke()
                 })
-        Text(
-            text = "Remove from Cart",
-            color = Variables.blue3,
-            style = Typography.p,
-            modifier = Modifier
-                .padding(vertical = 2.dp, horizontal = 4.dp)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .clickable(
-                    //_ set the onClick animation to null
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) {
-                    // remove from cart
-                    closeTheMenu.invoke()
-                }
-        )
+
     }
 }

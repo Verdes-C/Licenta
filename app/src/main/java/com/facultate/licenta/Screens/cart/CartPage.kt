@@ -1,5 +1,6 @@
 package com.facultate.licenta.Screens.cart
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -72,7 +73,7 @@ fun CartPage(navController: NavHostController) {
                     // TODO modify to take CartItem
                     DisplayCartItem(
                         cartItem = cartItem,
-                        modifier = Modifier.padding(bottom = Variables.innerItemGap)
+                        modifier = Modifier
                     )
                 }
             }
@@ -112,4 +113,5 @@ data class CartItem(
     val productImageDescription: String = "Product image description",
     val productPrice: Double = 123.24,
     var productQuantity: Int = 1,
+    val rating : Double = 2.4
 )

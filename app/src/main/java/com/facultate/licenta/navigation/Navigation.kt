@@ -30,6 +30,7 @@ import androidx.navigation.navigation
 import com.facultate.licenta.Screens.cart.CartPage
 import com.facultate.licenta.Screens.home.HomePage
 import com.facultate.licenta.Screens.categories.CategoriesPage
+import com.facultate.licenta.Screens.favorites.FavoritesPage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
@@ -66,6 +67,10 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
 
         composable(route = Screens.Cart.route) { backStackEntry ->
             CartPage(navController = navController)
+        }
+
+        composable(route = Screens.Favorites.route) { backStackEntry ->
+            FavoritesPage(navController = navController)
         }
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->

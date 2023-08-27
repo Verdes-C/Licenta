@@ -117,10 +117,10 @@ object MenuEntries {
         icon = R.drawable.icon_profile,
         iconDescription = "Account Data icon"
     )
-    val Wishlist = MenuEntry(
-        name = "Wishlist",
+    val Favorites = MenuEntry(
+        name = "Favorites",
         icon = R.drawable.icon_favorites,
-        iconDescription = "Wishlist icon"
+        iconDescription = "Favorites icon"
     )
     val Cart = MenuEntry(name = "Cart", icon = R.drawable.icon_cart, iconDescription = "Cart icon")
     val Logout =

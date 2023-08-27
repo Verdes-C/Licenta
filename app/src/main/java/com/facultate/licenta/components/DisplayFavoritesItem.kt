@@ -13,12 +13,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -36,20 +39,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.facultate.licenta.R
 import com.facultate.licenta.Screens.cart.CartItem
+import com.facultate.licenta.Screens.favorites.FavoritesItem
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import kotlin.math.ceil
 
 
 @Composable
-fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem()) {
-
-    var quantity by remember {
-        mutableIntStateOf(cartItem.productQuantity)
-    }
+fun DisplayFavoritesItem(
+    modifier: Modifier = Modifier,
+    favoritesItem: FavoritesItem = FavoritesItem(),
+) {
 
     var menuIsVisible by remember {
         mutableStateOf(false)
@@ -59,15 +63,15 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGapLow, Alignment.Start),
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 140.dp, max = 170.dp)
+            .heightIn(min = 150.dp, max = 180.dp)
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Color.White)
             .padding(all = Variables.innerItemGapLow)
             .clickable { menuIsVisible = false }
     ) {
         Image(
-            painter = painterResource(id = cartItem.productImage),
-            contentDescription = cartItem.productImageDescription,
+            painter = painterResource(id = favoritesItem.productImage),
+            contentDescription = favoritesItem.productImageDescription,
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxHeight()
@@ -112,11 +116,13 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                         .fillMaxWidth()
                         .heightIn(min = 30.dp, max = 60.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = cartItem.productName,
+                        text = favoritesItem.productName,
                         color = Variables.blue3,
                         style = Typography.p,
+                        fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         modifier = Modifier
                             .weight(1f)
@@ -131,7 +137,19 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                             .clickable { menuIsVisible = !menuIsVisible }
                     )
                 }
-                DisplayRating(rating = cartItem.rating)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "${favoritesItem.reviewsNumber} reviews",
+                        style = Typography.p,
+                        color = Variables.blue3
+                    )
+                }
+
+                DisplayRating(rating = favoritesItem.rating)
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
@@ -139,12 +157,7 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$${
-                            String.format(
-                                "%.2f",
-                                ceil(cartItem.productPrice * quantity * 100) / 100
-                            )
-                        }",
+                        text = "$${favoritesItem.productPrice}",
                         color = Variables.blue3,
                         style = Typography.pBig,
                         fontWeight = FontWeight.Bold,
@@ -157,59 +170,78 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                         modifier = Modifier
                             .requiredHeight(height = 32.dp)
                     ) {
-                        Text(
-                            text = "-",
-                            color = Color(0xff163688),
-                            textAlign = TextAlign.Center,
-                            style = Typography.pBig,
-                            fontWeight = FontWeight.Bold,
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_cart),
+                            contentDescription = "Add to cart",
+                            tint = Variables.blue3,
                             modifier = Modifier
-                                .requiredSize(24.dp)
-                                .wrapContentHeight(align = Alignment.CenterVertically)
+                                .size(24.dp)
                                 .clickable(
-                                    //_ set the onClick animation to null
-                                    interactionSource = remember { MutableInteractionSource() },
+                                    interactionSource = MutableInteractionSource(),
                                     indication = null
                                 ) {
-                                    if (quantity > 1) quantity -= 1
-                                }
-                        )
-                        Text(
-                            text = "$quantity",
-                            color = Color(0xff163688),
-                            style = Typography.pBig,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .wrapContentHeight(align = Alignment.CenterVertically)
-                        )
-                        Text(
-                            text = "+",
-                            color = Color(0xff163688),
-                            textAlign = TextAlign.Center,
-                            style = Typography.pBig,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier
-                                .requiredSize(24.dp)
-                                .wrapContentHeight(align = Alignment.CenterVertically)
-                                .clickable(
-                                    //_ set the onClick animation to null
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null
-                                ) { quantity += 1 }
-                        )
+                                    // TODO add to cart
+                                })
                     }
                 }
             }
+
             if (menuIsVisible) {
-                DisplayCartOptionMenu(
+                DisplayFavoritesOptionMenu(
                     modifier = Modifier.align(Alignment.TopEnd),
-                    cartItem = cartItem
-                ){
+                    favoritesItem = favoritesItem
+                ) {
                     menuIsVisible = false
                 }
             }
         }
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun DisplayItemPreview() {
+    DisplayFavoritesItem()
+}
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStar1(rating: Double = 0.4) {
+    DisplayRating(rating = rating)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStar2(rating: Double = 0.6) {
+    DisplayRating(rating = rating)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStar3(rating: Double = 3.4) {
+    DisplayRating(rating = rating)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStar4(rating: Double = 4.4) {
+    DisplayRating(rating = rating)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStar5(rating: Double = 4.6) {
+    DisplayRating(rating = rating)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewStar6(rating: Double = 5.0) {
+    DisplayRating(rating = rating)
+}
+
+
 
 
