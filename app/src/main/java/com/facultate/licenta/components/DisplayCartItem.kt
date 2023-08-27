@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -59,6 +60,11 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGapLow, Alignment.Start),
         modifier = modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = Variables.elevation,
+                spotColor = Variables.shadowColor,
+                ambientColor = Variables.shadowColor
+            )
             .heightIn(min = 140.dp, max = 170.dp)
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Color.White)

@@ -54,7 +54,7 @@ fun FavoritesPage(navController: NavHostController) {
                 displayArrow = true,
                 menuEntry = MenuEntries.Favorites,
                 navController = navController
-            )
+            ){}
         }
     ) { paddingValues ->
         LazyColumn(

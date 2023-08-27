@@ -9,5 +9,6 @@ sealed class Screens(val route: String, @StringRes val resourceId: Int) {
     object Cart : Screens("cart", R.string.cart)
     object Favorites : Screens("favorites", R.string.favorites)
     object Profile : Screens("profile", R.string.profile)
+    object ProfileGraph : Screens("profileGraph", R.string.profile)
     object Product : Screens("product", R.string.product)
 }

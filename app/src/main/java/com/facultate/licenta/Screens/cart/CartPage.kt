@@ -50,7 +50,7 @@ fun CartPage(navController: NavHostController) {
                 displayArrow = true,
                 menuEntry = MenuEntries.Cart,
                 navController = navController
-            )
+            ){}
         }
     ) { paddingValues ->
         LazyColumn(

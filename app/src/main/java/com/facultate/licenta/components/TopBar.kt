@@ -33,9 +33,16 @@ import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 @Composable
-fun TopBar(modifier: Modifier = Modifier, displayArrow: Boolean = false, menuEntry: MenuEntry, navController: NavHostController) {
+fun TopBar(
+    modifier: Modifier = Modifier,
+    displayArrow: Boolean = false,
+    menuEntry: MenuEntry,
+    navController: NavHostController? = null,
+    navigate: () -> Unit,
+) {
     val colorAfterLogoutCheck =
         if (menuEntry != MenuEntries.Logout) Variables.blue3 else Variables.red
+
     Row(
         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGap, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
@@ -51,7 +58,7 @@ fun TopBar(modifier: Modifier = Modifier, displayArrow: Boolean = false, menuEnt
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Variables.topBarBackground)
             .padding(horizontal = 8.dp)
-
+            .clickable { navigate.invoke() }
     ) {
         if (displayArrow) {
             Icon(
@@ -62,9 +69,9 @@ fun TopBar(modifier: Modifier = Modifier, displayArrow: Boolean = false, menuEnt
                     .requiredSize(size = 30.dp)
                     .clickable(
                         //_ set the onClick animation to null
-                        interactionSource = remember{ MutableInteractionSource() },
+                        interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { navController.popBackStack() }
+                    ) { navController?.popBackStack() }
             )
         }
         Box(
