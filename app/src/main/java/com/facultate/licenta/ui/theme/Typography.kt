@@ -41,6 +41,13 @@ object Typography{
         lineHeight = (19 * 1.3).sp,
     )
 
+    val pBig = TextStyle(
+        fontSize = 18.sp,
+        fontFamily = paragraphFont,
+        letterSpacing = 0.sp,
+        lineHeight = (18 * 1.5).sp,
+    )
+
     val p = TextStyle(
         fontSize = 15.sp,
         fontFamily = paragraphFont,
@@ -53,6 +60,14 @@ object Typography{
         fontFamily = paragraphFont,
         letterSpacing = 0.sp,
         lineHeight = (12 * 1.875).sp,
+    )
+
+    val buttonBold = TextStyle(
+        fontSize = 14.sp,
+        lineHeight = (14*1.3).sp,
+        fontFamily = paragraphFont,
+        fontWeight = FontWeight(700),
+        color = Variables.grey6,
     )
 
 }

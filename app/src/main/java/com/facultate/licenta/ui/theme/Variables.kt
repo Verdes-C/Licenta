@@ -3,14 +3,14 @@ package com.facultate.licenta.ui.theme
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.TextStyle
 
 object Variables {
     val topPadding: Dp = 24.dp
     val verticalPadding: Dp = 8.dp
     val innerItemGap: Dp = 12.dp
+    val outerItemGap: Dp = 20.dp
     val cornerRadius: Dp = 12.dp
-    val elevation: Dp = 4.dp
+    val elevation: Dp = 12.dp
 
     val blue1: Color = Color(0xFF6085E1)
     val blue2: Color = Color(0xFF2B4AB8)
@@ -30,5 +30,12 @@ object Variables {
     val grey4: Color = Color(0xFF455076)
     val grey5: Color = Color(0xFF222B4A)
     val grey6: Color = Color(0xFF172145)
+
+    val red: Color = Color(0xFFFF0000)
+    val black: Color = Color(0xFF040713)
+    val white: Color = Color(0xFFD8DAE3)
+    val topBarBackground: Color = Color(0xFFF5F5F5)
+
+    val shadowColor: Color = grey6
 }
 

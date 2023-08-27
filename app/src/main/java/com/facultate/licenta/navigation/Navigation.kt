@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -26,7 +27,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
-import com.facultate.licenta.Screens.Home.HomePage
+import com.facultate.licenta.Screens.cart.CartPage
+import com.facultate.licenta.Screens.home.HomePage
+import com.facultate.licenta.Screens.categories.CategoriesPage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
@@ -52,8 +55,17 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
 //                    //! Handle error
 //                }
         }
+
         composable(route = Screens.HomePage.route) { backStackEntry ->
             HomePage(navController = navController)
+        }
+
+        composable(route = Screens.Categories.route) { backStackEntry ->
+            CategoriesPage(navController = navController)
+        }
+
+        composable(route = Screens.Cart.route) { backStackEntry ->
+            CartPage(navController = navController)
         }
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->
@@ -102,6 +114,7 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                     //_ Get the selected item in the bottom nav trough the destination of the navController
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
+
                     screens.forEach { screen ->
                         //_ For each defined screen we profide and icon with a description
                         BottomNavigationItem(
@@ -111,10 +124,16 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                             icon = {
                                 Icon(
                                     imageVector = screen.second,
-                                    contentDescription = stringResource(id = screen.first.resourceId)
+                                    contentDescription = stringResource(id = screen.first.resourceId),
+                                    modifier = Modifier.size(32.dp)
                                 )
                             },
-                            label = { Text(stringResource(screen.first.resourceId), style = Typography.p) },
+                            label = {
+                                Text(
+                                    stringResource(screen.first.resourceId),
+                                    style = Typography.buttonBold
+                                )
+                            },
                             selected = currentDestination?.hierarchy?.any { it.route == screen.first.route } == true,
                             onClick = {
                                 navController.navigate(screen.first.route) {
