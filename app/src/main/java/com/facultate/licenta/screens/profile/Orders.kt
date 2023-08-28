@@ -1,4 +1,4 @@
-package com.facultate.licenta.Screens.profile
+package com.facultate.licenta.screens.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

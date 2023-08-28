@@ -1,6 +1,5 @@
-package com.facultate.licenta.Screens.home
+package com.facultate.licenta.screens.home
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize

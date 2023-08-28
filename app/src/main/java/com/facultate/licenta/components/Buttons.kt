@@ -154,7 +154,7 @@ private fun ScopeTertiaryStatusActivePreview() {
     Buttons.Tertiary(Modifier, "Forgot Password?") {}
 }
 
-@Preview(widthDp = 120, showBackground = true)
+@Preview(widthDp = 120, showBackground = true, backgroundColor = 0xFFEBECEF)
 @Composable
 private fun ScopePrimaryStatusActivePreview() {
     Buttons.PrimaryActive(Modifier) {}

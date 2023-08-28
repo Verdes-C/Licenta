@@ -1,8 +1,8 @@
-package com.facultate.licenta.Screens.profile
+package com.facultate.licenta.screens.profile
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,9 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,11 +24,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.facultate.licenta.R
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
@@ -54,7 +48,9 @@ fun ProfileHomePage(navController: NavHostController) {
             MenuEntries.Favorites to {
                 navController.navigate(Screens.Favorites.route)
             },
-            MenuEntries.AccountData to {},
+            MenuEntries.AccountData to {
+                navController.navigate(Screens.AccountData.route)
+            },
             MenuEntries.ShippingAdress to {},
             MenuEntries.Support to {},
             MenuEntries.Logout to {},
@@ -71,7 +67,9 @@ fun ProfileHomePage(navController: NavHostController) {
         horizontalAlignment = Alignment.Start,
     ) {
         item {
-            ProfileUserHeading(modifier = Modifier.padding(top = Variables.outerItemGap))
+            ProfileUserHeading(modifier = Modifier.padding(top = Variables.outerItemGap)){
+                navController.navigate(Screens.AccountData.route)
+            }
         }
 
         //_ Profile cards
@@ -94,7 +92,7 @@ fun ProfileHomePage(navController: NavHostController) {
 }
 
 @Composable
-fun ProfileUserHeading(modifier: Modifier = Modifier) {
+fun ProfileUserHeading(modifier: Modifier = Modifier, onEditClick: ()-> Unit) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGapLow, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
@@ -127,7 +125,10 @@ fun ProfileUserHeading(modifier: Modifier = Modifier) {
         Icon(
             painter = painterResource(id = R.drawable.icon_edit),
             contentDescription = "Edit name",
-            tint = Variables.blue3
+            tint = Variables.blue3,
+            modifier = Modifier.clickable {
+                onEditClick.invoke()
+            }
         )
     }
 }

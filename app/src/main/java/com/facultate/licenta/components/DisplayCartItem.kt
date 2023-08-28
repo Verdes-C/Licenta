@@ -39,7 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.facultate.licenta.R
-import com.facultate.licenta.Screens.cart.CartItem
+import com.facultate.licenta.screens.cart.CartItem
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import kotlin.math.ceil

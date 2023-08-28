@@ -8,4 +8,5 @@
     <string name="product">Product</string>
     <string name="orders">Orders</string>
     <string name="vouchers">Vouchers</string>
+    <string name="accountData">Account Data</string>
 </resources>

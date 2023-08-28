@@ -28,13 +28,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
-import com.facultate.licenta.Screens.cart.CartPage
-import com.facultate.licenta.Screens.home.HomePage
-import com.facultate.licenta.Screens.categories.CategoriesPage
-import com.facultate.licenta.Screens.favorites.FavoritesPage
-import com.facultate.licenta.Screens.profile.Orders
-import com.facultate.licenta.Screens.profile.ProfileHomePage
-import com.facultate.licenta.Screens.profile.VouchersPage
+import com.facultate.licenta.screens.cart.CartPage
+import com.facultate.licenta.screens.home.HomePage
+import com.facultate.licenta.screens.categories.CategoriesPage
+import com.facultate.licenta.screens.favorites.FavoritesPage
+import com.facultate.licenta.screens.profile.AccountDataPage
+import com.facultate.licenta.screens.profile.Orders
+import com.facultate.licenta.screens.profile.ProfileHomePage
+import com.facultate.licenta.screens.profile.VouchersPage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
@@ -49,16 +50,20 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
             startDestination = Screens.Profile.route,
             route = "profileGraph"
         ) {
-            composable(Screens.Profile.route){backStackEntry ->
+            composable(Screens.Profile.route) { backStackEntry ->
                 ProfileHomePage(navController = navController)
             }
 
-            composable(Screens.Orders.route){backStackEntry->
+            composable(Screens.Orders.route) { backStackEntry ->
                 Orders(navController = navController)
             }
 
-            composable(Screens.Vouchers.route){backStackEntry->
+            composable(Screens.Vouchers.route) { backStackEntry ->
                 VouchersPage(navController = navController)
+            }
+
+            composable(Screens.AccountData.route) { backStackEntry ->
+                AccountDataPage(navController = navController)
             }
         }
 
@@ -134,6 +139,7 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                     //_ Get the selected item in the bottom nav trough the destination of the navController
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
+                    Log.d("TESTING",screens.toString())
 
                     screens.forEach { screen ->
                         //_ For each defined screen we profide and icon with a description
@@ -154,7 +160,12 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                                     style = Typography.buttonBold
                                 )
                             },
-                            selected = currentDestination?.hierarchy?.any { it.route == screen.first.route } == true,
+                            selected = currentDestination?.hierarchy?.any { it.route == screen.first.route } == true ||
+                                    (screen.first == Screens.Profile && (currentDestination?.hierarchy?.any {
+                                        it.route?.startsWith(
+                                            "profileGraph"
+                                        ) == true
+                                    } == true)),
                             onClick = {
                                 navController.navigate(screen.first.route) {
                                     // Pop up to the start destination of the graph to

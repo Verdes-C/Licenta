@@ -1,6 +1,5 @@
-package com.facultate.licenta.Screens.cart
+package com.facultate.licenta.screens.cart
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

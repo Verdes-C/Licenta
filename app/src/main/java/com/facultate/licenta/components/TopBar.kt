@@ -114,12 +114,12 @@ object MenuEntries {
         iconDescription = "Vouchers icon"
     )
     val Support = MenuEntry(
-        name = "Support",
+        name = "Support (Future)",
         icon = R.drawable.icon_support,
         iconDescription = "Support icon"
     )
     val ShippingAdress = MenuEntry(
-        name = "Shipping Adress",
+        name = "Shipping Adress (Future)",
         icon = R.drawable.icon_shipping_box,
         iconDescription = "Shipping Adress icon"
     )
