@@ -26,7 +26,6 @@ fun CategorySection(categoryName: String, categoryList:List<String>){
     ) {
         Text(
             text = categoryName,
-            color = Variables.blue3,
             style = Typography.h4,
             modifier = Modifier
                 .wrapContentHeight(align = Alignment.CenterVertically)

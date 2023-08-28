@@ -102,7 +102,7 @@ fun HomeScreenProductDisplay(
                     maxLines = 2,
                     overflow = TextOverflow.Clip,
                     style = Typography.buttonBold,
-                    color = Variables.grey6
+                    color = Variables.blue3
                 )
                 Text(
                     text = "Category",

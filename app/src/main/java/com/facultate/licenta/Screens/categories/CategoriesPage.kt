@@ -64,71 +64,11 @@ fun CategoriesPage(navController: NavHostController) {
             CategorySection(categoryName = "Art fountain pens", categoryList = category1List)
         }
         item {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(Variables.outerItemGap, Alignment.Top),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Text(
-                    text = "Calligraphy",
-                    color = Color(0xff163688),
-                    style = Typography.h4,
-                    modifier = Modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                )
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(
-                        Variables.innerItemGap,
-                        Alignment.CenterVertically
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        Variables.innerItemGap,
-                        Alignment.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height((ceil((category2List.size / 3.0)) * 112).dp)
-                ) {
-                    items(items = category2List) { category ->
-                        CategoryCard(categoryName = category)
-                    }
-                }
-            }
+            CategorySection(categoryName = "Calligraphy", categoryList = category2List)
         }
 //? accessories
         item {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(Variables.outerItemGap, Alignment.Top),
-                horizontalAlignment = Alignment.Start,
-            ) {
-                Text(
-                    text = "Accessories",
-                    color = Color(0xff163688),
-                    style = Typography.h4,
-                    modifier = Modifier
-                        .wrapContentHeight(align = Alignment.CenterVertically)
-                )
-
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
-                    verticalArrangement = Arrangement.spacedBy(
-                        Variables.innerItemGap,
-                        Alignment.CenterVertically
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        Variables.innerItemGap,
-                        Alignment.Start
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height((ceil((category3List.size / 3.0)) * 112).dp)
-                ) {
-                    items(items = category3List) { category ->
-                        CategoryCard(categoryName = category)
-                    }
-                }
-            }
+            CategorySection(categoryName = "Accessories", categoryList = category3List)
         }
     }
 }

@@ -90,7 +90,6 @@ fun DisplayEmptyCart() {
         Text(
             text = "It is quite empty in here.\nLet’s go searching",
             style = Typography.h3,
-            color = Variables.blue3,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(bottom = Variables.innerItemGap)

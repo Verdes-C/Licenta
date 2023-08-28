@@ -21,28 +21,32 @@ object Typography{
         fontFamily = headingFont,
         letterSpacing = TextUnit.Unspecified,
         lineHeight = (34 * 1.3).sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        color = Variables.grey6
     )
     val h2 = TextStyle(
         fontSize = 28.sp,
         fontFamily = headingFont,
         letterSpacing = TextUnit.Unspecified,
         lineHeight = (28 * 1.3).sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        color = Variables.grey6
     )
     val h3 = TextStyle(
         fontSize = 23.sp,
         fontFamily = headingFont,
         letterSpacing = TextUnit.Unspecified,
         lineHeight = (23 * 1.3).sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        color = Variables.grey6
     )
     val h4 = TextStyle(
         fontSize = 19.sp,
         fontFamily = headingFont,
         letterSpacing = TextUnit.Unspecified,
         lineHeight = (19 * 1.3).sp,
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold,
+        color = Variables.grey6
     )
 
     val pBig = TextStyle(
@@ -57,6 +61,7 @@ object Typography{
         fontFamily = paragraphFont,
         letterSpacing = 0.sp,
         lineHeight = (15 * 1.5).sp,
+        color = Variables.blue3
     )
 
     val caption = TextStyle(

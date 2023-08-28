@@ -1,5 +1,6 @@
 package com.facultate.licenta.Screens.profile
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +29,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.facultate.licenta.R
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
@@ -39,10 +42,14 @@ import com.facultate.licenta.ui.theme.Variables
 @Composable
 fun ProfileHomePage(navController: NavHostController) {
 
+
     val entriesAndNavigation =
         listOf(
-            MenuEntries.Orders to {},
-            MenuEntries.Vouchers to {},
+            MenuEntries.Orders to {
+                navController.navigate(Screens.Orders.route)
+            },
+            MenuEntries.Vouchers to {
+            },
             MenuEntries.Favorites to { navController.navigate(Screens.Favorites.route) },
             MenuEntries.AccountData to {},
             MenuEntries.ShippingAdress to {},
@@ -109,7 +116,6 @@ fun ProfileUserHeading(modifier: Modifier = Modifier) {
 
         Text(
             text = "Marvin McKinney",
-            color = Color(0xff163688),
             style = Typography.h4,
             modifier = Modifier
                 .weight(1f)

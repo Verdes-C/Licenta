@@ -1,5 +1,6 @@
 package com.facultate.licenta.navigation
 
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -31,6 +32,7 @@ import com.facultate.licenta.Screens.cart.CartPage
 import com.facultate.licenta.Screens.home.HomePage
 import com.facultate.licenta.Screens.categories.CategoriesPage
 import com.facultate.licenta.Screens.favorites.FavoritesPage
+import com.facultate.licenta.Screens.profile.Orders
 import com.facultate.licenta.Screens.profile.ProfileHomePage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
@@ -49,9 +51,15 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
             composable(Screens.Profile.route){backStackEntry ->
                 ProfileHomePage(navController = navController)
             }
+
+            composable(Screens.Orders.route){backStackEntry->
+                Log.d("NAVIGATION", "entered")
+                Orders(navController = navController)
+            }
         }
 
-        composable("${Screens.Product.route}/{productId}") { backStackEntry ->
+
+        composable(Screens.Product.route) { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")
 //                if (productId != null) {
 //                    ProductPage(navController, productId)

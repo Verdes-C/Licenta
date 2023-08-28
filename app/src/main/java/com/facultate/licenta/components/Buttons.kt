@@ -1,6 +1,7 @@
 package com.facultate.licenta.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -64,7 +65,7 @@ object Buttons {
                 ambientColor = Variables.shadowColor,
                 shape = RoundedCornerShape(size = Variables.cornerRadius)
             ),
-            onClick = {  }
+            onClick = { }
         ) {
             Text(
                 text = text,
@@ -76,26 +77,24 @@ object Buttons {
     }
 
     @Composable
-    fun SecondaryActive(modifier: Modifier = Modifier, text: String = "Text", onClick: () -> Unit) {
+    fun SecondaryActive(
+        modifier: Modifier = Modifier,
+        text: String = "Text",
+        textStyle: TextStyle = Typography.p,
+        onClick: () -> Unit,
+    ) {
         OutlinedButton(
-            shape = RoundedCornerShape(Variables.cornerRadius),
+            onClick = { onClick.invoke() },
+            shape = RoundedCornerShape(Variables.innerItemGap),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            border = BorderStroke(2.dp, Variables.grey6),
-            modifier = modifier.shadow(
-                elevation = Variables.elevation,
-                spotColor = Variables.shadowColor,
-                ambientColor = Variables.shadowColor,
-                shape = RoundedCornerShape(size = Variables.cornerRadius)
-            ),
-            enabled = true,
-            onClick = { onClick.invoke() }
+            contentPadding = PaddingValues(horizontal = Variables.innerItemGap, vertical = 2.dp),
+            border = BorderStroke(1.dp, Variables.grey6),
+            modifier = modifier
         ) {
             Text(
                 text = text,
-                color = Variables.grey6,
                 textAlign = TextAlign.Center,
-                style = Typography.buttonBold
+                style = textStyle
             )
         }
     }
@@ -112,7 +111,7 @@ object Buttons {
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             border = BorderStroke(2.dp, Variables.grey3),
             modifier = modifier,
-            onClick = {  }
+            onClick = { }
         ) {
             Text(
                 text = text,
@@ -124,19 +123,24 @@ object Buttons {
     }
 
     @Composable
-    fun Tertiary(modifier: Modifier = Modifier, text: String = "Text", onClick: () -> Unit) {
+    fun Tertiary(
+        modifier: Modifier = Modifier,
+        text: String = "Text",
+        textStyle: TextStyle = Typography.buttonBold,
+        onClick: () -> Unit,
+    ) {
         TextButton(
             shape = RoundedCornerShape(Variables.cornerRadius),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
             modifier = modifier,
-            onClick = { }
+            onClick = { onClick.invoke() }
         ) {
             Text(
                 text = text,
                 color = Variables.grey6,
                 textAlign = TextAlign.Center,
-                style = Typography.buttonBold
+                style = textStyle
             )
         }
     }
@@ -144,33 +148,66 @@ object Buttons {
 
 }
 
-@Preview(widthDp = 169, heightDp = 42, showBackground = true)
+@Preview(widthDp = 169, showBackground = true)
 @Composable
 private fun ScopeTertiaryStatusActivePreview() {
     Buttons.Tertiary(Modifier, "Forgot Password?") {}
 }
 
-@Preview(widthDp = 120, heightDp = 42, showBackground = true)
+@Preview(widthDp = 120, showBackground = true)
 @Composable
 private fun ScopePrimaryStatusActivePreview() {
     Buttons.PrimaryActive(Modifier) {}
 }
 
-@Preview(widthDp = 120, heightDp = 42, showBackground = true)
+@Preview(widthDp = 120, showBackground = true)
 @Composable
 private fun ScopePrimaryStatusInactivePreview() {
     Buttons.PrimaryInactive(Modifier)
 }
 
-@Preview(widthDp = 120, heightDp = 42, showBackground = true)
+@Preview(widthDp = 120, showBackground = true)
 @Composable
 private fun ScopeOutlinedStatusActivePreview() {
     Buttons.SecondaryActive(Modifier) {}
 }
 
 
-@Preview(widthDp = 120, heightDp = 42, showBackground = true)
+@Preview(widthDp = 120, showBackground = true)
 @Composable
 private fun ScopeOutlinedStatusInactivePreview() {
     Buttons.SecondaryInactive(Modifier)
+}
+
+@Composable
+fun ActionsButtonsOrder(modifier: Modifier = Modifier) {
+    OutlinedButton(
+        onClick = { },
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp),
+        border = BorderStroke(1.dp, Color(0xff172145)),
+        modifier = modifier
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Track your order",
+                color = Color(0xff172145),
+                textAlign = TextAlign.Center,
+                lineHeight = 11.43.em,
+                style = TextStyle(
+                    fontSize = 14.sp
+                )
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ActionsButtonsOrderPreview() {
+    ActionsButtonsOrder(Modifier)
 }

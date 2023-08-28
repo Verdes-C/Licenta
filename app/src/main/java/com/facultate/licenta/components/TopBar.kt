@@ -58,7 +58,11 @@ fun TopBar(
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Variables.topBarBackground)
             .padding(horizontal = 8.dp)
-            .clickable { navigate.invoke() }
+            .clickable(
+                //_ set the onClick animation to null
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { navigate.invoke() }
     ) {
         if (displayArrow) {
             Icon(

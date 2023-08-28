@@ -69,11 +69,15 @@ fun DisplayFavoritesItem(
                 spotColor = Variables.shadowColor,
                 ambientColor = Variables.shadowColor
             )
-            .heightIn(min = 150.dp, max = 180.dp)
+            .heightIn(min = 130.dp, max = 160.dp)
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Color.White)
             .padding(all = Variables.innerItemGapLow)
-            .clickable { menuIsVisible = false }
+            .clickable(
+                //_ set the onClick animation to null
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { menuIsVisible = false }
     ) {
         Image(
             painter = painterResource(id = favoritesItem.productImage),
@@ -115,7 +119,7 @@ fun DisplayFavoritesItem(
                         )
                     )
                     .padding(all = Variables.innerItemGapLow),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Row(
                     modifier = Modifier

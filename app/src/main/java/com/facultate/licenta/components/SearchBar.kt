@@ -30,9 +30,6 @@ import com.facultate.licenta.ui.theme.Variables
 
 @Composable
 fun SearchBar(modifier: Modifier = Modifier) {
-    val searchText by remember {
-        mutableStateOf("Search...")
-    }
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -64,7 +61,9 @@ fun SearchBar(modifier: Modifier = Modifier) {
 //!            handle search
         }
         IconButton(
-            onClick = { }
+            onClick = {
+                //TODO SEARCH FUNCTION
+            }
         ) {
             Box(
                 modifier = Modifier

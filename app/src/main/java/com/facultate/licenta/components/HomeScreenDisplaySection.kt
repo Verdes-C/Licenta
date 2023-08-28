@@ -26,7 +26,6 @@ fun HomeScreenDisplaySection(
     modifier: Modifier = Modifier,
     itemGap: Dp = Variables.innerItemGap,
     displayText: String,
-    displayTextColor: Color = Variables.blue3,
     textStyle: TextStyle = Typography.h3,
     showMoreOnClick: () -> Unit,
     productsToDisplay: LazyListScope.() -> Unit,
@@ -40,7 +39,6 @@ fun HomeScreenDisplaySection(
         Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = displayText,
-                color = displayTextColor,
                 style = textStyle,
                 modifier = Modifier
                     .wrapContentHeight(align = Alignment.CenterVertically)
