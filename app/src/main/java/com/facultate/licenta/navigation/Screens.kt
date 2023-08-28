@@ -19,5 +19,6 @@ sealed class Screens(val route: String, @StringRes val resourceId: Int) {
 
     //? Nested locations
     object Orders : Screens(route = "profileGraph/orders", resourceId = R.string.orders)
+    object Vouchers : Screens(route = "profileGraph/vouchers", resourceId = R.string.vouchers)
 
 }

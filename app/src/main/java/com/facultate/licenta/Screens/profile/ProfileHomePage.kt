@@ -49,8 +49,11 @@ fun ProfileHomePage(navController: NavHostController) {
                 navController.navigate(Screens.Orders.route)
             },
             MenuEntries.Vouchers to {
+                navController.navigate(Screens.Vouchers.route)
             },
-            MenuEntries.Favorites to { navController.navigate(Screens.Favorites.route) },
+            MenuEntries.Favorites to {
+                navController.navigate(Screens.Favorites.route)
+            },
             MenuEntries.AccountData to {},
             MenuEntries.ShippingAdress to {},
             MenuEntries.Support to {},

@@ -34,6 +34,7 @@ import com.facultate.licenta.Screens.categories.CategoriesPage
 import com.facultate.licenta.Screens.favorites.FavoritesPage
 import com.facultate.licenta.Screens.profile.Orders
 import com.facultate.licenta.Screens.profile.ProfileHomePage
+import com.facultate.licenta.Screens.profile.VouchersPage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
@@ -53,8 +54,11 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
             }
 
             composable(Screens.Orders.route){backStackEntry->
-                Log.d("NAVIGATION", "entered")
                 Orders(navController = navController)
+            }
+
+            composable(Screens.Vouchers.route){backStackEntry->
+                VouchersPage(navController = navController)
             }
         }
 
