@@ -2,24 +2,32 @@ package com.facultate.licenta.screens.favorites
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.DisplayFavoritesItem
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,17 +37,15 @@ fun FavoritesPage(navController: NavHostController) {
     val favoritesItems by remember {
         mutableStateOf(
             listOf(
-                FavoritesItem(rating = 0.2),
-                FavoritesItem(rating = 0.7),
-                FavoritesItem(rating = 1.2),
-                FavoritesItem(rating = 1.7),
-                FavoritesItem(rating = 2.2),
-                FavoritesItem(rating = 2.7),
-                FavoritesItem(rating = 3.2),
-                FavoritesItem(rating = 3.6),
-                FavoritesItem(rating = 4.2),
-                FavoritesItem(rating = 4.7),
-                FavoritesItem(rating = 5.0),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem(),
+                FavoritesItem()
             )
         )
     }
@@ -51,7 +57,7 @@ fun FavoritesPage(navController: NavHostController) {
                 displayArrow = true,
                 menuEntry = MenuEntries.Favorites,
                 navController = navController
-            ){}
+            ) {}
         }
     ) { paddingValues ->
         LazyColumn(
@@ -65,10 +71,39 @@ fun FavoritesPage(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.Start,
         ) {
-            items(items = favoritesItems) { favoriteItem ->
-                DisplayFavoritesItem(modifier = Modifier, favoritesItem = favoriteItem)
+            if (favoritesItems.isEmpty()) {
+                item {
+                    DisplayEmptyFavorites()
+                }
+            } else {
+                items(items = favoritesItems) { favoriteItem ->
+                    DisplayFavoritesItem(modifier = Modifier, favoritesItem = favoriteItem)
+                }
             }
         }
+    }
+}
+
+@Composable
+fun DisplayEmptyFavorites() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "It is quite empty in here.\nLet’s go searching",
+            style = Typography.h3,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(bottom = Variables.innerItemGap)
+                .fillMaxWidth()
+        )
+        Icon(
+            painter = painterResource(id = R.drawable.icon_broken_heart),
+            contentDescription = "Empty favorites icon",
+            tint = Color.Unspecified,
+            modifier = Modifier.padding(bottom = Variables.innerItemGap)
+        )
     }
 }
 

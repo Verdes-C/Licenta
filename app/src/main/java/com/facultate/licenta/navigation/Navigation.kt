@@ -35,6 +35,8 @@ import com.facultate.licenta.screens.favorites.FavoritesPage
 import com.facultate.licenta.screens.profile.AccountDataPage
 import com.facultate.licenta.screens.profile.Orders
 import com.facultate.licenta.screens.profile.ProfileHomePage
+import com.facultate.licenta.screens.profile.RegisterNewUser
+import com.facultate.licenta.screens.profile.ResetPassword
 import com.facultate.licenta.screens.profile.VouchersPage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
@@ -65,6 +67,11 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
             composable(Screens.AccountData.route) { backStackEntry ->
                 AccountDataPage(navController = navController)
             }
+
+            composable(Screens.RegisterUser.route) { backStackEntry ->
+                RegisterNewUser(navController = navController)
+            }
+
         }
 
 
@@ -91,6 +98,10 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
 
         composable(route = Screens.Favorites.route) { backStackEntry ->
             FavoritesPage(navController = navController)
+        }
+
+        composable(route = Screens.ResetPassword.route) { backStackEntry ->
+            ResetPassword(navController = navController)
         }
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->
@@ -139,7 +150,7 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                     //_ Get the selected item in the bottom nav trough the destination of the navController
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
-                    Log.d("TESTING",screens.toString())
+                    Log.d("TESTING", screens.toString())
 
                     screens.forEach { screen ->
                         //_ For each defined screen we profide and icon with a description

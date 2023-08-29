@@ -9,4 +9,6 @@
     <string name="orders">Orders</string>
     <string name="vouchers">Vouchers</string>
     <string name="accountData">Account Data</string>
+    <string name="reset_password">Reset password</string>
+    <string name="register_user">Register User</string>
 </resources>

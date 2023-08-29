@@ -3,6 +3,7 @@ package com.facultate.licenta.screens.cart
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
+import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.DisplayCartItem
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
@@ -31,7 +33,7 @@ import com.facultate.licenta.ui.theme.Variables
 fun CartPage(navController: NavHostController) {
 
     // TODO actualy storage
-    val cartItems = listOf<CartItem>(
+    var cartItems = listOf<CartItem>(
         CartItem(),
         CartItem(productQuantity = 5),
         CartItem(productQuantity = 65),
@@ -49,7 +51,30 @@ fun CartPage(navController: NavHostController) {
                 displayArrow = true,
                 menuEntry = MenuEntries.Cart,
                 navController = navController
-            ){}
+            ) {}
+        },
+        bottomBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = Variables.grey1)
+                    .padding(horizontal = Variables.outerItemGap, vertical = Variables.innerItemGapLow),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Total: $${calculateTotalPrice(cartItems)}", style = Typography.h4, color = Variables.blue3)
+                    Buttons.SecondaryActive(text = "Clear cart") {
+                        cartItems = emptyList()
+                    }
+                }
+                Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
+                    //TODO
+                }
+            }
         }
     ) { paddingValues ->
         LazyColumn(
@@ -78,6 +103,14 @@ fun CartPage(navController: NavHostController) {
             }
         }
     }
+}
+
+fun calculateTotalPrice(cartList: List<CartItem>): Double {
+    var total = 0.0
+    cartList.forEach { cartItem ->
+        total += String.format("%.2f",cartItem.productQuantity * cartItem.productPrice).toDouble()
+    }
+    return total
 }
 
 @Composable
@@ -111,5 +144,5 @@ data class CartItem(
     val productImageDescription: String = "Product image description",
     val productPrice: Double = 123.24,
     var productQuantity: Int = 1,
-    val rating : Double = 2.4
+    val rating: Double = 5.0,
 )

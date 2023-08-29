@@ -21,5 +21,7 @@ sealed class Screens(val route: String, @StringRes val resourceId: Int) {
     object Orders : Screens(route = "profileGraph/orders", resourceId = R.string.orders)
     object Vouchers : Screens(route = "profileGraph/vouchers", resourceId = R.string.vouchers)
     object AccountData : Screens(route = "profileGraph/accountData", resourceId = R.string.accountData)
+    object ResetPassword: Screens(route = "profileGraph/resetPassword", resourceId = R.string.reset_password)
+    object RegisterUser: Screens(route = "profileGraph/register", resourceId = R.string.register_user)
 
 }
