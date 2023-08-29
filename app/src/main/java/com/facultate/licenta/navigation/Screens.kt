@@ -9,7 +9,7 @@ sealed class Screens(val route: String, @StringRes val resourceId: Int) {
     object Categories : Screens(route = "categories", resourceId = R.string.categories)
     object Cart : Screens(route = "cart", resourceId = R.string.cart)
     object Favorites : Screens(route = "favorites", resourceId = R.string.favorites)
-    object Product : Screens(route = "product", resourceId = R.string.product)
+    object Product : Screens(route = "product/", resourceId = R.string.product)
 
     //_ Nested Graph for Profile
     object ProfileGraph : Screens(route = "profileGraph", resourceId = R.string.profile)
@@ -23,5 +23,6 @@ sealed class Screens(val route: String, @StringRes val resourceId: Int) {
     object AccountData : Screens(route = "profileGraph/accountData", resourceId = R.string.accountData)
     object ResetPassword: Screens(route = "profileGraph/resetPassword", resourceId = R.string.reset_password)
     object RegisterUser: Screens(route = "profileGraph/register", resourceId = R.string.register_user)
+
 
 }

@@ -8,7 +8,7 @@ object Variables {
     val topPadding: Dp = 24.dp
     val verticalPadding: Dp = 8.dp
     val innerItemGap: Dp = 12.dp
-    val innerItemGapLow: Dp = 12.dp
+    val innerItemGapLow: Dp = 8.dp
     val outerItemGap: Dp = 20.dp
     val cornerRadius: Dp = 12.dp
     val elevation: Dp = 12.dp

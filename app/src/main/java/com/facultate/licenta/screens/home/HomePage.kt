@@ -37,8 +37,8 @@ fun HomePage(navController: NavHostController) {
                 showMoreOnClick = {
                     //_ Navigate to promotions
                 }) {
-                item { HomeScreenProductDisplay(isSale = true) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false) } }
+                item { HomeScreenProductDisplay(isSale = true, navController = navController) }
+                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
             }
         }
 
@@ -46,8 +46,8 @@ fun HomePage(navController: NavHostController) {
             HomeScreenDisplaySection(displayText = "New arrivals", showMoreOnClick = {
                 //_ Navigate to new arrivals
             }) {
-                item { HomeScreenProductDisplay(isSale = false) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false) } }
+                item { HomeScreenProductDisplay(isSale = false, navController = navController) }
+                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
             }
         }
 
@@ -55,8 +55,8 @@ fun HomePage(navController: NavHostController) {
             HomeScreenDisplaySection(displayText = "Find something new", showMoreOnClick = {
                 //_ Navigate to discover
             }) {
-                item { HomeScreenProductDisplay(isSale = false) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false) } }
+                item { HomeScreenProductDisplay(isSale = false, navController = navController) }
+                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
             }
         }
 
@@ -64,24 +64,24 @@ fun HomePage(navController: NavHostController) {
             HomeScreenDisplaySection(displayText = "Some other section", showMoreOnClick = {
 
             }) {
-                item { HomeScreenProductDisplay(isSale = false) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false) } }
+                item { HomeScreenProductDisplay(isSale = false, navController = navController) }
+                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
             }
         }
         item {
             HomeScreenDisplaySection(displayText = "Some other section", showMoreOnClick = {
 
             }) {
-                item { HomeScreenProductDisplay(isSale = false) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false) } }
+                item { HomeScreenProductDisplay(isSale = false, navController = navController) }
+                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
             }
         }
         item {
             HomeScreenDisplaySection(displayText = "Some other section", showMoreOnClick = {
 
             }) {
-                item { HomeScreenProductDisplay(isSale = false) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false) } }
+                item { HomeScreenProductDisplay(isSale = false, navController = navController) }
+                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
             }
         }
     }

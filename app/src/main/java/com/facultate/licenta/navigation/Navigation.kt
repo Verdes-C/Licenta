@@ -29,9 +29,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.facultate.licenta.screens.cart.CartPage
-import com.facultate.licenta.screens.home.HomePage
 import com.facultate.licenta.screens.categories.CategoriesPage
 import com.facultate.licenta.screens.favorites.FavoritesPage
+import com.facultate.licenta.screens.home.HomePage
+import com.facultate.licenta.screens.product.ProductPage
 import com.facultate.licenta.screens.profile.AccountDataPage
 import com.facultate.licenta.screens.profile.Orders
 import com.facultate.licenta.screens.profile.ProfileHomePage
@@ -75,13 +76,13 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
         }
 
 
-        composable(Screens.Product.route) { backStackEntry ->
+        composable("product/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")
-//                if (productId != null) {
-//                    ProductPage(navController, productId)
-//                } else {
-//                    //! Handle error
-//                }
+            if (productId != null) {
+                ProductPage(navController, productId)
+            } else {
+                //! Handle error
+            }
         }
 
         composable(route = Screens.HomePage.route) { backStackEntry ->
@@ -176,7 +177,14 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                                         it.route?.startsWith(
                                             "profileGraph"
                                         ) == true
-                                    } == true)),
+                                    } == true)) ||
+
+                                    (screen.first == Screens.HomePage && (currentDestination?.hierarchy?.any {
+                                        it.route?.startsWith(
+                                            "product"
+                                        ) == true
+                                    } == true))
+                            ,
                             onClick = {
                                 navController.navigate(screen.first.route) {
                                     // Pop up to the start destination of the graph to

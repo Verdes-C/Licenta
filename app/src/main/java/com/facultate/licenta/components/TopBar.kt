@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -38,7 +39,9 @@ fun TopBar(
     displayArrow: Boolean = false,
     menuEntry: MenuEntry,
     navController: NavHostController? = null,
-    navigate: () -> Unit,
+    navigate: () -> Unit = {
+//    do not navigate
+    },
 ) {
     val colorAfterLogoutCheck =
         if (menuEntry != MenuEntries.Logout) Variables.blue3 else Variables.red
@@ -54,7 +57,6 @@ fun TopBar(
                 ambientColor = Variables.grey6,
                 shape = RoundedCornerShape(size = Variables.cornerRadius)
             )
-            .requiredHeight(height = 48.dp)
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Variables.topBarBackground)
             .padding(horizontal = 8.dp)
@@ -78,20 +80,23 @@ fun TopBar(
                     ) { navController?.popBackStack() }
             )
         }
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .requiredSize(size = 40.dp)
-                .clip(shape = RoundedCornerShape(20.dp))
-                .background(color = Color(0xFFDDE1F1))
-        ) {
-            Icon(
-                painter = painterResource(id = menuEntry.icon),
-                contentDescription = menuEntry.iconDescription,
-                tint = colorAfterLogoutCheck,
+
+        if (menuEntry.icon != null) {
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .requiredSize(size = 24.dp)
-            )
+                    .requiredSize(size = 40.dp)
+                    .clip(shape = RoundedCornerShape(20.dp))
+                    .background(color = Color(0xFFDDE1F1))
+            ) {
+                Icon(
+                    painter = painterResource(id = menuEntry.icon),
+                    contentDescription = menuEntry.iconDescription,
+                    tint = colorAfterLogoutCheck,
+                    modifier = Modifier
+                        .requiredSize(size = 24.dp)
+                )
+            }
         }
         Text(
             text = menuEntry.name,
@@ -100,6 +105,8 @@ fun TopBar(
             fontWeight = FontWeight(700),
             modifier = Modifier
                 .wrapContentHeight(align = Alignment.CenterVertically)
+                .padding(vertical = 4.dp),
+            maxLines = 2
         )
     }
 }
@@ -140,7 +147,7 @@ object MenuEntries {
 
 data class MenuEntry(
     val name: String,
-    val icon: Int,
+    val icon: Int? = null,
     val iconDescription: String,
 )
 

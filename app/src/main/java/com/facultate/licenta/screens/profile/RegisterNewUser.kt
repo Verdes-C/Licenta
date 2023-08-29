@@ -1,5 +1,6 @@
 package com.facultate.licenta.screens.profile
 
+import android.media.tv.TvContract.Channels.Logo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.CustomTextField
+import com.facultate.licenta.components.Logo
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
@@ -69,12 +71,7 @@ fun RegisterNewUser(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.icon_logo),
-                    contentDescription = "Ink Quill logo",
-                    modifier = Modifier,
-                    tint = Variables.blue3
-                )
+                Logo()
                 Text(text = "Discover the art of handwriting", style = Typography.h3)
                 Text(text = "Register", style = Typography.h3)
             }

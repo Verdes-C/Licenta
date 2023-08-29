@@ -41,6 +41,7 @@ import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.CustomTextField
+import com.facultate.licenta.components.Logo
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.MenuEntry
 import com.facultate.licenta.components.SocialLoginPlatforms
@@ -119,12 +120,7 @@ fun DisplayLoginPage(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
-        Icon(
-            imageVector = ImageVector.vectorResource(id = R.drawable.icon_logo),
-            contentDescription = "Ink Qwill logo",
-            modifier = Modifier,
-            tint = Variables.blue3
-        )
+        Logo()
         Text(text = "Let your words flourish", style = Typography.h3)
         Text(text = "Log in", style = Typography.h3)
     }
