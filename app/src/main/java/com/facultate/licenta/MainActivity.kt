@@ -13,15 +13,18 @@ import com.facultate.licenta.navigation.BottomNav
 import com.facultate.licenta.navigation.Screens
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.ui.res.vectorResource
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val viewModel: MainActivityViewModel = hiltViewModel()
+            viewModel.updateUserData()
             val screens = listOf(
                 Screens.HomePage to ImageVector.vectorResource(id = R.drawable.icon_home),
-                Screens.Categories to ImageVector.vectorResource(id = R.drawable.icon_category) ,
+                Screens.Categories to ImageVector.vectorResource(id = R.drawable.icon_category),
                 Screens.Cart to ImageVector.vectorResource(id = R.drawable.icon_cart),
                 Screens.Favorites to ImageVector.vectorResource(id = R.drawable.icon_favorites),
                 Screens.Profile to ImageVector.vectorResource(id = R.drawable.icon_profile)

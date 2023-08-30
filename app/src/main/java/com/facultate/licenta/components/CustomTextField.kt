@@ -32,14 +32,16 @@ fun CustomTextField(
     backgroundColor: Color = Color(0x338DA1DE),
     hideIndicators: Boolean = false,
     fixedOneLine: Boolean = true,
+    isError: Boolean = false,
     onValueChange: (newValue: String) -> Unit,
 ) {
     var inputValue by remember {
         mutableStateOf(initialValue)
     }
     TextField(
-        modifier = modifier.height(56.dp),
+        modifier = modifier.height(56.dp).fillMaxWidth(),
         value = inputValue,
+        isError = isError,
         onValueChange = { newValue ->
             onValueChange(newValue)
             inputValue = newValue
@@ -65,6 +67,6 @@ fun CustomTextField(
             topEnd = Variables.cornerRadius
         ),
         textStyle = Typography.p,
-        maxLines = 1,
+        maxLines = if(fixedOneLine) 1 else 99,
     )
 }

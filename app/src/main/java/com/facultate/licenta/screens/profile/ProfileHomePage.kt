@@ -21,8 +21,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,11 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
@@ -49,9 +49,18 @@ import com.facultate.licenta.components.TopBar
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.validateEmail
+import com.facultate.licenta.utils.validatePassword
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileHomePage(navController: NavHostController) {
+fun ProfileHomePage(
+    navController: NavHostController,
+    viewModel: ProfileViewModel = hiltViewModel(),
+) {
+
+
     val entriesAndNavigation =
         listOf(
             MenuEntries.Orders to {
@@ -68,12 +77,12 @@ fun ProfileHomePage(navController: NavHostController) {
             },
             MenuEntries.ShippingAdress to {},
             MenuEntries.Support to {},
-            MenuEntries.Logout to {},
+            MenuEntries.Logout to {
+                viewModel.logout()
+            },
         )
 
-    var userIsLoggedIn by remember {
-        mutableStateOf(false)
-    }
+    val userIsAuth by viewModel.isAuth.collectAsState()
     LazyColumn(
         modifier = Modifier
             .background(color = Variables.grey1)
@@ -81,7 +90,7 @@ fun ProfileHomePage(navController: NavHostController) {
         verticalArrangement = Arrangement.spacedBy(Variables.outerItemGap),
         horizontalAlignment = Alignment.Start,
     ) {
-        if (userIsLoggedIn) {
+        if (userIsAuth) {
             displayLoggedInUser(
                 lazyListScope = this,
                 navController = navController,
@@ -89,8 +98,8 @@ fun ProfileHomePage(navController: NavHostController) {
             )
         } else {
             item {
-                DisplayLoginPage(navController = navController) {
-                    userIsLoggedIn = true
+                DisplayLoginPage(navController = navController, viewModel = viewModel) {
+//                    userIsLoggedIn = true
                 }
             }
         }
@@ -100,9 +109,11 @@ fun ProfileHomePage(navController: NavHostController) {
 @Composable
 fun DisplayLoginPage(
     navController: NavHostController,
+    viewModel: ProfileViewModel,
     loginTest: () -> Unit,
 ) {
-    var username by remember {
+
+    var email by remember {
         mutableStateOf("")
     }
 
@@ -136,15 +147,17 @@ fun DisplayLoginPage(
         verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap)
     ) {
         CustomTextField(
-            label = "Username",
-            placeholder = "username",
+            label = "Email",
+            placeholder = "example@gmail.com",
             modifier = Modifier.fillMaxWidth()
-        ) { newValue -> username = newValue }
+        ) { newValue -> email = newValue }
+
         CustomTextField(
             label = "Password",
             placeholder = "password",
             modifier = Modifier.fillMaxWidth()
         ) { newValue -> password = newValue }
+
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -171,9 +184,7 @@ fun DisplayLoginPage(
         }
         Buttons.PrimaryActive(modifier = Modifier.fillMaxWidth(), text = "Log in") {
             //TODO login
-
-            //! update
-            loginTest.invoke()
+            viewModel.logInWithEmailAndPassword(email = email, password = password)
         }
 
         Buttons.SecondaryActive(modifier = Modifier.fillMaxWidth(), text = "Sign up") {
@@ -191,6 +202,7 @@ fun DisplayLoginPage(
                 socialPlatform = SocialLoginPlatforms.Google
             ) {
                 //TODO Google Login
+
             }
             Buttons.SocialLogin(
                 modifier = Modifier.weight(1f),
@@ -206,7 +218,7 @@ fun DisplayLoginPage(
 fun displayLoggedInUser(
     lazyListScope: LazyListScope,
     navController: NavHostController,
-    entriesAndNavigation: List<Pair<MenuEntry, () -> Unit>>,
+    entriesAndNavigation: List<Pair<MenuEntry, () -> Any>>,
 ) {
     lazyListScope.item {
         ProfileUserHeading(

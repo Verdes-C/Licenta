@@ -3,6 +3,7 @@ package com.facultate.licenta.redux
 import com.facultate.licenta.screens.cart.CartItem
 import com.facultate.licenta.screens.favorites.FavoritesItem
 import com.facultate.licenta.screens.profile.UserData
+import com.google.firebase.auth.ktx.auth
 
 data class ApplicationState(
     val authState: AuthState = AuthState.Unauthenticated(),
@@ -13,7 +14,7 @@ data class ApplicationState(
 ) {
 
     sealed interface AuthState {
-        data class Authenticated(val user: String) : AuthState
+        data object Authenticated : AuthState
 
         data class Unauthenticated(val errorString: String? = null) : AuthState
     }
