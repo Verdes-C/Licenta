@@ -9,13 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.facultate.licenta.components.CategorySection
 import com.facultate.licenta.components.SearchBar
 import com.facultate.licenta.ui.theme.Variables
 
 @Composable
-fun CategoriesPage(navController: NavHostController) {
+fun CategoriesPage(
+    navController: NavHostController,
+    viewModel: CategoriesViewModel = hiltViewModel(),
+) {
 
     val category1List = listOf(
         "Flexible nib", "Art brush", "Italic & stub nib"

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
@@ -30,7 +31,10 @@ import com.facultate.licenta.ui.theme.Variables
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CartPage(navController: NavHostController) {
+fun CartPage(
+    navController: NavHostController,
+    viewModel: CartPageViewModel = hiltViewModel(),
+) {
 
     // TODO actualy storage
     var cartItems = listOf<CartItem>(
@@ -58,7 +62,10 @@ fun CartPage(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(color = Variables.grey1)
-                    .padding(horizontal = Variables.outerItemGap, vertical = Variables.innerItemGapLow),
+                    .padding(
+                        horizontal = Variables.outerItemGap,
+                        vertical = Variables.innerItemGapLow
+                    ),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Row(
@@ -66,7 +73,11 @@ fun CartPage(navController: NavHostController) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "Total: $${calculateTotalPrice(cartItems)}", style = Typography.h4, color = Variables.blue3)
+                    Text(
+                        text = "Total: $${calculateTotalPrice(cartItems)}",
+                        style = Typography.h4,
+                        color = Variables.blue3
+                    )
                     Buttons.SecondaryActive(text = "Clear cart") {
                         cartItems = emptyList()
                     }
@@ -108,7 +119,7 @@ fun CartPage(navController: NavHostController) {
 fun calculateTotalPrice(cartList: List<CartItem>): Double {
     var total = 0.0
     cartList.forEach { cartItem ->
-        total += String.format("%.2f",cartItem.productQuantity * cartItem.productPrice).toDouble()
+        total += String.format("%.2f", cartItem.productQuantity * cartItem.productPrice).toDouble()
     }
     return total
 }

@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import com.facultate.licenta.components.HomeScreenDisplaySection
 import com.facultate.licenta.components.HomeScreenProductDisplay
@@ -16,8 +19,14 @@ import com.facultate.licenta.components.SearchBar
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
+
 @Composable
-fun HomePage(navController: NavHostController) {
+fun HomePage(
+    navController: NavHostController,
+    viewModel: HomePageViewModel = hiltViewModel(),
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+) {
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -27,7 +36,7 @@ fun HomePage(navController: NavHostController) {
         horizontalAlignment = Alignment.Start,
     ) {
         item {
-            SearchBar( )
+            SearchBar()
         }
         //_ Promotions section
         item {
@@ -38,7 +47,14 @@ fun HomePage(navController: NavHostController) {
                     //_ Navigate to promotions
                 }) {
                 item { HomeScreenProductDisplay(isSale = true, navController = navController) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
+                repeat(7) {
+                    item {
+                        HomeScreenProductDisplay(
+                            isSale = false,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
 
@@ -47,7 +63,14 @@ fun HomePage(navController: NavHostController) {
                 //_ Navigate to new arrivals
             }) {
                 item { HomeScreenProductDisplay(isSale = false, navController = navController) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
+                repeat(7) {
+                    item {
+                        HomeScreenProductDisplay(
+                            isSale = false,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
 
@@ -56,7 +79,14 @@ fun HomePage(navController: NavHostController) {
                 //_ Navigate to discover
             }) {
                 item { HomeScreenProductDisplay(isSale = false, navController = navController) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
+                repeat(7) {
+                    item {
+                        HomeScreenProductDisplay(
+                            isSale = false,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
 
@@ -65,7 +95,14 @@ fun HomePage(navController: NavHostController) {
 
             }) {
                 item { HomeScreenProductDisplay(isSale = false, navController = navController) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
+                repeat(7) {
+                    item {
+                        HomeScreenProductDisplay(
+                            isSale = false,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
         item {
@@ -73,7 +110,14 @@ fun HomePage(navController: NavHostController) {
 
             }) {
                 item { HomeScreenProductDisplay(isSale = false, navController = navController) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
+                repeat(7) {
+                    item {
+                        HomeScreenProductDisplay(
+                            isSale = false,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
         item {
@@ -81,7 +125,14 @@ fun HomePage(navController: NavHostController) {
 
             }) {
                 item { HomeScreenProductDisplay(isSale = false, navController = navController) }
-                repeat(7) { item { HomeScreenProductDisplay(isSale = false, navController = navController) } }
+                repeat(7) {
+                    item {
+                        HomeScreenProductDisplay(
+                            isSale = false,
+                            navController = navController
+                        )
+                    }
+                }
             }
         }
     }

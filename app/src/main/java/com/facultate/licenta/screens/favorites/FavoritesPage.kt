@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.DisplayFavoritesItem
@@ -32,7 +33,10 @@ import com.facultate.licenta.ui.theme.Variables
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesPage(navController: NavHostController) {
+fun FavoritesPage(
+    navController: NavHostController,
+    viewModel: FavoritesViewmodel = hiltViewModel(),
+) {
 
     val favoritesItems by remember {
         mutableStateOf(

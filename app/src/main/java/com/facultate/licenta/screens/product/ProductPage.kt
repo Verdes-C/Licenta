@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
@@ -68,7 +69,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProductPage(navController: NavHostController, productId: String) {
+fun ProductPage(
+    navController: NavHostController, productId: String,
+    viewModel: ProductPageViewModel = hiltViewModel(),
+) {
     val product = Product()
 
     val scrollState = rememberLazyListState()
@@ -379,6 +383,16 @@ fun ProductPage(navController: NavHostController, productId: String) {
                         DisplayReview(review = review)
                     }
                 }
+                Text(
+                    text = "Show more",
+                    style = Typography.caption,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = Variables.innerItemGap)
+                        .clickable {
+                            //TODO
+                        })
             }
 
             //? Spacer to fix UI
