@@ -51,6 +51,7 @@ import com.facultate.licenta.components.TopBar
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.UserData
 import com.facultate.licenta.utils.validateEmail
 import com.facultate.licenta.utils.validatePassword
 import kotlinx.coroutines.delay
@@ -85,10 +86,12 @@ fun ProfileHomePage(
         )
 
     val userIsAuth by viewModel.isAuth.collectAsState()
+    val userData by viewModel.userData.collectAsState()
 
     LaunchedEffect(key1 = Unit) {
         viewModel.viewModelScope.launch {
             viewModel.isAuth()
+            viewModel.readUserData()
         }
     }
 
@@ -103,6 +106,7 @@ fun ProfileHomePage(
             displayLoggedInUser(
                 lazyListScope = this,
                 navController = navController,
+                userData = userData!!,
                 entriesAndNavigation = entriesAndNavigation
             )
         } else {
@@ -110,7 +114,6 @@ fun ProfileHomePage(
                 DisplayLoginPage(
                     navController = navController,
                     viewModel = viewModel,
-                    sharedViewModel
                 )
             }
         }
@@ -121,7 +124,6 @@ fun ProfileHomePage(
 fun DisplayLoginPage(
     navController: NavHostController,
     viewModel: ProfileViewModel,
-    sharedViewModel: MainActivityViewModel
 ) {
 
     var email by remember {
@@ -275,13 +277,15 @@ fun DisplayLoginPage(
 fun displayLoggedInUser(
     lazyListScope: LazyListScope,
     navController: NavHostController,
+    userData: UserData,
     entriesAndNavigation: List<Pair<MenuEntry, () -> Any>>,
 ) {
     lazyListScope.item {
         ProfileUserHeading(
             modifier = Modifier
                 .padding(top = Variables.outerItemGap)
-                .padding(horizontal = Variables.outerItemGap)
+                .padding(horizontal = Variables.outerItemGap),
+            userData = userData
         ) {
             navController.navigate(Screens.AccountData.route)
         }
@@ -310,12 +314,13 @@ fun displayLoggedInUser(
 }
 
 @Composable
-fun ProfileUserHeading(modifier: Modifier = Modifier, onEditClick: () -> Unit) {
+fun ProfileUserHeading(modifier: Modifier = Modifier, userData: UserData, onEditClick: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGapLow, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
+            .height(60.dp)
             .shadow(
                 elevation = Variables.elevation,
                 spotColor = Variables.shadowColor,
@@ -325,16 +330,16 @@ fun ProfileUserHeading(modifier: Modifier = Modifier, onEditClick: () -> Unit) {
             .background(color = Color.White)
             .padding(horizontal = Variables.innerItemGap)
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.image_placeholder),
-            contentDescription = "User Profile Image",
-            modifier = Modifier
-                .requiredSize(size = 60.dp)
-                .clip(shape = CircleShape)
-        )
+//        Image(
+//            painter = painterResource(id = R.drawable.image_placeholder),
+//            contentDescription = "User Profile Image",
+//            modifier = Modifier
+//                .requiredSize(size = 60.dp)
+//                .clip(shape = CircleShape)
+//        )
 
         Text(
-            text = "Marvin McKinney",
+            text = if (userData.firstName.isNotEmpty() || userData.lastName.isNotEmpty()) "${userData.firstName} ${userData.lastName}" else "Proud User",
             style = Typography.h4,
             modifier = Modifier
                 .weight(1f)

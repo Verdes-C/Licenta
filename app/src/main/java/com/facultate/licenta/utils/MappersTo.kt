@@ -219,6 +219,14 @@ data class UserData(
     var state: String = "",
     var favoriteItems: Set<FavoriteItem> = setOf(),
     var cartItem: List<CartItem> = listOf<CartItem>(),
+//    var cardPayment: CardPayment = CardPayment() SOON
+)
+
+data class CardPayment(
+    val nameOnCard: String = "",
+    val cardNumber: String = "",
+    val expirationDate: String = "",
+    val csvString:String = ""
 )
 
 data class TagData(

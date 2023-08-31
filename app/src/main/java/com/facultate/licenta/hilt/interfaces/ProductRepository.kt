@@ -9,11 +9,15 @@ import kotlinx.coroutines.CoroutineScope
 
 interface ProductRepository {
     suspend fun signUpUsingEmailAndPassword(viewModelScope: CoroutineScope,email:String, password: String)
-    suspend fun  logInWithEmailAndPassword(
+    suspend fun  retrieveUserData(
         viewModelScope: CoroutineScope,
         email: String,
         password: String
     ): UserData?
+
+    suspend fun updateUserData(
+        userData: UserData
+    )
     suspend fun getSpecialProducts(collection: String): List<Product>
     suspend fun getCartItem(
         cartItem: CartItemShort,

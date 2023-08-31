@@ -1,6 +1,7 @@
 package com.facultate.licenta.screens.favorites
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +40,7 @@ import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import kotlinx.coroutines.launch
+import okhttp3.internal.checkDuration
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,6 +93,16 @@ fun FavoritesPage(
                     DisplayFavoriteItem(
                         modifier = Modifier,
                         favoritesItem = favoriteItem,
+                        addToCart = {
+                            viewModel.viewModelScope.launch {
+                                viewModel.addToCart(
+                                    productId = favoriteItem.id,
+                                    productCategory = favoriteItem.category,
+                                    discount = favoriteItem.discount,
+                                    quantity = 1
+                                )
+                            }
+                        },
                         removeFromFavorite = {
                             viewModel.viewModelScope.launch {
                                 viewModel.removeFromFavorite(

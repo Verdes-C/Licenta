@@ -59,7 +59,7 @@ fun TopBar(
             )
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Variables.topBarBackground)
-            .padding(horizontal = 8.dp)
+            .padding(all = 8.dp)
             .clickable(
                 //_ set the onClick animation to null
                 interactionSource = remember { MutableInteractionSource() },

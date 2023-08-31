@@ -1,5 +1,6 @@
 package com.facultate.licenta.screens.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,13 +21,23 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
@@ -34,14 +45,64 @@ import com.facultate.licenta.components.CustomTextField
 import com.facultate.licenta.components.DisplayCardPaymentDetails
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import com.facultate.licenta.utils.UserData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountDataPage(navController: NavHostController) {
-    val userData = UserData(email = "") //TODO change
+fun AccountDataPage(
+    navController: NavHostController,
+    viewModel: ProfileViewModel = hiltViewModel()
+) {
+
+    val context = LocalContext.current
+
+    val userData = viewModel.userData.collectAsState()
+
+
+    var firstName by remember {
+        mutableStateOf("")
+    }
+    var lastName by remember {
+        mutableStateOf("")
+    }
+    var email by remember {
+        mutableStateOf("")
+    }
+    var phoneNumber by remember {
+        mutableStateOf("")
+    }
+    var address by remember {
+        mutableStateOf("")
+    }
+    var zipCode by remember {
+        mutableStateOf("")
+    }
+    var city by remember {
+        mutableStateOf("")
+    }
+    var state by remember {
+        mutableStateOf("")
+    }
+
+    LaunchedEffect(key1 = userData) {
+        viewModel.viewModelScope.launch {
+//            viewModel.readUserData()
+//            println(userData)
+            firstName = userData.value?.firstName ?: ""
+            lastName = userData.value?.lastName ?: ""
+            email = userData.value?.email ?: ""
+            phoneNumber = userData.value?.phoneNumber ?: ""
+            address = userData.value?.address ?: ""
+            zipCode = userData.value?.zipCode ?: ""
+            city = userData.value?.city ?: ""
+            state = userData.value?.state ?: ""
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -62,34 +123,6 @@ fun AccountDataPage(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap),
         ) {
 
-            //_ Profile image
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Box(
-                        modifier = Modifier
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.image_placeholder),
-                            contentDescription = "Profile image",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(160.dp)
-                                .clip(shape = CircleShape)
-                                .align(alignment = Alignment.Center)
-                        )
-                        Icon(
-                            painter = painterResource(id = R.drawable.icon_edit),
-                            contentDescription = "Edit profile Image",
-                            modifier = Modifier.align(alignment = Alignment.TopEnd),
-                            tint = Variables.blue3
-                        )
-                    }
-                }
-            }
-
             //_ Personal information
             item {
                 Text(text = "Personal information", style = Typography.h3)
@@ -105,36 +138,37 @@ fun AccountDataPage(navController: NavHostController) {
                     item {
                         CustomTextField(
                             label = "First name",
-                            placeholder = "Ion"
+                            placeholder = firstName
                         ) { newValue ->
-                            userData.firstName = newValue
+                            firstName = newValue
+                            println(firstName)
                         }
                     }
 
                     item {
                         CustomTextField(
                             label = "Last name",
-                            placeholder = "Ionescu"
+                            placeholder = lastName
                         ) { newValue ->
-                            userData.lastName = newValue
+                            lastName = newValue
                         }
                     }
 
                     item {
                         CustomTextField(
                             label = "Email",
-                            placeholder = "ionionescu@gmail.com"
+                            placeholder = email
                         ) { newValue ->
-                            userData.email = newValue
+                            email = newValue
                         }
                     }
 
                     item {
                         CustomTextField(
                             label = "Phone number",
-                            placeholder = "0723456789"
+                            placeholder = phoneNumber
                         ) { newValue ->
-                            userData.phoneNumber = newValue
+                            phoneNumber = newValue
                         }
                     }
 
@@ -155,30 +189,36 @@ fun AccountDataPage(navController: NavHostController) {
                     item {
                         CustomTextField(
                             label = "Address",
-                            placeholder = "Str. Lacului, Nr. 2, Bl. X2, Ap.24"
+                            placeholder = address
                         ) { newValue ->
-                            userData.address = newValue
+                            address = newValue
                         }
                     }
 
                     item {
                         CustomTextField(
                             label = "ZIP code",
-                            placeholder = "032123"
+                            placeholder = zipCode
                         ) { newValue ->
-                            userData.zipCode = newValue
+                            zipCode = newValue
                         }
                     }
 
                     item {
-                        CustomTextField(label = "City", placeholder = "Bucuresti") { newValue ->
-                            userData.city = newValue
+                        CustomTextField(
+                            label = "City",
+                            placeholder = city
+                        ) { newValue ->
+                            city = newValue
                         }
                     }
 
                     item {
-                        CustomTextField(label = "State", placeholder = "Romania") { newValue ->
-                            userData.state = newValue
+                        CustomTextField(
+                            label = "State",
+                            placeholder = state
+                        ) { newValue ->
+                            state = newValue
                         }
                     }
                 }
@@ -189,7 +229,7 @@ fun AccountDataPage(navController: NavHostController) {
                 Text(text = "Main payment method", style = Typography.h4)
             }
             item {
-                DisplayCardPaymentDetails(userData = userData)
+                DisplayCardPaymentDetails(userData = UserData(email = ""))
             }
             item {
                 Row(
@@ -199,6 +239,25 @@ fun AccountDataPage(navController: NavHostController) {
                 ) {
                     Buttons.PrimaryActive(modifier = Modifier.fillMaxWidth(), text = "Save data") {
                         //TODO  save data
+                        viewModel.viewModelScope.launch {
+                            viewModel.updateUserDetails(
+                                userData = UserData(
+                                    firstName = firstName,
+                                    lastName = lastName,
+                                    email = email,
+                                    phoneNumber = phoneNumber,
+                                    address = address,
+                                    zipCode = zipCode,
+                                    city = city,
+                                    state = state,
+                                    favoriteItems = userData.value!!.favoriteItems,
+                                    cartItem = userData.value!!.cartItem,
+                                )
+                            )
+                            Toast.makeText(
+                                context, "Data saved successfully", Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
@@ -213,11 +272,6 @@ fun AccountDataPage(navController: NavHostController) {
         }
     }
 }
-
-
-
-
-
 
 
 fun formatCreditCardNumber(input: String): String {

@@ -1,6 +1,7 @@
 package com.facultate.licenta.components
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,9 +52,12 @@ import com.facultate.licenta.ui.theme.Variables
 fun DisplayFavoriteItem(
     modifier: Modifier = Modifier,
     favoritesItem: Product,
-    removeFromFavorite: ()->Unit,
-    navigate: ()-> Unit
+    removeFromFavorite: () -> Unit,
+    addToCart: () -> Unit,
+    navigate: () -> Unit
 ) {
+
+    val context = LocalContext.current
 
     var menuIsVisible by remember {
         mutableStateOf(false)
@@ -190,14 +195,22 @@ fun DisplayFavoriteItem(
                                     interactionSource = MutableInteractionSource(),
                                     indication = null
                                 ) {
-                                    // TODO add to cart
+
+                                    Toast
+                                        .makeText(
+                                            context,
+                                            "Product added to the cart",
+                                            Toast.LENGTH_SHORT
+                                        )
+                                        .show()
+                                    addToCart.invoke()
                                 })
                     }
                 }
             }
 
             if (menuIsVisible) {
-                Log.d("TESTING","menu is visible")
+                Log.d("TESTING", "menu is visible")
                 DisplayFavoritesOptionMenu(
                     modifier = Modifier.align(Alignment.TopEnd),
                     removeFromFavorite = removeFromFavorite

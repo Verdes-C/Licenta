@@ -35,33 +35,23 @@ class FirebaseProductRepository @Inject constructor(
             auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { result ->
                 if (result.isSuccessful) {
                     viewModelScope.launch {
-                        logInWithEmailAndPassword(
+                        val userData = retrieveUserData(
                             viewModelScope = viewModelScope,
                             email = email,
                             password = password
                         )
+                        if (userData != null) {
+                            updateUserData(userData = userData)
+                        }
+
                     }
                 }
             }.await()
 
-            firestore.collection("Users")
-                .document(email)
-                .set(
-                    MappersTo.mapOfUserData(
-                        userData = UserData(
-                            email = email
-                        )
-                    ),
-                    SetOptions.merge()  //_ Create or merge data
-                )
-                .addOnSuccessListener {
-                    Log.d("TESTING", "saved")
-                }
-                .await()
         }
     }
 
-    override suspend fun logInWithEmailAndPassword(
+    override suspend fun retrieveUserData(
         viewModelScope: CoroutineScope,
         email: String,
         password: String
@@ -72,6 +62,23 @@ class FirebaseProductRepository @Inject constructor(
         userData = MappersTo.userData(document.data)
 
         return@coroutineScope userData
+    }
+
+    override suspend fun updateUserData(
+        userData: UserData
+    ){
+        firestore.collection("Users")
+            .document(userData.email)
+            .set(
+                MappersTo.mapOfUserData(
+                    userData = userData
+                ),
+                SetOptions.merge()  //_ Create or merge data
+            )
+            .addOnSuccessListener {
+                Log.d("TESTING", "saved")
+            }
+            .await()
     }
 
     /**
