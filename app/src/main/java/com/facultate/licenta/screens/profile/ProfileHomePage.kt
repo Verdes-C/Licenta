@@ -83,6 +83,7 @@ fun ProfileHomePage(
         )
 
     val userIsAuth by viewModel.isAuth.collectAsState()
+
     LazyColumn(
         modifier = Modifier
             .background(color = Variables.grey1)
@@ -98,9 +99,7 @@ fun ProfileHomePage(
             )
         } else {
             item {
-                DisplayLoginPage(navController = navController, viewModel = viewModel) {
-//                    userIsLoggedIn = true
-                }
+                DisplayLoginPage(navController = navController, viewModel = viewModel)
             }
         }
     }
@@ -110,19 +109,35 @@ fun ProfileHomePage(
 fun DisplayLoginPage(
     navController: NavHostController,
     viewModel: ProfileViewModel,
-    loginTest: () -> Unit,
 ) {
 
     var email by remember {
         mutableStateOf("")
     }
 
+    var emailValidationFailed by remember {
+        mutableStateOf(
+            false to ""
+        )
+    }
+
     var password by remember {
         mutableStateOf("")
     }
 
+    var passwordValidationFailed by remember {
+        mutableStateOf(
+            false to ""
+        )
+    }
+
     var keepLoggedIn by remember {
         mutableStateOf(false)
+    }
+    var failedLogin by remember {
+        mutableStateOf(
+            false to ""
+        )
     }
     Column(
         modifier = Modifier
@@ -147,15 +162,18 @@ fun DisplayLoginPage(
         verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap)
     ) {
         CustomTextField(
-            label = "Email",
+            label = emailValidationFailed.second.ifEmpty { "Email" },
             placeholder = "example@gmail.com",
+            isError = emailValidationFailed.first,
             modifier = Modifier.fillMaxWidth()
         ) { newValue -> email = newValue }
 
         CustomTextField(
-            label = "Password",
+            label = passwordValidationFailed.second.ifEmpty { "Password" },
+            isError = passwordValidationFailed.first,
             placeholder = "password",
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isPassword = true
         ) { newValue -> password = newValue }
 
         Box(
@@ -183,8 +201,21 @@ fun DisplayLoginPage(
             }
         }
         Buttons.PrimaryActive(modifier = Modifier.fillMaxWidth(), text = "Log in") {
-            //TODO login
-            viewModel.logInWithEmailAndPassword(email = email, password = password)
+            //TODO validation
+            if (!validateEmail(email)) {
+                emailValidationFailed = true to "Please input a valid email address"
+                return@PrimaryActive
+            }
+            if (!validatePassword(password)) {
+                passwordValidationFailed = true to "Password format does not match"
+                return@PrimaryActive
+            }
+            if (
+                validateEmail(email) && validatePassword(password)
+            ) {
+                viewModel.logInWithEmailAndPassword(email = email, password = password)
+                //todo validation for wrong credentials
+            }
         }
 
         Buttons.SecondaryActive(modifier = Modifier.fillMaxWidth(), text = "Sign up") {
@@ -210,6 +241,14 @@ fun DisplayLoginPage(
             ) {
                 //TODO Facebook Login
             }
+        }
+        if (failedLogin.first) {
+            Text(
+                text = failedLogin.second,
+                style = Typography.h4.copy(color = Color.Red),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 

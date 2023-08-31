@@ -1,7 +1,6 @@
 package com.facultate.licenta.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +23,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,19 +36,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
+import coil.compose.AsyncImage
 import com.facultate.licenta.R
 import com.facultate.licenta.screens.cart.CartItem
+import com.facultate.licenta.screens.cart.CartPageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
 
 @Composable
-fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem()) {
-
-    var quantity by remember {
-        mutableIntStateOf(cartItem.productQuantity)
-    }
+fun DisplayCartItem(
+    modifier: Modifier = Modifier,
+    cartItem: CartItem = CartItem(),
+    viewModel: CartPageViewModel,
+    isFavorite: Boolean = false,
+    navigateToProduct: () -> Unit
+) {
 
     var menuIsVisible by remember {
         mutableStateOf(false)
@@ -73,11 +77,18 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                 //_ set the onClick animation to null
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { menuIsVisible = false }
+            ) {
+                if (menuIsVisible == true) {
+                    menuIsVisible = false
+                } else {
+                    navigateToProduct()
+                }
+            }
     ) {
-        Image(
-            painter = painterResource(id = cartItem.productImage),
-            contentDescription = cartItem.productImageDescription,
+
+
+        AsyncImage(
+            model = cartItem.productImage, contentDescription = cartItem.productImageDescription,
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxHeight()
@@ -95,7 +106,6 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                         bottomStart = Variables.cornerRadius
                     )
                 )
-//                .padding(all = Variables.innerItemGapLow)
         )
         Box(modifier = Modifier) {
             Column(
@@ -138,7 +148,9 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                         tint = Variables.blue3,
                         modifier = Modifier
                             .requiredSize(size = 24.dp)
-                            .clickable { menuIsVisible = !menuIsVisible }
+                            .clickable {
+                                menuIsVisible = !menuIsVisible
+                            }
                     )
                 }
                 DisplayRating(rating = cartItem.rating)
@@ -152,7 +164,7 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                         text = "$${
                             String.format(
                                 "%.2f",
-                                ceil(cartItem.productPrice * quantity * 100) / 100
+                                ceil(cartItem.productPrice * cartItem.productQuantity * 100) / 100
                             )
                         }",
                         color = Variables.blue3,
@@ -181,11 +193,18 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
                                 ) {
-                                    if (quantity > 1) quantity -= 1
+                                    if (cartItem.productQuantity > 1) {
+                                        viewModel.viewModelScope.launch {
+                                            viewModel.updateCartProduct(
+                                                productId = cartItem.productId,
+                                                quantity = cartItem.productQuantity - 1
+                                            )
+                                        }
+                                    }
                                 }
                         )
                         Text(
-                            text = "$quantity",
+                            text = "${cartItem.productQuantity}",
                             color = Color(0xff163688),
                             style = Typography.pBig,
                             fontWeight = FontWeight.Bold,
@@ -205,7 +224,14 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
                                     //_ set the onClick animation to null
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null
-                                ) { quantity += 1 }
+                                ) {
+                                    viewModel.viewModelScope.launch {
+                                        viewModel.updateCartProduct(
+                                            productId = cartItem.productId,
+                                            quantity = cartItem.productQuantity + 1
+                                        )
+                                    }
+                                }
                         )
                     }
                 }
@@ -213,10 +239,27 @@ fun DisplayCartItem(modifier: Modifier = Modifier, cartItem: CartItem = CartItem
             if (menuIsVisible) {
                 DisplayCartOptionMenu(
                     modifier = Modifier.align(Alignment.TopEnd),
-                    cartItem = cartItem
-                ){
-                    menuIsVisible = false
-                }
+                    isFavorite = isFavorite,
+                    closeTheMenu = {
+                        menuIsVisible = !menuIsVisible
+                    },
+                    addOrRemoveFromFavorites = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.addOrRemoveFromFavorites(
+                                productId = cartItem.productId,
+                                productCategory = cartItem.productCategory
+                            )
+                        }
+                    },
+                    removeFromCart = {
+                        viewModel.viewModelScope.launch {
+                            viewModel.removeFromCart(
+                                productId = cartItem.productId,
+                                productCategory = cartItem.productCategory
+                            )
+                        }
+                    }
+                )
             }
         }
     }

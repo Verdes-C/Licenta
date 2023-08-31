@@ -18,13 +18,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.facultate.licenta.screens.cart.CartItem
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 
 @Composable
-fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: ()-> Unit) {
+fun DisplayCartOptionMenu(
+    modifier: Modifier,
+    isFavorite: Boolean,
+    closeTheMenu: () -> Unit,
+    addOrRemoveFromFavorites: () -> Unit,
+    removeFromCart: () -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.Top),
         horizontalAlignment = Alignment.End,
@@ -41,7 +46,7 @@ fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: 
             .padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Text(
-            text = "Add to favorites",
+            text = if (isFavorite) "Remove from favorites" else "Add to favorites",
             color = Variables.blue3,
             style = Typography.p,
             modifier = Modifier
@@ -53,6 +58,7 @@ fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: 
                     indication = null
                 ) {
                     // add to favorites
+                    addOrRemoveFromFavorites.invoke()
                     closeTheMenu.invoke()
                 })
         Text(
@@ -68,6 +74,7 @@ fun DisplayCartOptionMenu(modifier: Modifier, cartItem: CartItem, closeTheMenu: 
                     indication = null
                 ) {
                     // remove from cart
+                    removeFromCart.invoke()
                     closeTheMenu.invoke()
                 }
         )

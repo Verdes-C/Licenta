@@ -1,5 +1,6 @@
 package com.facultate.licenta.screens.cart
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,20 +15,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.DisplayCartItem
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.FavoriteItem
+import kotlinx.coroutines.launch
+import retrofit2.http.Url
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,17 +45,16 @@ fun CartPage(
     viewModel: CartPageViewModel = hiltViewModel(),
 ) {
 
-    // TODO actualy storage
-    var cartItems = listOf<CartItem>(
-        CartItem(),
-        CartItem(productQuantity = 5),
-        CartItem(productQuantity = 65),
-        CartItem(productQuantity = 25),
-        CartItem(productQuantity = 15),
-        CartItem(productQuantity = 7),
-        CartItem(productQuantity = 4),
-        CartItem(productQuantity = 35)
-    )
+    val cartItems by viewModel.cartProducts.collectAsState()
+    val favoriteItems by viewModel.favoriteItems.collectAsState()
+
+    if (cartItems.isEmpty()) {
+        LaunchedEffect(key1 = cartItems) {
+            viewModel.viewModelScope.launch {
+                viewModel.updateCartProducts()
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -79,7 +87,9 @@ fun CartPage(
                         color = Variables.blue3
                     )
                     Buttons.SecondaryActive(text = "Clear cart") {
-                        cartItems = emptyList()
+                        viewModel.viewModelScope.launch {
+                            viewModel.clearCart()
+                        }
                     }
                 }
                 Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
@@ -108,8 +118,19 @@ fun CartPage(
                     // TODO modify to take CartItem
                     DisplayCartItem(
                         cartItem = cartItem,
-                        modifier = Modifier
-                    )
+                        modifier = Modifier,
+                        viewModel = viewModel,
+                        isFavorite = favoriteItems.contains(
+                            FavoriteItem(
+                                productId = cartItem.productId,
+                                category = cartItem.productCategory
+                            )
+                        )
+                    ) {
+                        val route =
+                            "${Screens.Product.route}/${Uri.encode(cartItem.productCategory)}/${cartItem.productId}"
+                        navController.navigate(route)
+                    }
                 }
             }
         }
@@ -151,9 +172,11 @@ data class CartItem(
 //    TODO remove defaults other than quantity
     val productId: String = "123123123",
     val productName: String = "ProductName",
-    val productImage: Int = R.drawable.image_placeholder,
+    val productImage: String = "",
     val productImageDescription: String = "Product image description",
     val productPrice: Double = 123.24,
+    val productDiscount: Double = 0.0,
+    val productCategory: String = "",
     var productQuantity: Int = 1,
     val rating: Double = 5.0,
 )

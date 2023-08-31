@@ -1,5 +1,6 @@
 package com.facultate.licenta.components
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,16 +39,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.facultate.licenta.R
-import com.facultate.licenta.screens.favorites.FavoritesItem
+import com.facultate.licenta.screens.product.Product
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 
 @Composable
-fun DisplayFavoritesItem(
+fun DisplayFavoriteItem(
     modifier: Modifier = Modifier,
-    favoritesItem: FavoritesItem = FavoritesItem(),
+    favoritesItem: Product,
+    removeFromFavorite: ()->Unit,
+    navigate: ()-> Unit
 ) {
 
     var menuIsVisible by remember {
@@ -73,9 +77,9 @@ fun DisplayFavoritesItem(
                 indication = null
             ) { menuIsVisible = false }
     ) {
-        Image(
-            painter = painterResource(id = favoritesItem.productImage),
-            contentDescription = favoritesItem.productImageDescription,
+        AsyncImage(
+            model = favoritesItem.images.first(),
+            contentDescription = favoritesItem.description,
             contentScale = ContentScale.FillWidth,
             modifier = Modifier
                 .fillMaxHeight()
@@ -93,7 +97,9 @@ fun DisplayFavoritesItem(
                         bottomStart = Variables.cornerRadius
                     )
                 )
-//                .padding(all = Variables.innerItemGapLow)
+                .clickable {
+                    navigate.invoke()
+                }
         )
         Box(modifier = Modifier) {
             Column(
@@ -123,7 +129,7 @@ fun DisplayFavoritesItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = favoritesItem.productName,
+                        text = favoritesItem.name,
                         color = Variables.blue3,
                         style = Typography.p,
                         fontWeight = FontWeight.Bold,
@@ -146,7 +152,7 @@ fun DisplayFavoritesItem(
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "${favoritesItem.reviewsNumber} reviews",
+                        text = "${favoritesItem.reviews.size} reviews",
                         style = Typography.p,
                         color = Variables.blue3
                     )
@@ -161,7 +167,7 @@ fun DisplayFavoritesItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$${favoritesItem.productPrice}",
+                        text = "$${favoritesItem.price - favoritesItem.price * favoritesItem.discount}",
                         color = Variables.blue3,
                         style = Typography.pBig,
                         fontWeight = FontWeight.Bold,
@@ -191,9 +197,10 @@ fun DisplayFavoritesItem(
             }
 
             if (menuIsVisible) {
+                Log.d("TESTING","menu is visible")
                 DisplayFavoritesOptionMenu(
                     modifier = Modifier.align(Alignment.TopEnd),
-                    favoritesItem = favoritesItem
+                    removeFromFavorite = removeFromFavorite
                 ) {
                     menuIsVisible = false
                 }
@@ -201,14 +208,6 @@ fun DisplayFavoritesItem(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun DisplayItemPreview() {
-    DisplayFavoritesItem()
-}
-
-
 
 @Preview(showBackground = true)
 @Composable

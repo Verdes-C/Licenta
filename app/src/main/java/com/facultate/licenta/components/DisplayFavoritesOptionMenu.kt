@@ -1,5 +1,6 @@
 package com.facultate.licenta.components
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,14 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.facultate.licenta.screens.favorites.FavoritesItem
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 @Composable
 fun DisplayFavoritesOptionMenu(
     modifier: Modifier,
-    favoritesItem: FavoritesItem,
+    removeFromFavorite: ()->Unit,
     closeTheMenu: ()-> Unit
 ) {
     Column(
@@ -55,7 +55,8 @@ fun DisplayFavoritesOptionMenu(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
                 ) {
-                    // add to favorites
+                    Log.d("TESTING","inside of the remove from favorites text")
+                    removeFromFavorite.invoke()
                     closeTheMenu.invoke()
                 })
 

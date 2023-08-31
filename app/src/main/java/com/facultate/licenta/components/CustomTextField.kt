@@ -16,6 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.facultate.licenta.ui.theme.Typography
@@ -33,13 +35,16 @@ fun CustomTextField(
     hideIndicators: Boolean = false,
     fixedOneLine: Boolean = true,
     isError: Boolean = false,
+    isPassword: Boolean = false,
     onValueChange: (newValue: String) -> Unit,
 ) {
     var inputValue by remember {
         mutableStateOf(initialValue)
     }
     TextField(
-        modifier = modifier.height(56.dp).fillMaxWidth(),
+        modifier = modifier
+            .height(56.dp)
+            .fillMaxWidth(),
         value = inputValue,
         isError = isError,
         onValueChange = { newValue ->
@@ -56,7 +61,13 @@ fun CustomTextField(
             )
         },
         placeholder = {
-                Text(placeholder, color = textColor, modifier = Modifier.fillMaxWidth(), style = Typography.p, overflow = TextOverflow.Ellipsis)
+            Text(
+                placeholder,
+                color = textColor,
+                modifier = Modifier.fillMaxWidth(),
+                style = Typography.p,
+                overflow = TextOverflow.Ellipsis
+            )
         },
         colors = TextFieldDefaults.textFieldColors(
             containerColor = backgroundColor,
@@ -67,6 +78,7 @@ fun CustomTextField(
             topEnd = Variables.cornerRadius
         ),
         textStyle = Typography.p,
-        maxLines = if(fixedOneLine) 1 else 99,
+        maxLines = if (fixedOneLine) 1 else 99,
+        visualTransformation = if(isPassword) PasswordVisualTransformation() else VisualTransformation.None
     )
 }

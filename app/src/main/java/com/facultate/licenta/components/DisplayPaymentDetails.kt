@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.facultate.licenta.R
-import com.facultate.licenta.screens.profile.UserData
+import com.facultate.licenta.utils.UserData
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 

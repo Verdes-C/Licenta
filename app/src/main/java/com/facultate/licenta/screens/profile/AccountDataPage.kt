@@ -9,17 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -31,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
@@ -42,11 +36,12 @@ import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.UserData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDataPage(navController: NavHostController) {
-    val userData = UserData() //TODO change
+    val userData = UserData(email = "") //TODO change
 
     Scaffold(
         topBar = {
@@ -220,16 +215,7 @@ fun AccountDataPage(navController: NavHostController) {
 }
 
 
-data class UserData(
-    var firstName: String = "Ion",
-    var lastName: String = "",
-    var email: String = "",
-    var phoneNumber: String = "",
-    var address: String = "",
-    var zipCode: String = "",
-    var city: String = "",
-    var state: String = "",
-)
+
 
 
 

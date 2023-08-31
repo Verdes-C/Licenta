@@ -132,7 +132,8 @@ fun RegisterNewUser(
                         placeholder = "At least 8 characters, one digit, and one special character",
                         onValueChange = { newValue ->
                             password = newValue
-                        }
+                        },
+                        isPassword = true
                     )
 
                     CustomTextField(
@@ -142,7 +143,8 @@ fun RegisterNewUser(
                         placeholder = "Repeat password",
                         onValueChange = { newValue ->
                             passwordTest = newValue
-                        }
+                        },
+                        isPassword = true
                     )
 
                     Row(

@@ -1,16 +1,15 @@
 package com.facultate.licenta.redux
 
 import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.screens.favorites.FavoritesItem
-import com.facultate.licenta.screens.profile.UserData
-import com.google.firebase.auth.ktx.auth
+import com.facultate.licenta.utils.FavoriteItem
+import com.facultate.licenta.utils.UserData
 
 data class ApplicationState(
     val authState: AuthState = AuthState.Unauthenticated(),
     val userData: UserData? = null,
-    val search: String = "sss",
-    val cartProducts: List<CartItem> = emptyList(),
-    val favoritesItem: List<FavoritesItem> = emptyList()
+    val search: String = "",
+    val cartProducts: List<CartItem> = mutableListOf(),
+    val favoriteItems: MutableSet<FavoriteItem> = mutableSetOf(),
 ) {
 
     sealed interface AuthState {

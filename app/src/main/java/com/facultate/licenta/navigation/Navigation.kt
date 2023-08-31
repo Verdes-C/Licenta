@@ -1,5 +1,6 @@
 package com.facultate.licenta.navigation
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -75,11 +76,11 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
 
         }
 
-
-        composable("product/{productId}") { backStackEntry ->
+        composable("product/{category}/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId")
-            if (productId != null) {
-                ProductPage(navController, productId)
+            val productCategory = Uri.decode(backStackEntry.arguments?.getString("category"))
+            if (productId != null && productCategory != null) {
+                ProductPage(navController, productId, productCategory)
             } else {
                 //! Handle error
             }
@@ -151,7 +152,6 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                     //_ Get the selected item in the bottom nav trough the destination of the navController
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
-                    Log.d("TESTING", screens.toString())
 
                     screens.forEach { screen ->
                         //_ For each defined screen we profide and icon with a description
@@ -183,8 +183,7 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
                                         it.route?.startsWith(
                                             "product"
                                         ) == true
-                                    } == true))
-                            ,
+                                    } == true)),
                             onClick = {
                                 navController.navigate(screen.first.route) {
                                     // Pop up to the start destination of the graph to

@@ -1,5 +1,6 @@
 package com.facultate.licenta.screens.favorites
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,9 +14,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,35 +27,39 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.facultate.licenta.MainActivityViewModel
 import com.facultate.licenta.R
-import com.facultate.licenta.components.DisplayFavoritesItem
+import com.facultate.licenta.components.DisplayFavoriteItem
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesPage(
     navController: NavHostController,
     viewModel: FavoritesViewmodel = hiltViewModel(),
+    sharedViewModel: MainActivityViewModel = hiltViewModel(),
 ) {
 
-    val favoritesItems by remember {
-        mutableStateOf(
-            listOf(
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem(),
-                FavoritesItem()
-            )
-        )
+    val favoriteItems by viewModel.favoriteItems.collectAsState()
+
+    var finishedLoading by remember{
+        mutableStateOf(false)
+    }
+
+    if (favoriteItems.isEmpty()) {
+        LaunchedEffect(key1 = favoriteItems) {
+            viewModel.viewModelScope.launch {
+                viewModel.getFavoriteItems()
+                finishedLoading = true
+            }
+        }
     }
 
     Scaffold(
@@ -75,13 +83,23 @@ fun FavoritesPage(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.Start,
         ) {
-            if (favoritesItems.isEmpty()) {
+            if (finishedLoading && favoriteItems.isEmpty()) {
                 item {
                     DisplayEmptyFavorites()
                 }
-            } else {
-                items(items = favoritesItems) { favoriteItem ->
-                    DisplayFavoritesItem(modifier = Modifier, favoritesItem = favoriteItem)
+            } else if (finishedLoading && favoriteItems.isNotEmpty()) {
+                items(items = favoriteItems) { favoriteItem ->
+                    DisplayFavoriteItem(
+                        modifier = Modifier,
+                        favoritesItem = favoriteItem,
+                        removeFromFavorite = {
+                           viewModel.viewModelScope.launch {
+                               viewModel.removeFromFavorite(productId = favoriteItem.id, productCategory = favoriteItem.category)
+                           }
+                        }) {
+                        val route = "${Screens.Product.route}/${Uri.encode(favoriteItem.category)}/${favoriteItem.id}"
+                        navController.navigate(route)
+                    }
                 }
             }
         }
@@ -110,14 +128,3 @@ fun DisplayEmptyFavorites() {
         )
     }
 }
-
-data class FavoritesItem(
-//    TODO remove defaults other than quantity
-    val productId: String = "123123123",
-    val productName: String = "ProductName",
-    val productImage: Int = R.drawable.image_placeholder,
-    val productImageDescription: String = "Product image description",
-    val productPrice: Double = 123.24,
-    val reviewsNumber: Int = 123,
-    val rating: Double = 3.6,
-)
