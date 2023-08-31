@@ -200,6 +200,13 @@ fun DisplayCartItem(
                                                 quantity = cartItem.productQuantity - 1
                                             )
                                         }
+                                    } else {
+                                        viewModel.viewModelScope.launch {
+                                            viewModel.removeFromCart(
+                                                productId = cartItem.productId,
+                                                productCategory = cartItem.productCategory
+                                            )
+                                        }
                                     }
                                 }
                         )

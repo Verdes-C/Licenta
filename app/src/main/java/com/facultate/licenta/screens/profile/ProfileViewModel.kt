@@ -3,6 +3,10 @@ package com.facultate.licenta.screens.profile
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.facultate.licenta.MainActivityViewModel
+import com.facultate.licenta.hilt.interfaces.ProductRepository
+import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
 import com.facultate.licenta.utils.MappersTo
@@ -14,6 +18,10 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -21,60 +29,40 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     val store: Store<ApplicationState>,
+    private val actions: Actions,
+    private val repository: ProductRepository,
 ) : ViewModel() {
     private val auth = Firebase.auth
-    val fireStore = Firebase.firestore
-    var isAuth = MutableStateFlow(isAuth())
 
+    //    var isAuth: StateFlow<ApplicationState.AuthState> =
+//        store.stateFlow.map { it.authState }.stateIn(
+//            viewModelScope, SharingStarted.Lazily, ApplicationState.AuthState.Unauthenticated()
+//        )
+    var isAuth = MutableStateFlow(false)
 
-    fun signUpUsingCredentials(email: String, password: String) {
-        viewModelScope.launch {
-            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { result ->
-                if (result.isSuccessful) {
-                    logInWithEmailAndPassword(email = email, password = password)
-                }
-            }.await()
-
-            fireStore.collection("Users")
-                .document(email)
-                .set(
-                    MappersTo.mapOfUserData(
-                        userData = UserData(
-                            email = email
-                        )
-                    ),
-                    SetOptions.merge()  //_ Create or merge data
-                )
-                .addOnSuccessListener {
-                    Log.d("TESTING", "saved")
-                }
-                .await()
-
-        }
+    suspend fun signUpUsingCredentials(email: String, password: String) {
+        repository.signUpUsingEmailAndPassword(
+            viewModelScope = viewModelScope,
+            email = email,
+            password = password
+        )
+        isAuth.value = true
     }
 
-    fun logInWithEmailAndPassword(email: String, password: String) {
-        var userData: UserData? = null
-        fireStore.collection("Users")
-            .document(email)
-            .get()
-            .addOnSuccessListener { result ->
-                val document = result.data
-                if (document != null) {
-                    userData = userData(document)
-                }
+    suspend fun logInWithEmailAndPassword(email: String, password: String) {
+        val userData = repository.logInWithEmailAndPassword(
+            viewModelScope = viewModelScope,
+            email = email,
+            password = password
+        )
+        auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
+            viewModelScope.launch {
+                actions.updateUserData(userData = userData)
             }
-        viewModelScope.launch {
-            store.update { applicationState ->
-                return@update applicationState.copy(
-                    authState = ApplicationState.AuthState.Authenticated,
-                    userData = userData
-                )
-            }
-            auth.signInWithEmailAndPassword(email, password)
             isAuth.value = true
         }
     }
+
 
     fun logout() {
         viewModelScope.launch {
@@ -91,13 +79,15 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun isAuth(): Boolean {
-        var isAuth = false
+    fun isAuth() {
         viewModelScope.launch {
             store.read {
-                isAuth = if (it.authState == ApplicationState.AuthState.Unauthenticated()) false else true
+                Log.d("TESTING", it.toString())
+                isAuth.value =
+                    it.authState != ApplicationState.AuthState.Unauthenticated()
             }
         }
-        return isAuth
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.facultate.licenta.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,10 +20,17 @@ import com.facultate.licenta.ui.theme.Variables
 import kotlin.math.ceil
 
 @Composable
-fun CategorySection(categoryName: String, categoryList:List<String>){
+fun CategorySection(
+    categoryName: String,
+    categoryList: List<String>,
+    navigateToCategory: () -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap, Alignment.Top),
         horizontalAlignment = Alignment.Start,
+        modifier = Modifier.clickable {
+            navigateToCategory.invoke()
+        }
     ) {
         Text(
             text = categoryName,

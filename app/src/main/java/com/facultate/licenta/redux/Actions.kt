@@ -6,6 +6,7 @@ import com.facultate.licenta.screens.cart.CartItem
 import com.facultate.licenta.screens.product.Product
 import com.facultate.licenta.utils.FavoriteItem
 import com.facultate.licenta.utils.MappersTo
+import com.facultate.licenta.utils.UserData
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -17,6 +18,19 @@ class Actions @Inject constructor(
     private val store: Store<ApplicationState>,
     private val repository: FirebaseProductRepository
 ) {
+
+    suspend fun updateUserData(userData: UserData?){
+        store.update { applicationState ->
+            Log.d("TESTING","actions -> ${userData.toString()}")
+            return@update applicationState.copy(
+                authState = ApplicationState.AuthState.Authenticated,
+                userData = userData,
+                favoriteItems = userData!!.favoriteItems.toMutableSet(),
+                cartProducts = userData.cartItem
+            )
+        }
+
+    }
 
     suspend fun toggleItemInFavorites(
         productId: String,

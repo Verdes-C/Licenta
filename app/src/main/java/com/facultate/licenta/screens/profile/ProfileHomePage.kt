@@ -22,6 +22,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.facultate.licenta.MainActivityViewModel
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.CustomTextField
@@ -58,9 +60,8 @@ import kotlinx.coroutines.launch
 fun ProfileHomePage(
     navController: NavHostController,
     viewModel: ProfileViewModel = hiltViewModel(),
+    sharedViewModel: MainActivityViewModel = hiltViewModel()
 ) {
-
-
     val entriesAndNavigation =
         listOf(
             MenuEntries.Orders to {
@@ -79,10 +80,17 @@ fun ProfileHomePage(
             MenuEntries.Support to {},
             MenuEntries.Logout to {
                 viewModel.logout()
+                navController.navigate(Screens.Profile.route)
             },
         )
 
     val userIsAuth by viewModel.isAuth.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.viewModelScope.launch {
+            viewModel.isAuth()
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -99,7 +107,11 @@ fun ProfileHomePage(
             )
         } else {
             item {
-                DisplayLoginPage(navController = navController, viewModel = viewModel)
+                DisplayLoginPage(
+                    navController = navController,
+                    viewModel = viewModel,
+                    sharedViewModel
+                )
             }
         }
     }
@@ -109,6 +121,7 @@ fun ProfileHomePage(
 fun DisplayLoginPage(
     navController: NavHostController,
     viewModel: ProfileViewModel,
+    sharedViewModel: MainActivityViewModel
 ) {
 
     var email by remember {
@@ -213,7 +226,12 @@ fun DisplayLoginPage(
             if (
                 validateEmail(email) && validatePassword(password)
             ) {
-                viewModel.logInWithEmailAndPassword(email = email, password = password)
+                viewModel.viewModelScope.launch {
+                    viewModel.logInWithEmailAndPassword(
+                        email = email,
+                        password = password
+                    )
+                }
                 //todo validation for wrong credentials
             }
         }

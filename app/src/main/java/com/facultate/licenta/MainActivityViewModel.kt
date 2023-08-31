@@ -42,6 +42,7 @@ class MainActivityViewModel @Inject constructor(
     fun updateUserData() {
         var favoriteItems: Set<FavoriteItem> = setOf<FavoriteItem>()
         var cartItems: List<CartItem> = listOf<CartItem>()
+        var isAuthenticated: ApplicationState.AuthState = ApplicationState.AuthState.Unauthenticated()
         viewModelScope.launch {
             val email = auth.currentUser?.email
             val userData = if (email != null) {
@@ -61,6 +62,7 @@ class MainActivityViewModel @Inject constructor(
             if (auth.currentUser != null) {
                 favoriteItems = userData?.favoriteItems!!
                 cartItems = userData?.cartItem!!
+                isAuthenticated = ApplicationState.AuthState.Authenticated
             } else {
                 emptySet<FavoriteItem>() // Or handle the case where userData is null
             }
@@ -68,7 +70,7 @@ class MainActivityViewModel @Inject constructor(
             store.update { applicationState ->
                 Log.d("TESTING", "update -> ${userData.toString()}")
                 applicationState.copy(
-                    authState = ApplicationState.AuthState.Authenticated,
+                    authState = isAuthenticated,
                     userData = userData,
                     favoriteItems = favoriteItems.toMutableSet(),
                     cartProducts = cartItems

@@ -2,28 +2,77 @@ package com.facultate.licenta.firebase
 
 import android.util.Log
 import com.facultate.licenta.hilt.interfaces.ProductRepository
+import com.facultate.licenta.screens.cart.CartItem
 import com.facultate.licenta.screens.home.calculateRating
 import com.facultate.licenta.screens.product.Product
+import com.facultate.licenta.utils.CartItemShort
+import com.facultate.licenta.utils.FavoriteItem
 import com.facultate.licenta.utils.MappersTo
+import com.facultate.licenta.utils.MappersTo.cartItem
+import com.facultate.licenta.utils.UserData
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
-import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.utils.CartItemShort
-import com.facultate.licenta.utils.CollectionEntry
-import com.facultate.licenta.utils.FavoriteItem
-import com.facultate.licenta.utils.MappersTo.cartItem
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.CoroutineScope
 
 class FirebaseProductRepository @Inject constructor(
     private val firestore: FirebaseFirestore,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
 ) : ProductRepository {
+    override suspend fun signUpUsingEmailAndPassword(
+        viewModelScope: CoroutineScope,
+        email: String,
+        password: String
+    ) {
+        viewModelScope.launch {
+            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { result ->
+                if (result.isSuccessful) {
+                    viewModelScope.launch {
+                        logInWithEmailAndPassword(
+                            viewModelScope = viewModelScope,
+                            email = email,
+                            password = password
+                        )
+                    }
+                }
+            }.await()
+
+            firestore.collection("Users")
+                .document(email)
+                .set(
+                    MappersTo.mapOfUserData(
+                        userData = UserData(
+                            email = email
+                        )
+                    ),
+                    SetOptions.merge()  //_ Create or merge data
+                )
+                .addOnSuccessListener {
+                    Log.d("TESTING", "saved")
+                }
+                .await()
+        }
+    }
+
+    override suspend fun logInWithEmailAndPassword(
+        viewModelScope: CoroutineScope,
+        email: String,
+        password: String
+    ): UserData? = coroutineScope {
+        var userData: UserData? = null
+
+        val document = firestore.collection("Users").document(email).get().await()
+        userData = MappersTo.userData(document.data)
+
+        return@coroutineScope userData
+    }
 
     /**
      * Fetches special products based on the given collection.

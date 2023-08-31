@@ -221,7 +221,7 @@ fun ProductPage(
 
                         ) {
                             Text(
-                                text = "$${product!!.price}", style = Typography.h4.copy(
+                                text = "$${product!!.price * quantity}", style = Typography.h4.copy(
                                     fontSize = 23.sp
                                 )
                             )
@@ -263,6 +263,14 @@ fun ProductPage(
                                     )
                             ) {
                                 // TODO add to cart
+                                viewModel.viewModelScope.launch {
+                                    viewModel.addToCart(
+                                        productId = productId,
+                                        productCategory = productCategory,
+                                        quantity = quantity,
+                                        discount = product!!.discount
+                                    )
+                                }
                             }
                         }
 

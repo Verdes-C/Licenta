@@ -29,6 +29,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
@@ -176,10 +177,12 @@ fun RegisterNewUser(
                             showTosWarning = true
                         }
                         if (validateEmail(usernameOrEmail) && validatePassword(password) && password == passwordTest) {
-                            viewModel.signUpUsingCredentials(
-                                email = usernameOrEmail,
-                                password = password
-                            )
+                            viewModel.viewModelScope.launch {
+                                viewModel.signUpUsingCredentials(
+                                    email = usernameOrEmail,
+                                    password = password
+                                )
+                            }
                         }
                     }
 

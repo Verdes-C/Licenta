@@ -21,13 +21,13 @@ fun CategoriesPage(
     viewModel: CategoriesViewModel = hiltViewModel(),
 ) {
 
-    val category1List = listOf(
+    val artFountainPensList = listOf(
         "Flexible nib", "Art brush", "Italic & stub nib"
     )
-    val category2List = listOf(
+    val calligraphyList = listOf(
         "Calligraphy brush", "Calligraphy dip pen", "Calligraphy fountain pen", "Calligraphy nib"
     )
-    val category3List = listOf(
+    val accessoriesList = listOf(
         "Cardridges", "Ink"
     )
     LazyColumn(
@@ -42,14 +42,23 @@ fun CategoriesPage(
             SearchBar()
         }
         item {
-            CategorySection(categoryName = "Art fountain pens", categoryList = category1List)
+            CategorySection(
+                categoryName = "Art fountain pens",
+                categoryList = artFountainPensList
+            ) {
+                //TODO NAVIGATE
+            }
         }
         item {
-            CategorySection(categoryName = "Calligraphy", categoryList = category2List)
+            CategorySection(categoryName = "Calligraphy", categoryList = calligraphyList) {
+                //TODO NAVIGATE
+            }
         }
 //? accessories
         item {
-            CategorySection(categoryName = "Accessories", categoryList = category3List)
+            CategorySection(categoryName = "Accessories", categoryList = accessoriesList) {
+                //TODO NAVIGATE
+            }
         }
     }
 }

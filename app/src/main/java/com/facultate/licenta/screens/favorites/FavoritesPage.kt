@@ -49,16 +49,14 @@ fun FavoritesPage(
 
     val favoriteItems by viewModel.favoriteItems.collectAsState()
 
-    var finishedLoading by remember{
+    var finishedLoading by remember {
         mutableStateOf(false)
     }
 
-    if (favoriteItems.isEmpty()) {
-        LaunchedEffect(key1 = favoriteItems) {
-            viewModel.viewModelScope.launch {
-                viewModel.getFavoriteItems()
-                finishedLoading = true
-            }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.viewModelScope.launch {
+            viewModel.getFavoriteItems()
+            finishedLoading = true
         }
     }
 
@@ -93,11 +91,15 @@ fun FavoritesPage(
                         modifier = Modifier,
                         favoritesItem = favoriteItem,
                         removeFromFavorite = {
-                           viewModel.viewModelScope.launch {
-                               viewModel.removeFromFavorite(productId = favoriteItem.id, productCategory = favoriteItem.category)
-                           }
+                            viewModel.viewModelScope.launch {
+                                viewModel.removeFromFavorite(
+                                    productId = favoriteItem.id,
+                                    productCategory = favoriteItem.category
+                                )
+                            }
                         }) {
-                        val route = "${Screens.Product.route}/${Uri.encode(favoriteItem.category)}/${favoriteItem.id}"
+                        val route =
+                            "${Screens.Product.route}/${Uri.encode(favoriteItem.category)}/${favoriteItem.id}"
                         navController.navigate(route)
                     }
                 }

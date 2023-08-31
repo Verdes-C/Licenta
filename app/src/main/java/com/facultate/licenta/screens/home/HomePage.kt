@@ -80,7 +80,9 @@ fun HomePage(
                         },
                         viewModel = viewModel,
                         onProductClick = { product ->
-                            navController.navigate(Screens.Product.route + "${Uri.encode(product.category)}/${product.id}")
+                            val route =
+                                "${Screens.Product.route}/${Uri.encode(product.category)}/${product.id}"
+                            navController.navigate(route)
                         }
                     )
                 }
@@ -94,7 +96,9 @@ fun HomePage(
                         },
                         viewModel = viewModel,
                         onProductClick = { product ->
-                            navController.navigate(Screens.Product.route + "${Uri.encode(product.category)}/${product.id}")
+                            val route =
+                                "${Screens.Product.route}/${Uri.encode(product.category)}/${product.id}"
+                            navController.navigate(route)
                         }
                     )
                 }
@@ -108,7 +112,9 @@ fun HomePage(
                         },
                         viewModel = viewModel,
                         onProductClick = { product ->
-                            navController.navigate(Screens.Product.route + "${Uri.encode(product.category)}/${product.id}")
+                            val route =
+                                "${Screens.Product.route}/${Uri.encode(product.category)}/${product.id}"
+                            navController.navigate(route)
                         }
                     )
                 }
@@ -142,7 +148,7 @@ fun ProductSection(
                 productPrice = product.price,
                 discount = product.discount,
                 viewModel = viewModel,
-                ) {
+            ) {
                 onProductClick(product)
             }
         }

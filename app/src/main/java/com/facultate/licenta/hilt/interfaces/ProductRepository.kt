@@ -4,9 +4,16 @@ import com.facultate.licenta.screens.cart.CartItem
 import com.facultate.licenta.screens.product.Product
 import com.facultate.licenta.utils.CartItemShort
 import com.facultate.licenta.utils.FavoriteItem
+import com.facultate.licenta.utils.UserData
 import kotlinx.coroutines.CoroutineScope
 
 interface ProductRepository {
+    suspend fun signUpUsingEmailAndPassword(viewModelScope: CoroutineScope,email:String, password: String)
+    suspend fun  logInWithEmailAndPassword(
+        viewModelScope: CoroutineScope,
+        email: String,
+        password: String
+    ): UserData?
     suspend fun getSpecialProducts(collection: String): List<Product>
     suspend fun getCartItem(
         cartItem: CartItemShort,

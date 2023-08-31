@@ -5,6 +5,8 @@ import com.facultate.licenta.firebase.FirebaseProductRepository
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
+import com.facultate.licenta.screens.cart.CartItem
+import com.facultate.licenta.utils.CartItemShort
 import com.facultate.licenta.utils.FavoriteItem
 import com.facultate.licenta.utils.MappersTo
 import com.facultate.licenta.utils.MappersTo.product
@@ -79,6 +81,29 @@ class ProductPageViewModel @Inject constructor(
             )
         )
         repository.updateRemoteFavorites(newFavoriteItems)
+    }
+
+    suspend fun addToCart(productId: String,productCategory: String,discount: Double, quantity: Int) {
+        val newCartItems = actions.getCartItems().toMutableList()
+        val item = repository.getCartItem(
+            cartItem = CartItemShort(
+                productId = productId,
+                category = productCategory
+            ),
+            discount = discount,
+            quantity = quantity
+        )
+        val existingItem = newCartItems.find { it.productId == item.productId }
+
+        if (existingItem != null) {
+            val index = newCartItems.indexOf(existingItem)
+            newCartItems[index] =
+                existingItem.copy(productQuantity = existingItem.productQuantity + 1)
+        } else {
+            newCartItems.add(item)
+        }
+        actions.updateCart(newCartProducts = newCartItems.toList<CartItem>())
+        repository.updateRemoteCart(newCartProducts = newCartItems.toList<CartItem>())
     }
 
 
