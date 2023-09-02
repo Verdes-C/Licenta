@@ -29,11 +29,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.facultate.licenta.R
+import com.facultate.licenta.model.Order
+import com.facultate.licenta.model.OrderStatus
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 @Composable
-fun DisplayOrderItem(orderItem: OrderItem) {
+fun DisplayOrderItem(orderItem: Order) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -58,7 +60,7 @@ fun DisplayOrderItem(orderItem: OrderItem) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = "Order number:", style = Typography.p)
-            Text(text = orderItem.orderId, style = Typography.p)
+            Text(text = orderItem.orderNumber.toString(), style = Typography.p)
         }
         Spacer(
             modifier = Modifier
@@ -72,7 +74,7 @@ fun DisplayOrderItem(orderItem: OrderItem) {
             modifier = Modifier
                 .padding(vertical = 4.dp)
         ) {
-            items(items = orderItem.productsBought) { productBought ->
+            items(items = orderItem.products) { productBought ->
                 //TODO MODIFY FOR IMAGE
                 Image(
                     painter = painterResource(id = R.drawable.image_placeholder),
@@ -129,6 +131,10 @@ fun DisplayOrderItem(orderItem: OrderItem) {
                             contentDescription = "Order delivered"
                         )
                     }
+
+                    else -> {
+                        //TODO
+                    }
                 }
             }
         }
@@ -166,22 +172,4 @@ fun DisplayOrderItem(orderItem: OrderItem) {
     }
 }
 
-@Preview(showBackground = false, widthDp = 320)
-@Composable
-fun Preview() {
-    DisplayOrderItem(orderItem = OrderItem())
-}
 
-data class OrderItem(
-    val orderId: String = "1234567890",
-    val productsBought: List<String> = listOf("1", "1", "1", "1", "1"),
-    val totalPrice: Double = 1234.24,
-    val status: OrderStatus = OrderStatus.AwaitingPayment,
-)
-
-sealed class OrderStatus {
-    object AwaitingPayment : OrderStatus()
-    object Paid : OrderStatus()
-    object Shipped : OrderStatus()
-    object Delivered : OrderStatus()
-}

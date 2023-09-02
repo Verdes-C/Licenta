@@ -96,10 +96,11 @@ fun AccountDataPage(
         topBar = {
             TopBar(
                 modifier = Modifier.padding(all = Variables.outerItemGap),
-                menuEntry = MenuEntries.AccountData,
                 displayArrow = true,
-                navController = navController
-            ) {}
+                menuEntry = MenuEntries.AccountData,
+                navController = navController,
+            )
+                {}
         }
     ) { paddingValues ->
         LazyColumn(

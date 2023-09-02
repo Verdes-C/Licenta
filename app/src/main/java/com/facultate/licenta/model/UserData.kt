@@ -2,6 +2,7 @@ package com.facultate.licenta.model
 
 
 data class UserData(
+    val accountType: String = "user",
     var firstName: String = "",
     var lastName: String = "",
     var email: String,

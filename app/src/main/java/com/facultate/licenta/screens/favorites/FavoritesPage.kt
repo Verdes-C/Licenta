@@ -66,8 +66,9 @@ fun FavoritesPage(
                 modifier = Modifier.padding(all = Variables.outerItemGap),
                 displayArrow = true,
                 menuEntry = MenuEntries.Favorites,
-                navController = navController
-            ) {}
+                navController = navController,
+            )
+                {}
         }
     ) { paddingValues ->
         LazyColumn(

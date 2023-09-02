@@ -134,6 +134,15 @@ class Actions @Inject constructor(
         return newCartProducts
     }
 
+    suspend fun updateSearchResults(searchResultsList: List<Product>) {
+        Log.d("TESTING", "inside of the updateSearchResults${searchResultsList}")
+        store.update { applicationState ->
+            return@update applicationState.copy(
+                searchResults = searchResultsList
+            )
+        }
+    }
+
     suspend fun removeItemFromCart(productId: String, productCategory: String): List<CartItem> {
         var newCartItems = listOf<CartItem>()
         store.update { applicationState ->
@@ -161,7 +170,6 @@ class Actions @Inject constructor(
             return@update applicationState.copy(
                 authState = ApplicationState.AuthState.Unauthenticated(),
                 userData = UserData(email = ""),
-                search = "",
                 cartProducts = emptyList(),
                 favoriteItems = emptySet()
             )

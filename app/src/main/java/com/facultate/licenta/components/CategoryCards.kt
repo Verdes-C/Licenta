@@ -1,6 +1,7 @@
 package com.facultate.licenta.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +24,8 @@ import com.facultate.licenta.ui.theme.Variables
 
 
 @Composable
-fun CategoryCard(modifier: Modifier = Modifier, categoryName: String = "Category") {
+fun CategoryCard(modifier: Modifier = Modifier, categoryName: String = "Category",
+                 navigateToSearchResults: ()->Unit) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -38,7 +40,9 @@ fun CategoryCard(modifier: Modifier = Modifier, categoryName: String = "Category
             .clip(shape = RoundedCornerShape(Variables.cornerRadius))
             .background(color = Color.White)
             .padding(horizontal = 12.dp)
-
+            .clickable {
+                navigateToSearchResults.invoke()
+            }
     ) {
         Text(
             text = categoryName,

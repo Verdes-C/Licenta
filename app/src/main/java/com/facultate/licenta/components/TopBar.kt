@@ -1,16 +1,13 @@
 package com.facultate.licenta.components
 
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,8 +22,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
@@ -39,13 +34,18 @@ fun TopBar(
     displayArrow: Boolean = false,
     menuEntry: MenuEntry,
     navController: NavHostController? = null,
+    isAdmin: Boolean = false,
     navigate: () -> Unit = {
 //    do not navigate
     },
 ) {
-    val colorAfterLogoutCheck =
-        if (menuEntry != MenuEntries.Logout) Variables.blue3 else Variables.red
-
+    var colorAfterLogoutCheck =
+        if (menuEntry != MenuEntries.Logout) {
+            Variables.blue3
+        } else {
+            Variables.red
+        }
+    if(isAdmin) colorAfterLogoutCheck = Variables.purple1
     Row(
         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGap, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically,
@@ -118,17 +118,17 @@ object MenuEntries {
     val Orders =
         MenuEntry(name = "Orders", icon = R.drawable.icon_order, iconDescription = "Orders icon")
     val Vouchers = MenuEntry(
-        name = "Vouchers",
+        name = "Vouchers (In progress)",
         icon = R.drawable.icon_coupon,
         iconDescription = "Vouchers icon"
     )
     val Support = MenuEntry(
-        name = "Support (Future)",
+        name = "Support (In progress)",
         icon = R.drawable.icon_support,
         iconDescription = "Support icon"
     )
     val ShippingAdress = MenuEntry(
-        name = "Shipping Adress (Future)",
+        name = "Shipping Adress (In progress)",
         icon = R.drawable.icon_shipping_box,
         iconDescription = "Shipping Adress icon"
     )
@@ -145,6 +145,12 @@ object MenuEntries {
     val Cart = MenuEntry(name = "Cart", icon = R.drawable.icon_cart, iconDescription = "Cart icon")
     val Logout =
         MenuEntry(name = "Logout", icon = R.drawable.icon_logout, iconDescription = "Logout icon")
+
+    val AdminOrders = MenuEntry(
+        name = "Admin edit orders",
+        R.drawable.icon_order,
+        iconDescription = "Edit placed orders"
+    )
 }
 
 data class MenuEntry(

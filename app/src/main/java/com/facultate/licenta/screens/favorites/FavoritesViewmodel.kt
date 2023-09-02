@@ -65,6 +65,4 @@ class FavoritesViewmodel @Inject constructor(
         actions.updateCart(newCartProducts = newCartItems.toList<CartItem>())
         repository.updateRemoteCart(newCartProducts = newCartItems.toList<CartItem>())
     }
-
-
 }

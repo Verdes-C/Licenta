@@ -43,6 +43,7 @@ import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.screens.cart.CartPageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.Utils
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
@@ -53,7 +54,7 @@ fun DisplayCartItem(
     cartItem: CartItem,
     viewModel: CartPageViewModel,
     isFavorite: Boolean = false,
-    navigateToProduct: () -> Unit
+    navigateToProduct: () -> Unit,
 ) {
 
     var menuIsVisible by remember {
@@ -162,9 +163,9 @@ fun DisplayCartItem(
                 ) {
                     Text(
                         text = "$${
-                            String.format(
-                                "%.2f",
-                                ceil(cartItem.productPrice * cartItem.productQuantity * 100) / 100
+                            Utils.calculateTotal(
+                                price = cartItem.productPrice,
+                                quantity = cartItem.productQuantity
                             )
                         }",
                         color = Variables.blue3,

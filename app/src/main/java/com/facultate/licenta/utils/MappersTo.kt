@@ -37,8 +37,11 @@ object MappersTo {
                     ?: emptyList(),
                 productName = it["productName"] as? String ?: "",
 
-                productPrice = (it["productPrice"] as String).replace(Regex("[^\\d.]"), "")
-                    .toDouble(),
+                productPrice = (it["productPrice"] as String)
+                    .replace("$", "")       // Remove the $ sign
+                    .replace(",", ".")      // Replace , with .
+                    .toDouble()             // Convert to Double
+                ,
                 id = it["id"] as? String ?: ""
             )
         } ?: TagData("", emptyList(), "", 0.0, "")
@@ -48,7 +51,7 @@ object MappersTo {
             reviewMapTyped?.let {
                 Review(
                     date = it["date"] as? String ?: "",
-                    rating = it["rating"].toString().toDouble(),
+                    rating = it["rating"].toString().toDouble() / 2,
                     reviewBody = it["reviewBody"] as? String ?: "",
                     title = it["title"] as? String ?: "",
                 )
@@ -77,7 +80,7 @@ object MappersTo {
         queryData: CollectionEntry,
         cartItem: CartItemShort,
         discount: Double,
-        quantity: Int
+        quantity: Int,
     ): CartItem? {
         var newCartItem1: CartItem?
         newCartItem1 = CartItem(
@@ -111,6 +114,7 @@ object MappersTo {
 
     fun mapOfUserData(userData: UserData): HashMap<String, Any> {
         return hashMapOf(
+            "accountType" to (userData.accountType),
             "firstName" to userData.firstName,
             "lastName" to userData.lastName,
             "email" to userData.email,
@@ -129,6 +133,7 @@ object MappersTo {
             return null
         }
         return UserData(
+            accountType = hashMap["accountType"].toString(),
             firstName = hashMap["firstName"].toString(),
             lastName = hashMap["lastName"].toString(),
             email = hashMap["email"].toString(),

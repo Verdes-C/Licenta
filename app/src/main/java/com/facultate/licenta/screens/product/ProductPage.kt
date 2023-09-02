@@ -66,6 +66,7 @@ import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.screens.home.HomePageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.Utils
 import kotlinx.coroutines.launch
 
 @Composable
@@ -74,7 +75,7 @@ fun ProductPage(
     productId: String,
     productCategory: String,
     viewModel: ProductPageViewModel = hiltViewModel(),
-    homePageViewModel: HomePageViewModel = hiltViewModel()
+    homePageViewModel: HomePageViewModel = hiltViewModel(),
 ) {
     val product by viewModel.product.collectAsState()
     val isFavorite by viewModel.isFavorite.collectAsState()
@@ -122,12 +123,12 @@ fun ProductPage(
                 item {
                     TopBar(
                         modifier = Modifier.padding(top = Variables.outerItemGap),
+                        displayArrow = true,
                         menuEntry = MenuEntry(
                             name = product!!.name,
                             iconDescription = product!!.name,
                         ),
-                        displayArrow = true,
-                        navController = navController
+                        navController = navController,
                     )
                 }
 
@@ -221,7 +222,12 @@ fun ProductPage(
 
                         ) {
                             Text(
-                                text = "$${product!!.price * quantity}", style = Typography.h4.copy(
+                                text = "$${
+                                    Utils.calculateTotal(
+                                        price = product!!.price,
+                                        quantity = quantity
+                                    )
+                                }", style = Typography.h4.copy(
                                     fontSize = 23.sp
                                 )
                             )

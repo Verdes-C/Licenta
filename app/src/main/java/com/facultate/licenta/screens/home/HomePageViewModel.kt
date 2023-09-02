@@ -10,6 +10,7 @@ import com.facultate.licenta.model.Review
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
+import com.facultate.licenta.utils.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -22,7 +23,7 @@ import javax.inject.Inject
 class HomePageViewModel @Inject constructor(
     val store: Store<ApplicationState>,
     private val repository: FirebaseRepository,
-    private val actions: Actions
+    private val actions: Actions,
 ) : ViewModel() {
     val promotions = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
     val newArrivals = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
@@ -35,7 +36,7 @@ class HomePageViewModel @Inject constructor(
             "Calligraphy Dip Pen",
             "Calligraphy Fountain Pen",
 
-        )
+            )
         viewModelScope.launch {
             val promotionsDeferred = async { fetchProducts("Promotions") }
             val newArrivalsDeferred = async { fetchProducts("New Arrivals") }
@@ -80,8 +81,8 @@ class HomePageViewModel @Inject constructor(
 }
 
 fun calculateRating(reviews: List<Review>): Double {
-    val totalRating = reviews.sumOf { it.rating / 2 }
-    return (totalRating / reviews.size).let { String.format("%.2f", it).toDouble() }
+
+    return Utils.calculateRating(reviews = reviews)
 }
 
 

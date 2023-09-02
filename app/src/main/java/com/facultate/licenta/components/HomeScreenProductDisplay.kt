@@ -44,6 +44,7 @@ import com.facultate.licenta.screens.home.HomePageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 
 @Composable
@@ -138,7 +139,7 @@ fun HomeScreenProductDisplay(
                 ) {
                     if (discount != 0.0) {
                         Text(
-                            text = "$${productPrice - productPrice * discount}",
+                            text = "$${String.format(Locale.US, "%.2f",productPrice - productPrice * discount)}",
                             style = Typography.buttonBold,
                             color = Variables.red,
                             modifier = Modifier.weight(1f)
@@ -152,7 +153,7 @@ fun HomeScreenProductDisplay(
                         )
                     } else {
                         Text(
-                            text = "$${productPrice}",
+                            text = "$${String.format(Locale.US, "%.2f",productPrice)}",
                             style = Typography.buttonBold,
                             color = Variables.grey6,
                             modifier = Modifier.weight(1f)

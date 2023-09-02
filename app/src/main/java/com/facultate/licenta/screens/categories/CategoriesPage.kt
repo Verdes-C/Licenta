@@ -1,19 +1,31 @@
 package com.facultate.licenta.screens.categories
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.facultate.licenta.components.CategoryCard
 import com.facultate.licenta.components.CategorySection
 import com.facultate.licenta.components.SearchBar
+import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import kotlin.math.ceil
 
 @Composable
 fun CategoriesPage(
@@ -43,22 +55,106 @@ fun CategoriesPage(
             SearchBar()
         }
         item {
-            CategorySection(
-                categoryName = "Art fountain pens",
-                categoryList = artFountainPensList
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap, Alignment.Top),
+                horizontalAlignment = Alignment.Start,
             ) {
-                //TODO NAVIGATE
+                Text(
+                    text = "Art fountain pens",
+                    style = Typography.h4,
+                    modifier = Modifier
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(
+                        Variables.innerItemGap,
+                        Alignment.CenterVertically
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        Variables.innerItemGap,
+                        Alignment.Start
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height((ceil((artFountainPensList.size / 3.0)) * 112).dp)
+                ) {
+                    items(items = artFountainPensList) { category ->
+                        CategoryCard(categoryName = category) {
+                            val route = "search/${category}"
+                            navController.navigate(route)
+                        }
+                    }
+                }
             }
         }
         item {
-            CategorySection(categoryName = "Calligraphy", categoryList = calligraphyList) {
-                //TODO NAVIGATE
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap, Alignment.Top),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = "Calligraphy",
+                    style = Typography.h4,
+                    modifier = Modifier
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(
+                        Variables.innerItemGap,
+                        Alignment.CenterVertically
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        Variables.innerItemGap,
+                        Alignment.Start
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height((ceil((calligraphyList.size / 3.0)) * 112).dp)
+                ) {
+                    items(items = calligraphyList) { category ->
+                        CategoryCard(categoryName = category) {
+                            val route = "search/${category}"
+                            navController.navigate(route)
+                        }
+                    }
+                }
             }
         }
 //? accessories
         item {
-            CategorySection(categoryName = "Accessories", categoryList = accessoriesList) {
-                //TODO NAVIGATE
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap, Alignment.Top),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = "Accessories",
+                    style = Typography.h4,
+                    modifier = Modifier
+                        .wrapContentHeight(align = Alignment.CenterVertically)
+                )
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    verticalArrangement = Arrangement.spacedBy(
+                        Variables.innerItemGap,
+                        Alignment.CenterVertically
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        Variables.innerItemGap,
+                        Alignment.Start
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height((ceil((accessoriesList.size / 3.0)) * 112).dp)
+                ) {
+                    items(items = accessoriesList) { category ->
+                        CategoryCard(categoryName = category) {
+                            val route = "search/${category}"
+                            navController.navigate(route)
+                        }
+                    }
+                }
             }
         }
     }

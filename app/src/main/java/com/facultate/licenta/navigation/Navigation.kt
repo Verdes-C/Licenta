@@ -27,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -36,6 +35,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.facultate.licenta.firebase.GoogleAuthUiClient
+import com.facultate.licenta.screens.Search.SearchResults
+import com.facultate.licenta.screens.admins.AdminOrdersPage
 import com.facultate.licenta.screens.cart.CartPage
 import com.facultate.licenta.screens.categories.CategoriesPage
 import com.facultate.licenta.screens.favorites.FavoritesPage
@@ -151,6 +152,19 @@ fun NavHost(
                 RegisterNewUser(navController = navController)
             }
 
+            composable(Screens.AdminOrders.route) { backStackEntry ->
+                AdminOrdersPage(navController = navController)
+            }
+
+        }
+
+        composable("search/{category}") { backStackEntry ->
+            val category = Uri.decode(backStackEntry.arguments?.getString("category"))
+            if (category != null) {
+                SearchResults(navController, category)
+            } else {
+                //! Handle error
+            }
         }
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->

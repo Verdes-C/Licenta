@@ -9,6 +9,7 @@ plugins {
 }
 
 android {
+
     namespace 'com.facultate.licenta'
     compileSdk 34
 
@@ -17,7 +18,7 @@ android {
         minSdk 26
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -93,6 +94,9 @@ dependencies {
 
     //_ Coil
     implementation "io.coil-kt:coil-compose:2.4.0"
+
+    implementation "com.google.accompanist:accompanist-permissions:0.32.0"
+
 
     implementation 'androidx.core:core-ktx:1.10.1'
     implementation platform('org.jetbrains.kotlin:kotlin-bom:1.8.0')

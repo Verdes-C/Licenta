@@ -1,6 +1,5 @@
 package com.facultate.licenta.screens.profile
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.facultate.licenta.MainActivityViewModel
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.CustomTextField
@@ -62,8 +60,8 @@ import kotlinx.coroutines.launch
 fun ProfileHomePage(
     navController: NavHostController,
     viewModel: ProfileViewModel = hiltViewModel(),
-    logout: ()->Unit,
-    googleSignIn: () -> Unit
+    logout: () -> Unit,
+    googleSignIn: () -> Unit,
 ) {
 
     val context = LocalContext.current
@@ -129,7 +127,7 @@ fun ProfileHomePage(
 fun DisplayLoginPage(
     navController: NavHostController,
     viewModel: ProfileViewModel,
-    googleSignIn: () -> Unit
+    googleSignIn: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -273,9 +271,9 @@ fun DisplayLoginPage(
                 modifier = Modifier.weight(1f),
                 socialPlatform = SocialLoginPlatforms.Google
             ) {
-                    CoroutineScope(Dispatchers.Main).launch{
-                        googleSignIn.invoke()
-                    }
+                CoroutineScope(Dispatchers.Main).launch {
+                    googleSignIn.invoke()
+                }
             }
 //            Buttons.SocialLogin(
 //                modifier = Modifier.weight(1f),
@@ -310,20 +308,34 @@ fun displayLoggedInUser(
 
         TopBar(
             modifier = Modifier.padding(horizontal = Variables.outerItemGap),
-            menuEntry = menu.first
-        ) {
-            menu.second.invoke()
-        }
-    }
-    lazyListScope.item {
-        Text(
-            modifier = Modifier.padding(horizontal = Variables.outerItemGap),
-            text = "InkQuill is giving their regards to our dear customers!",
-            textAlign = TextAlign.Center,
-            style = Typography.h2,
-            color = Variables.blue3
+            menuEntry = menu.first,
+            navigate = {
+                menu.second.invoke()
+            },
         )
     }
+    if (userData.accountType == "user") {
+        lazyListScope.item {
+            Text(
+                modifier = Modifier.padding(horizontal = Variables.outerItemGap),
+                text = "InkQuill is giving their regards to our dear customers!",
+                textAlign = TextAlign.Center,
+                style = Typography.h2,
+                color = Variables.blue3
+            )
+        }
+    } else if (userData.accountType == "admin") {
+        lazyListScope.item {
+            TopBar(
+                modifier = Modifier.padding(horizontal = Variables.outerItemGap),
+                menuEntry = MenuEntries.AdminOrders,
+                isAdmin = userData.accountType == "admin"
+            ) {
+                navController.navigate(Screens.AdminOrders.route)
+            }
+        }
+    }
+
 
 }
 

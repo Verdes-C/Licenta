@@ -12,8 +12,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.facultate.licenta.components.DisplayOrderItem
 import com.facultate.licenta.components.MenuEntries
-import com.facultate.licenta.components.OrderItem
-import com.facultate.licenta.components.OrderStatus
 import com.facultate.licenta.components.TopBar
 import com.facultate.licenta.ui.theme.Variables
 
@@ -30,24 +28,29 @@ fun Orders(navController: NavHostController) {
         horizontalAlignment = Alignment.Start,
     ) {
         item {
-            TopBar(modifier = Modifier.padding(top = Variables.outerItemGap),menuEntry = MenuEntries.Orders, displayArrow = true, navController = navController) {
-            }
+            TopBar(
+                modifier = Modifier.padding(top = Variables.outerItemGap),
+                displayArrow = true,
+                menuEntry = MenuEntries.Orders,
+                navController = navController,
+            )
+                {}
         }
-
-        item {
-            DisplayOrderItem(orderItem = OrderItem())
-        }
-
-        item {
-            DisplayOrderItem(orderItem = OrderItem(status = OrderStatus.Paid))
-        }
-
-        item {
-            DisplayOrderItem(orderItem = OrderItem(status = OrderStatus.Shipped))
-        }
-
-        item {
-            DisplayOrderItem(orderItem = OrderItem(status = OrderStatus.Delivered))
-        }
+//
+//        item {
+//            DisplayOrderItem(orderItem = OrderItem())
+//        }
+//
+//        item {
+//            DisplayOrderItem(orderItem = OrderItem(status = OrderStatus.Paid))
+//        }
+//
+//        item {
+//            DisplayOrderItem(orderItem = OrderItem(status = OrderStatus.Shipped))
+//        }
+//
+//        item {
+//            DisplayOrderItem(orderItem = OrderItem(status = OrderStatus.Delivered))
+//        }
     }
 }

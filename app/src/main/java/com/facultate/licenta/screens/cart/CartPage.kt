@@ -36,6 +36,7 @@ import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.Utils
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,8 +63,9 @@ fun CartPage(
                 modifier = Modifier.padding(all = Variables.outerItemGap),
                 displayArrow = true,
                 menuEntry = MenuEntries.Cart,
-                navController = navController
-            ) {}
+                navController = navController,
+            )
+            {}
         },
         bottomBar = {
             Column(
@@ -82,7 +84,7 @@ fun CartPage(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Total: $${calculateTotalPrice(cartItems)}",
+                        text = "Total: $${Utils.calculateProductTotalPrice(cartList = cartItems)}",
                         style = Typography.h4,
                         color = Variables.blue3
                     )
@@ -137,13 +139,6 @@ fun CartPage(
     }
 }
 
-fun calculateTotalPrice(cartList: List<CartItem>): Double {
-    var total = 0.0
-    cartList.forEach { cartItem ->
-        total += String.format("%.2f", cartItem.productQuantity * cartItem.productPrice).toDouble()
-    }
-    return total
-}
 
 @Composable
 fun DisplayEmptyCart() {

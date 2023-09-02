@@ -54,7 +54,7 @@ fun CategorySection(
                 .height((ceil((categoryList.size / 3.0)) * 112).dp)
         ) {
             items(items = categoryList) { category ->
-                CategoryCard(categoryName = category)
+                CategoryCard(categoryName = category){}
             }
         }
     }

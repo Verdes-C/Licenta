@@ -3,6 +3,7 @@ package com.facultate.licenta.firebase
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.ui.text.toLowerCase
 import com.facultate.licenta.MainActivity
 import com.facultate.licenta.R
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
@@ -14,6 +15,8 @@ import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
 import com.facultate.licenta.utils.MappersTo
 import com.facultate.licenta.utils.MappersTo.cartItem
+import com.facultate.licenta.utils.MappersTo.collectionEntry
+import com.facultate.licenta.utils.MappersTo.product
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -32,6 +35,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
+import java.util.Locale
 import java.util.concurrent.Flow
 import javax.inject.Inject
 
@@ -42,7 +46,7 @@ class Repository @Inject constructor(
     override suspend fun signUpUsingEmailAndPassword(
         viewModelScope: CoroutineScope,
         email: String,
-        password: String
+        password: String,
     ): String {
         var message: String = ""
         try {
@@ -74,17 +78,14 @@ class Repository @Inject constructor(
         var userData: UserData? = null
 
         val document = firestore.collection("Users").document(email).get().await()
-        Log.d("GOOGLE", "inside of retrieveUserData ${document}")
-        Log.d("GOOGLE", "inside of retrieveUserData check for document.doc ${document.data}")
-        if(document.exists()){
-            Log.d("GOOGLE", "inside of retrieveUserData - document exists ${document}")
+        if (document.exists()) {
             userData = MappersTo.userData(document.data)
         }
         return@coroutineScope userData
     }
 
     override suspend fun updateUserData(
-        userData: UserData
+        userData: UserData,
     ) {
         Log.d("GOOGLE", "inside of updateuserData ${userData}")
         firestore.collection("Users")
@@ -162,10 +163,77 @@ class Repository @Inject constructor(
         return@coroutineScope results.toList()
     }
 
+    override suspend fun getSearchProducts(category: String?, searchInput: String): List<Product> {
+        val checks = searchInput.split(" ")
+        Log.d("TESTING", "inside of the getfunction -> checks ${checks}")
+        Log.d("TESTING", "inside of the getfunction -> category ${category}")
+        val collectionList = listOf(
+            "Art Brush",
+            "Calligraphy Brush",
+            "Calligraphy Dip Pen",
+            "Calligraphy Fountain Pen",
+            "Calligraphy Nibs",
+            "Cardridges",
+            "Flexible Nib",
+            "Ink",
+            "Italic & Stub Nib",
+            "Luxury Fountain Pen",
+        )
+        var resultItems: MutableList<Product> = mutableListOf()
+        if (category == null) {
+            collectionList.forEach { collection ->
+                val documents = firestore.collection(collection).get().await()
+                resultItems = documents.mapNotNull { document ->
+                    if (checks.any { check ->
+                            check in (document.data["productName"] as String)
+                        }) {
+                        return@mapNotNull product(
+                            collectionEntry = collectionEntry(document),
+                            category = collection,
+                            discount = 0.0
+                        )
+                    } else {
+                        return@mapNotNull null
+                    }
+                }.toMutableList()
+            }
+            Log.d("TESTING", "inside of the getfunction -> category == null ${resultItems}")
+            return resultItems.toList()
+        } else {
+            val documents = firestore.collection(category).get().await()
+            documents.forEach { document ->
+                checks.forEach { check ->
+                    Log.d(
+                        "TESTING",
+                        " check = ${check}"
+                    )
+                    Log.d(
+                        "TESTING",
+                        "product name = ${document.data["productName"].toString().lowercase()}"
+                    )
+                    Log.d(
+                        "TESTING",
+                        " result = ${check in document.data["productName"].toString().lowercase()}"
+                    )
+                    if (check in document.data["productName"].toString().lowercase()) {
+                        resultItems.add(
+                            product(
+                                collectionEntry = collectionEntry(document),
+                                category = category,
+                                discount = 0.0
+                            )
+                        )
+                    }
+                }
+            }
+            return resultItems.toList()
+        }
+    }
+
     override suspend fun getCartItem(
         cartItem: CartItemShort,
         discount: Double,
-        quantity: Int
+        quantity: Int,
     ): CartItem =
         coroutineScope {
             var newCartItem: CartItem? = null
@@ -238,7 +306,7 @@ class Repository @Inject constructor(
 
     override suspend fun getFavoriteItems(
         viewModelScope: CoroutineScope,
-        favoriteItems: Set<FavoriteItem>
+        favoriteItems: Set<FavoriteItem>,
     ): List<Product> {
         val deferredList = favoriteItems.map { item: FavoriteItem ->
             viewModelScope.async {

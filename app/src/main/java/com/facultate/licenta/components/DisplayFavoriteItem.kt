@@ -45,6 +45,7 @@ import com.facultate.licenta.R
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import java.util.Locale
 
 
 @Composable
@@ -171,7 +172,7 @@ fun DisplayFavoriteItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$${favoritesItem.price - favoritesItem.price * favoritesItem.discount}",
+                        text = "$${String.format(Locale.US,"%.2f",favoritesItem.price - favoritesItem.price * favoritesItem.discount)}",
                         color = Variables.blue3,
                         style = Typography.pBig,
                         fontWeight = FontWeight.Bold,
