@@ -1,32 +1,49 @@
 package com.facultate.licenta.redux
 
 import android.util.Log
-import com.facultate.licenta.firebase.FirebaseProductRepository
-import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.screens.product.Product
-import com.facultate.licenta.utils.FavoriteItem
-import com.facultate.licenta.utils.MappersTo
-import com.facultate.licenta.utils.UserData
-import com.google.firebase.firestore.FirebaseFirestore
+import com.facultate.licenta.firebase.Repository
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Product
+import com.facultate.licenta.model.UserData
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class Actions @Inject constructor(
     private val store: Store<ApplicationState>,
-    private val repository: FirebaseProductRepository
+    private val repository: Repository
 ) {
 
-    suspend fun updateUserData(userData: UserData?){
+    suspend fun updateUserData(userData: UserData?) {
+        var newCartItems: MutableList<CartItem> = mutableListOf()
+        var newFavoriteItems: MutableSet<FavoriteItem> = mutableSetOf()
         store.update { applicationState ->
-            Log.d("TESTING","actions -> ${userData.toString()}")
+            //_ Utilizarea functiei distinct asigura mentinerea ordinii elementelor
+            if (applicationState.cartProducts.isNotEmpty()) {
+                newCartItems = applicationState.cartProducts.toMutableList()
+                userData?.cartItem?.forEach { cartItem ->
+                    val existingItem = newCartItems.find { it.productId == cartItem.productId }
+                    if (existingItem != null) {
+                        cartItem.productQuantity += existingItem.productQuantity
+                        newCartItems.remove(existingItem)
+                    }
+                    newCartItems.add(cartItem)
+                }
+            } else {
+                newCartItems = userData?.cartItem?.toMutableList() ?: mutableListOf()
+            }
+            if (applicationState.favoriteItems.isNotEmpty()) {
+                newFavoriteItems =
+                    (applicationState.favoriteItems.toMutableSet() + (userData?.favoriteItems
+                        ?: emptySet())).distinct().toMutableSet()
+            } else {
+                newFavoriteItems = userData?.favoriteItems?.toMutableSet() ?: mutableSetOf()
+            }
             return@update applicationState.copy(
                 authState = ApplicationState.AuthState.Authenticated,
                 userData = userData,
-                favoriteItems = userData!!.favoriteItems.toMutableSet(),
-                cartProducts = userData.cartItem
+                favoriteItems = newFavoriteItems.toSet(),
+                cartProducts = newCartItems
             )
         }
 

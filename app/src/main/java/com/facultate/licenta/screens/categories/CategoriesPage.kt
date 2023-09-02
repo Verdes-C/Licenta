@@ -34,7 +34,8 @@ fun CategoriesPage(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Variables.grey1)
-            .padding(horizontal = Variables.outerItemGap),
+            .padding(horizontal = Variables.outerItemGap)
+            .padding(bottom = Variables.outerItemGap),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.Start,
     ) {

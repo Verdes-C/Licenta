@@ -1,16 +1,19 @@
 package com.facultate.licenta.firebase
 
+import android.content.Context
 import android.util.Log
-import com.facultate.licenta.hilt.interfaces.ProductRepository
-import com.facultate.licenta.screens.cart.CartItem
+import android.widget.Toast
+import com.facultate.licenta.hilt.interfaces.FirebaseRepository
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Product
+import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
-import com.facultate.licenta.screens.product.Product
-import com.facultate.licenta.utils.CartItemShort
-import com.facultate.licenta.utils.FavoriteItem
 import com.facultate.licenta.utils.MappersTo
 import com.facultate.licenta.utils.MappersTo.cartItem
-import com.facultate.licenta.utils.UserData
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.CoroutineScope
@@ -20,41 +23,45 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDateTime
 import javax.inject.Inject
 
-class FirebaseProductRepository @Inject constructor(
+class Repository @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val auth: FirebaseAuth,
-) : ProductRepository {
+) : FirebaseRepository {
     override suspend fun signUpUsingEmailAndPassword(
         viewModelScope: CoroutineScope,
         email: String,
         password: String
-    ) {
-        viewModelScope.launch {
-            auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { result ->
-                if (result.isSuccessful) {
-                    viewModelScope.launch {
-                        val userData = retrieveUserData(
-                            viewModelScope = viewModelScope,
-                            email = email,
-                            password = password
-                        )
-                        if (userData != null) {
-                            updateUserData(userData = userData)
+    ): String {
+        var message: String = ""
+        try {
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { result ->
+                    if (result.isSuccessful) {
+                        viewModelScope.launch {
+                            updateUserData(userData = UserData(email = email))
+                            try {
+                                auth.currentUser?.sendEmailVerification()
+                                message = "Not verified"
+                            } catch (error: Exception) {
+                                message = error.message!!
+                            }
                         }
-
                     }
-                }
-            }.await()
-
+                }.addOnFailureListener { exception ->
+                    message = exception.message!!
+                }.await()
+        } catch (e: Exception) {
+            message = e.message!!
         }
+        return message
     }
 
     override suspend fun retrieveUserData(
         viewModelScope: CoroutineScope,
         email: String,
-        password: String
     ): UserData? = coroutineScope {
         var userData: UserData? = null
 
@@ -66,7 +73,7 @@ class FirebaseProductRepository @Inject constructor(
 
     override suspend fun updateUserData(
         userData: UserData
-    ){
+    ) {
         firestore.collection("Users")
             .document(userData.email)
             .set(
@@ -76,17 +83,13 @@ class FirebaseProductRepository @Inject constructor(
                 SetOptions.merge()  //_ Create or merge data
             )
             .addOnSuccessListener {
-                Log.d("TESTING", "saved")
+            }
+            .addOnFailureListener { exception ->
+                saveErrorToDB(exception)
             }
             .await()
     }
 
-    /**
-     * Fetches special products based on the given collection.
-     *
-     * @param collection The name of the collection to fetch products from.
-     * @return A list of products from the specified collection.
-     */
     override suspend fun getSpecialProducts(collection: String): List<Product> = coroutineScope {
         val results = mutableListOf<Product>()
 
@@ -159,7 +162,7 @@ class FirebaseProductRepository @Inject constructor(
                         MappersTo.collectionEntry(documentResult)
 
 
-                    newCartItem = cartItem(newCartItem, queryData, cartItem, discount, quantity)
+                    newCartItem = cartItem(queryData, cartItem, discount, quantity)
 
                 }
             } catch (e: Exception) {
@@ -183,11 +186,44 @@ class FirebaseProductRepository @Inject constructor(
         }
     }
 
+    override fun saveErrorToDB(exception: java.lang.Exception) {
+        val errorReport = hashMapOf(
+            "date" to LocalDateTime.now().toString(),
+            "error" to exception.message,
+            "cause" to exception.cause?.toString(),
+            "stackTrace" to exception.stackTrace.joinToString("\n"),
+            "localizedMessage" to exception.localizedMessage,
+        )
+        firestore.collection("errors")
+            .add(errorReport)
+    }
+
+    override fun notifyUserOfError(context: Context, message: String?) {
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
+
+    override suspend fun resetPassword(email: String): String {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            "An email with the password reset steps was sent to $email"
+        } catch (e: Exception) {
+            when (e) {
+                is FirebaseAuthInvalidUserException -> {
+                    "No user found with the provided email address."
+                }
+
+                else -> {
+                    "An error occurred: ${e.message}"
+                }
+            }
+        }
+    }
+
     override suspend fun getFavoriteItems(
         viewModelScope: CoroutineScope,
         favoriteItems: Set<FavoriteItem>
     ): List<Product> {
-        val deferredList = favoriteItems.map { item ->
+        val deferredList = favoriteItems.map { item: FavoriteItem ->
             viewModelScope.async {
                 var discount: Double = 0.0
                 val documentSnapshot = firestore.collection("Promotions")
@@ -205,7 +241,7 @@ class FirebaseProductRepository @Inject constructor(
                 val entry = MappersTo.collectionEntry(
                     collectionDocument
                 )
-                MappersTo.product(entry, item.category, discount)
+                return@async MappersTo.product(entry, item.category, discount)
             }
         }
 

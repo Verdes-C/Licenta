@@ -39,10 +39,10 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.facultate.licenta.R
+import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.screens.home.HomePageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
-import com.facultate.licenta.utils.CartItemShort
 import kotlinx.coroutines.launch
 
 

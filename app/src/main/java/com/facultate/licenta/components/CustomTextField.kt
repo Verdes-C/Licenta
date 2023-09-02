@@ -2,6 +2,7 @@ package com.facultate.licenta.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,7 +44,7 @@ fun CustomTextField(
     }
     TextField(
         modifier = modifier
-            .height(56.dp)
+            .heightIn(min = 56.dp, max = 80.dp)
             .fillMaxWidth(),
         value = inputValue,
         isError = isError,

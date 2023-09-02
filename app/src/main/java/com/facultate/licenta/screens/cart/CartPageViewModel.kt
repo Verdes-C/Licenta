@@ -1,13 +1,11 @@
 package com.facultate.licenta.screens.cart
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.facultate.licenta.hilt.interfaces.ProductRepository
-import com.facultate.licenta.navigation.Screens
+import com.facultate.licenta.hilt.interfaces.FirebaseRepository
+import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
-import com.facultate.licenta.utils.FavoriteItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
@@ -16,10 +14,12 @@ import javax.inject.Inject
 class CartPageViewModel @Inject constructor(
     val store: Store<ApplicationState>,
     private val actions: Actions,
-    private val repository: ProductRepository
+    private val repository: FirebaseRepository
 ) : ViewModel() {
 
     val cartProducts = MutableStateFlow(listOf<CartItem>())
+
+
     val favoriteItems = MutableStateFlow(store.stateFlow.value.favoriteItems)
 
     suspend fun updateCartProducts() {

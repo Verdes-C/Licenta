@@ -1,7 +1,7 @@
 package com.facultate.licenta.hilt.modules
 
-import com.facultate.licenta.firebase.FirebaseProductRepository
-import com.facultate.licenta.hilt.interfaces.ProductRepository
+import com.facultate.licenta.firebase.Repository
+import com.facultate.licenta.hilt.interfaces.FirebaseRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Binds
@@ -30,6 +30,6 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindProductRepository(
-        firebaseProductRepository: FirebaseProductRepository
-    ): ProductRepository
+        repository: Repository
+    ): FirebaseRepository
 }

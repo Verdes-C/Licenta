@@ -1,15 +1,15 @@
 package com.facultate.licenta.redux
 
-import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.utils.FavoriteItem
-import com.facultate.licenta.utils.UserData
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.UserData
 
 data class ApplicationState(
     val authState: AuthState = AuthState.Unauthenticated(),
     val userData: UserData? = null,
     val search: String = "",
-    val cartProducts: List<CartItem> = mutableListOf(),
-    val favoriteItems: MutableSet<FavoriteItem> = mutableSetOf(),
+    val cartProducts: List<CartItem> = listOf(),
+    val favoriteItems: Set<FavoriteItem> = setOf(),
 ) {
 
     sealed interface AuthState {

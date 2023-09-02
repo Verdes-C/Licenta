@@ -1,13 +1,21 @@
 package com.facultate.licenta.utils
 
+import android.util.Log
 import com.facultate.licenta.SpecialProduct
-import com.facultate.licenta.screens.cart.CartItem
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.CollectionEntry
+import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Product
+import com.facultate.licenta.model.Review
+import com.facultate.licenta.model.TagData
+import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
-import com.facultate.licenta.screens.product.Product
 import com.google.firebase.firestore.DocumentSnapshot
 
 
 object MappersTo {
+    //_ to add special product
     fun specialProduct(product: SpecialProduct): HashMap<Any, Any> {
         return hashMapOf(
             "productId" to product.productId,
@@ -28,6 +36,7 @@ object MappersTo {
                 productImages = (it["productImages"] as? List<*>)?.mapNotNull { it as? String }
                     ?: emptyList(),
                 productName = it["productName"] as? String ?: "",
+
                 productPrice = (it["productPrice"] as String).replace(Regex("[^\\d.]"), "")
                     .toDouble(),
                 id = it["id"] as? String ?: ""
@@ -44,7 +53,7 @@ object MappersTo {
                     title = it["title"] as? String ?: "",
                 )
             }
-        } ?: emptyList()
+        } ?: emptyList<Review>()
 
         return CollectionEntry(id, link, tagData, reviewsList)
     }
@@ -65,13 +74,12 @@ object MappersTo {
     }
 
     fun cartItem(
-        newCartItem: CartItem?,
         queryData: CollectionEntry,
         cartItem: CartItemShort,
         discount: Double,
         quantity: Int
     ): CartItem? {
-        var newCartItem1 = newCartItem
+        var newCartItem1: CartItem?
         newCartItem1 = CartItem(
             productName = queryData.tagData.productName,
             productCategory = cartItem.category,
@@ -198,55 +206,13 @@ fun extractCartItem(hashMap: MutableMap<String, Any>?): List<CartItem> {
 }
 
 
-data class FavoriteItem(
-    val productId: String,
-    val category: String,
-)
 
-data class CartItemShort(
-    val productId: String,
-    val category: String,
-)
 
-data class UserData(
-    var firstName: String = "",
-    var lastName: String = "",
-    var email: String,
-    var phoneNumber: String = "",
-    var address: String = "",
-    var zipCode: String = "",
-    var city: String = "",
-    var state: String = "",
-    var favoriteItems: Set<FavoriteItem> = setOf(),
-    var cartItem: List<CartItem> = listOf<CartItem>(),
-//    var cardPayment: CardPayment = CardPayment() SOON
-)
 
-data class CardPayment(
-    val nameOnCard: String = "",
-    val cardNumber: String = "",
-    val expirationDate: String = "",
-    val csvString:String = ""
-)
 
-data class TagData(
-    val productDescription: String,
-    val productImages: List<String>,
-    val productName: String,
-    val productPrice: Double,
-    val id: String,
-)
 
-data class Review(
-    val date: String,
-    val rating: Double,
-    val reviewBody: String,
-    val title: String,
-)
 
-data class CollectionEntry(
-    val id: String,
-    val link: String,
-    val tagData: TagData,
-    val reviews: List<Review>,
-)
+
+
+
+

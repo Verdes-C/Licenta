@@ -3,11 +3,10 @@ package com.facultate.licenta
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
-import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.utils.FavoriteItem
-import com.facultate.licenta.utils.MappersTo.favoriteItems
 import com.facultate.licenta.utils.MappersTo.userData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore

@@ -1,6 +1,6 @@
 package com.facultate.licenta.screens.product
 
-import android.util.Log
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +55,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.facultate.licenta.MainActivityViewModel
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.DisplayRating
@@ -64,11 +62,10 @@ import com.facultate.licenta.components.DisplayReview
 import com.facultate.licenta.components.HomeScreenProductDisplay
 import com.facultate.licenta.components.MenuEntry
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.screens.home.HomePageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
-import com.facultate.licenta.utils.FavoriteItem
-import com.facultate.licenta.utils.Review
 import kotlinx.coroutines.launch
 
 @Composable
@@ -77,15 +74,18 @@ fun ProductPage(
     productId: String,
     productCategory: String,
     viewModel: ProductPageViewModel = hiltViewModel(),
+    homePageViewModel: HomePageViewModel = hiltViewModel()
 ) {
     val product by viewModel.product.collectAsState()
     val isFavorite by viewModel.isFavorite.collectAsState()
+    val recommendations by viewModel.recommendations.collectAsState()
 
 
     if (product == null) {
         LaunchedEffect(key1 = product) {
             viewModel.viewModelScope.launch {
                 viewModel.updateProduct(productCategory = productCategory, productId = productId)
+                viewModel.getRecommendedProducts()
             }
 
         }
@@ -315,19 +315,24 @@ fun ProductPage(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGap)
                     ) {
-                        //TODO fix
-//                        repeat(7) {
-//                            item {
-//                                HomeScreenProductDisplay(
-//                                    productCategory = "Art Brush",
-//                                    productId = "1ebc734c-c6f1-4aed-9cb4-c9f588c61db2",
-//                                    viewModel = viewModel
-//                                ) {
-//
-//                                }
-//                            }
-//                        }
-
+                        if (recommendations.size > 0) {
+                            items(items = recommendations) { product ->
+                                HomeScreenProductDisplay(
+                                    productImageDescription = product!!.description,
+                                    productName = product.name,
+                                    productId = product.id,
+                                    productCategory = product.category,
+                                    productImage = product.images.first(),
+                                    productPrice = product.price,
+                                    discount = product.discount,
+                                    viewModel = homePageViewModel
+                                ) {
+                                    val route =
+                                        "${Screens.Product.route}/${Uri.encode(product.category)}/${product.id}"
+                                    navController.navigate(route)
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -349,23 +354,37 @@ fun ProductPage(
                                 //TODO
                             })
                     }
-
+                    val endIndex = minOf(4, product!!.reviews.size)
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(Variables.innerItemGapLow),
                         modifier = Modifier.heightIn(
-                            min = (product!!.reviews.subList(
-                                fromIndex = 0, toIndex = 6
-                            ).size * 150).dp, max = (product!!.reviews.subList(
-                                fromIndex = 0, toIndex = 6
-                            ).size * 320).dp
+                            min = 160.dp, max = (product!!.reviews.subList(
+                                fromIndex = 0, toIndex = endIndex
+                            ).size * 260 + 60).dp
                         )
                     ) {
-                        items(
-                            items = product!!.reviews.subList(
-                                fromIndex = 0, toIndex = 6
-                            )
-                        ) { review ->
-                            DisplayReview(review = review)
+                        if (product!!.reviews.size > 0) {
+                            items(
+                                items = product!!.reviews.subList(
+                                    fromIndex = 0, toIndex = endIndex
+                                )
+                            ) { review ->
+                                DisplayReview(review = review)
+                            }
+                        } else {
+                            item {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        text = "There are no reviews yet. Be the first to share your thought!",
+                                        style = Typography.p,
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
+                            }
                         }
                     }
                     Text(text = "Show more",
@@ -404,26 +423,4 @@ fun ProductPage(
     }
 }
 
-data class Product(
-    val name: String = "Ink Pen Second In Line long long long name",
-    val price: Double = 0.0,
-    val images: List<String> = emptyList(),
-    val category: String = "Calligraphy ink brush",
-    val rating: Double = 4.2,
-    var description: String = "Lorem ipsum dolor sit amet consectetur. A orci vulputate id tempus duis erat bibendum lacus suspendisse. Sed commodo tristique vitae et augue leo viverra. Tincidunt in nibh elementum scelerisque in. Tempus facilisis rhoncus vel at facilisis ridiculus id eu.",
-    var specifications: List<Pair<String, String>>? = listOf(
-        "Model Number" to "UNI 211207",
-        "Manufacturer" to "Uni",
-        "Body Color" to "Light Blue",
-        "Body Material" to "Plastic",
-        "Capped" to "No",
-        "Clean-out Rod Included" to "No",
-        "Clip Material" to "Plastic",
-        "Clippable" to "Yes",
-        "Tip Material" to "Metal",
-        "Tip Replaceable" to "No"
-    ),
-    val reviews: List<Review> = emptyList(),
-    val discount: Double = 0.0,
-    val id: String = "",
-)
+

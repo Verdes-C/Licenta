@@ -50,6 +50,38 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
         startDestination = Screens.HomePage.route,
         modifier = Modifier.padding(innerPadding)
     ) {
+
+        composable(route = Screens.Categories.route) { backStackEntry ->
+            CategoriesPage(navController = navController)
+        }
+
+        composable("product/{category}/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId")
+            val productCategory = Uri.decode(backStackEntry.arguments?.getString("category"))
+            if (productId != null && productCategory != null) {
+                ProductPage(navController, productId, productCategory)
+            } else {
+                //! Handle error
+            }
+        }
+
+        composable(route = Screens.HomePage.route) { backStackEntry ->
+            HomePage(navController = navController)
+        }
+
+
+        composable(route = Screens.Cart.route) { backStackEntry ->
+            CartPage(navController = navController)
+        }
+
+        composable(route = Screens.Favorites.route) { backStackEntry ->
+            FavoritesPage(navController = navController)
+        }
+
+        composable(route = Screens.ResetPassword.route) { backStackEntry ->
+            ResetPassword(navController = navController)
+        }
+
         navigation(
             startDestination = Screens.Profile.route,
             route = "profileGraph"
@@ -74,36 +106,6 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
                 RegisterNewUser(navController = navController)
             }
 
-        }
-
-        composable("product/{category}/{productId}") { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId")
-            val productCategory = Uri.decode(backStackEntry.arguments?.getString("category"))
-            if (productId != null && productCategory != null) {
-                ProductPage(navController, productId, productCategory)
-            } else {
-                //! Handle error
-            }
-        }
-
-        composable(route = Screens.HomePage.route) { backStackEntry ->
-            HomePage(navController = navController)
-        }
-
-        composable(route = Screens.Categories.route) { backStackEntry ->
-            CategoriesPage(navController = navController)
-        }
-
-        composable(route = Screens.Cart.route) { backStackEntry ->
-            CartPage(navController = navController)
-        }
-
-        composable(route = Screens.Favorites.route) { backStackEntry ->
-            FavoritesPage(navController = navController)
-        }
-
-        composable(route = Screens.ResetPassword.route) { backStackEntry ->
-            ResetPassword(navController = navController)
         }
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->

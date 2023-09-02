@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.facultate.licenta.R
-import com.facultate.licenta.screens.cart.CartItem
+import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.screens.cart.CartPageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
@@ -50,7 +50,7 @@ import kotlin.math.ceil
 @Composable
 fun DisplayCartItem(
     modifier: Modifier = Modifier,
-    cartItem: CartItem = CartItem(),
+    cartItem: CartItem,
     viewModel: CartPageViewModel,
     isFavorite: Boolean = false,
     navigateToProduct: () -> Unit

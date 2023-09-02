@@ -1,30 +1,24 @@
 package com.facultate.licenta.screens.favorites
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.facultate.licenta.firebase.FirebaseProductRepository
+import com.facultate.licenta.firebase.Repository
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.Product
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
-import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.screens.product.Product
-import com.facultate.licenta.utils.CartItemShort
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewmodel @Inject constructor(
     val store: Store<ApplicationState>,
     private val actions: Actions,
-    private val repository: FirebaseProductRepository
+    private val repository: Repository
 ) : ViewModel() {
-    val auth = Firebase.auth
 
     var favoriteItems = MutableStateFlow<List<Product>>(listOf())
 
@@ -40,10 +34,16 @@ class FavoritesViewmodel @Inject constructor(
         )
         favoriteItems.value =
             repository.getFavoriteItems(viewModelScope, favoriteItems = newFavoriteItems)
+        actions.removeItemFromFavorites(productId = productId, productCategory = productCategory)
         repository.updateRemoteFavorites(newFavoriteItems = newFavoriteItems)
     }
 
-    suspend fun addToCart(productId: String,productCategory: String,discount: Double, quantity: Int) {
+    suspend fun addToCart(
+        productId: String,
+        productCategory: String,
+        discount: Double,
+        quantity: Int
+    ) {
         val newCartItems = actions.getCartItems().toMutableList()
         val item = repository.getCartItem(
             cartItem = CartItemShort(

@@ -1,32 +1,27 @@
 package com.facultate.licenta.screens.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.facultate.licenta.hilt.interfaces.ProductRepository
+import com.facultate.licenta.hilt.interfaces.FirebaseRepository
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.Product
+import com.facultate.licenta.model.Review
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
-import com.facultate.licenta.screens.cart.CartItem
-import com.facultate.licenta.screens.product.Product
-import com.facultate.licenta.utils.CartItemShort
-import com.facultate.licenta.utils.FavoriteItem
-import com.facultate.licenta.utils.Review
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
 @HiltViewModel
 class HomePageViewModel @Inject constructor(
     val store: Store<ApplicationState>,
-    private val repository: ProductRepository,
+    private val repository: FirebaseRepository,
     private val actions: Actions
 ) : ViewModel() {
     val promotions = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
@@ -34,6 +29,13 @@ class HomePageViewModel @Inject constructor(
     val findNew = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
 
     fun loadHomeData() {
+        val collections = listOf(
+            "Art Brush",
+            "Calligraphy Brush",
+            "Calligraphy Dip Pen",
+            "Calligraphy Fountain Pen",
+
+        )
         viewModelScope.launch {
             val promotionsDeferred = async { fetchProducts("Promotions") }
             val newArrivalsDeferred = async { fetchProducts("New Arrivals") }

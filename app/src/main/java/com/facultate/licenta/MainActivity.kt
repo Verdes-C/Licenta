@@ -22,11 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
             viewModel.updateUserData()
-            //! Remove
-//            viewModel.addOrUpdateToHomeSection(
-//                products = products,
-//                section = "Find Something New"
-//            )
+
             val screens = listOf(
                 Screens.HomePage to ImageVector.vectorResource(id = R.drawable.icon_home),
                 Screens.Categories to ImageVector.vectorResource(id = R.drawable.icon_category),
@@ -39,18 +35,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-//val products = listOf(
-//    SpecialProduct(
-//        productId = "5ddd5794-007f-439c-a805-ea1817a288e8",
-//        category = "Flexible Nib",
-//    ),SpecialProduct(
-//        productId = "52e88300-f22f-4322-a48e-7fa975d59d2d",
-//        category = "Flexible Nib",
-//    ),SpecialProduct(
-//        productId = "97731607-484b-4e91-9114-27835415611b",
-//        category = "Flexible Nib",
-//    ),
-//)
+
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

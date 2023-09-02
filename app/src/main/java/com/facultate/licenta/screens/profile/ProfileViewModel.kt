@@ -1,12 +1,14 @@
 package com.facultate.licenta.screens.profile
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.facultate.licenta.hilt.interfaces.ProductRepository
+import com.facultate.licenta.hilt.interfaces.FirebaseRepository
+import com.facultate.licenta.model.UserData
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
-import com.facultate.licenta.utils.UserData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +24,7 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     val store: Store<ApplicationState>,
     private val actions: Actions,
-    private val repository: ProductRepository,
+    private val repository: FirebaseRepository,
 ) : ViewModel() {
     private val auth = Firebase.auth
 
@@ -35,27 +37,47 @@ class ProfileViewModel @Inject constructor(
         viewModelScope,
         SharingStarted.Eagerly, null
     )
+    var exceptionMessage: MutableStateFlow<String> = MutableStateFlow("")
 
     suspend fun signUpUsingCredentials(email: String, password: String) {
-        repository.signUpUsingEmailAndPassword(
+        val response = repository.signUpUsingEmailAndPassword(
             viewModelScope = viewModelScope,
             email = email,
             password = password
         )
-        isAuth.value = true
+        if (response == "") {
+            Log.d("REGISTER",response)
+            actions.updateUserData(userData = UserData(email = email))
+            isAuth.value = true
+        }else if(response == "Not verified"){
+            exceptionMessage.value = "Please verify your email before logging in."
+        }
     }
 
-    suspend fun logInWithEmailAndPassword(email: String, password: String) {
-        val userData = repository.retrieveUserData(
-            viewModelScope = viewModelScope,
-            email = email,
-            password = password
-        )
-        auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
-            viewModelScope.launch {
-                actions.updateUserData(userData = userData)
+    suspend fun logInWithEmailAndPassword(email: String, password: String, context: Context) {
+        if(auth.currentUser?.isEmailVerified == true){
+            auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
+                viewModelScope.launch {
+                    val userData = repository.retrieveUserData(
+                        viewModelScope = viewModelScope,
+                        email = email,
+                    )
+                    actions.updateUserData(userData = userData)
+                    store.read { applicationState ->
+                        viewModelScope.launch {
+                            repository.updateRemoteCart(newCartProducts = applicationState.cartProducts)
+                            repository.updateRemoteFavorites(newFavoriteItems = applicationState.favoriteItems.toSet())
+                            isAuth.value = true
+                        }
+                    }
+                }
+            }.addOnFailureListener { e ->
+                repository.notifyUserOfError(context = context, message = e.message)
+                repository.saveErrorToDB(exception = e)
+                exceptionMessage.value = e.message!!
             }
-            isAuth.value = true
+        }else{
+            exceptionMessage.value = "Please verify your email before logging in."
         }
     }
 
@@ -85,40 +107,37 @@ class ProfileViewModel @Inject constructor(
     }
 
     suspend fun readUserData(): UserData? {
-        var toReturn = store.read {
+        val toReturn = store.read {
             it.userData
         }
         return toReturn
 
     }
 
-    suspend fun updateUserDetails(userData: UserData) {
+    suspend fun updateUserDetails(userData: UserData) = viewModelScope.launch {
         var newUserData: UserData?
-        viewModelScope.launch {
-            store.update { applicationState ->
-                val oldUserData = applicationState.userData
-                newUserData = UserData(
-                    firstName = if (userData.firstName.isNotEmpty()) userData.firstName else oldUserData!!.firstName,
-                    lastName = if (userData.lastName.isNotEmpty()) userData.lastName else oldUserData!!.lastName,
-                    email = if (userData.email.isNotEmpty()) userData.email else oldUserData!!.email,
-                    phoneNumber = if (userData.phoneNumber.isNotEmpty()) userData.phoneNumber else oldUserData!!.phoneNumber,
-                    address = if (userData.address.isNotEmpty()) userData.address else oldUserData!!.address,
-                    zipCode = if (userData.zipCode.isNotEmpty()) userData.zipCode else oldUserData!!.zipCode,
-                    city = if (userData.city.isNotEmpty()) userData.city else oldUserData!!.city,
-                    state = if (userData.state.isNotEmpty()) userData.state else oldUserData!!.state,
-                    favoriteItems = oldUserData!!.favoriteItems,
-                    cartItem = oldUserData!!.cartItem
-                )
-                println(newUserData)
-                return@update applicationState.copy(
-                    userData = newUserData
-                )
-            }
-            val userData = readUserData()
-            repository.updateUserData(userData = userData!!)
-
+        store.update { applicationState ->
+            val oldUserData = applicationState.userData
+            newUserData = UserData(
+                firstName = if (userData.firstName.isNotEmpty()) userData.firstName else oldUserData!!.firstName,
+                lastName = if (userData.lastName.isNotEmpty()) userData.lastName else oldUserData!!.lastName,
+                email = if (userData.email.isNotEmpty()) userData.email else oldUserData!!.email,
+                phoneNumber = if (userData.phoneNumber.isNotEmpty()) userData.phoneNumber else oldUserData!!.phoneNumber,
+                address = if (userData.address.isNotEmpty()) userData.address else oldUserData!!.address,
+                zipCode = if (userData.zipCode.isNotEmpty()) userData.zipCode else oldUserData!!.zipCode,
+                city = if (userData.city.isNotEmpty()) userData.city else oldUserData!!.city,
+                state = if (userData.state.isNotEmpty()) userData.state else oldUserData!!.state,
+                favoriteItems = oldUserData!!.favoriteItems,
+                cartItem = oldUserData.cartItem
+            )
+            return@update applicationState.copy(
+                userData = newUserData
+            )
         }
+        repository.updateUserData(userData = userData)
     }
 
-
+    fun resetPassword(email: String) = viewModelScope.launch {
+        exceptionMessage.value = repository.resetPassword(email = email)
+    }
 }

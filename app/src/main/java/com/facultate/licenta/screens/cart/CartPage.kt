@@ -31,12 +31,12 @@ import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.DisplayCartItem
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.model.CartItem
+import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
-import com.facultate.licenta.utils.FavoriteItem
 import kotlinx.coroutines.launch
-import retrofit2.http.Url
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -168,15 +168,3 @@ fun DisplayEmptyCart() {
     }
 }
 
-data class CartItem(
-//    TODO remove defaults other than quantity
-    val productId: String = "123123123",
-    val productName: String = "ProductName",
-    val productImage: String = "",
-    val productImageDescription: String = "Product image description",
-    val productPrice: Double = 123.24,
-    val productDiscount: Double = 0.0,
-    val productCategory: String = "",
-    var productQuantity: Int = 1,
-    val rating: Double = 5.0,
-)

@@ -1,7 +1,5 @@
 package com.facultate.licenta.screens.profile
 
-import android.media.tv.TvContract.Channels.Logo
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,9 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.Divider
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -23,15 +19,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.CustomTextField
 import com.facultate.licenta.components.Logo
@@ -40,9 +34,6 @@ import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import com.facultate.licenta.utils.validateEmail
 import com.facultate.licenta.utils.validatePassword
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -78,11 +69,14 @@ fun RegisterNewUser(
         mutableStateOf(false to "")
     }
 
-    var showTosWarning by remember {
-        mutableStateOf(false)
+    var showWarning by remember {
+        mutableStateOf(false to "")
     }
 
     val isAuth by viewModel.isAuth.collectAsState()
+
+    val messsage by viewModel.exceptionMessage.collectAsState()
+
     if (isAuth) {
         navController.navigate(Screens.Profile.route)
     } else {
@@ -122,6 +116,8 @@ fun RegisterNewUser(
                         label = usernameOrEmailValidationFailed.second.ifEmpty { "Email address" },
                         placeholder = "Input a valid email address",
                         onValueChange = { newValue ->
+                            if (usernameOrEmailValidationFailed.first) usernameOrEmailValidationFailed =
+                                false to ""
                             usernameOrEmail = newValue
                         }
                     )
@@ -132,6 +128,8 @@ fun RegisterNewUser(
                         label = passwordValidationFailed.second.ifEmpty { "Password" },
                         placeholder = "At least 8 characters, one digit, and one special character",
                         onValueChange = { newValue ->
+                            if (passwordValidationFailed.first) passwordValidationFailed =
+                                false to ""
                             password = newValue
                         },
                         isPassword = true
@@ -147,6 +145,27 @@ fun RegisterNewUser(
                         },
                         isPassword = true
                     )
+
+                    if (messsage.isNotEmpty()) {
+                        Text(
+                            text = "Error: $messsage", style = Typography.p.copy(
+                                color = Color.Red
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    if (
+                        showWarning.first
+                    ) {
+                        Text(
+                            text = showWarning.second,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = Variables.outerItemGap),
+                            textAlign = TextAlign.Center,
+                        )
+                    }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -165,18 +184,16 @@ fun RegisterNewUser(
                         ) {
                             usernameOrEmailValidationFailed =
                                 true to "Please insert a valid email address"
-                        }
-
-                        if (
+                        } else if (
                             !validatePassword(password)
                         ) {
                             passwordValidationFailed =
                                 true to "At least 8 characters, one capital letter, one digit and one special character"
-                        }
-                        if (password != passwordTest) {
-                            showTosWarning = true
-                        }
-                        if (validateEmail(usernameOrEmail) && validatePassword(password) && password == passwordTest) {
+                        } else if (password != passwordTest) {
+                            passwordValidationFailed = true to "Passwords to not match"
+                        } else if (tosAccepted == false) {
+                            showWarning = true to "Please accept the Terms of Service"
+                        } else if (validateEmail(usernameOrEmail) && validatePassword(password) && password == passwordTest && tosAccepted) {
                             viewModel.viewModelScope.launch {
                                 viewModel.signUpUsingCredentials(
                                     email = usernameOrEmail,
@@ -185,19 +202,6 @@ fun RegisterNewUser(
                             }
                         }
                     }
-
-
-                }
-            }
-            item {
-                if (
-                    showTosWarning
-                ) {
-                    Text(
-                        text = "Please accept the Terms of Service",
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
                 }
             }
         }

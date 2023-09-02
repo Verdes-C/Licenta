@@ -1,7 +1,6 @@
 package com.facultate.licenta.screens.home
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,18 +13,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.facultate.licenta.components.HomeScreenDisplaySection
 import com.facultate.licenta.components.HomeScreenProductDisplay
 import com.facultate.licenta.components.SearchBar
+import com.facultate.licenta.model.Product
 import com.facultate.licenta.navigation.Screens
-import com.facultate.licenta.screens.product.Product
-import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 
