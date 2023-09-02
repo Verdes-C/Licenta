@@ -1,5 +1,6 @@
 package com.facultate.licenta.screens.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -48,16 +49,21 @@ import com.facultate.licenta.components.SocialLoginPlatforms
 import com.facultate.licenta.components.TopBar
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.navigation.Screens
+import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import com.facultate.licenta.utils.validateEmail
 import com.facultate.licenta.utils.validatePassword
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileHomePage(
     navController: NavHostController,
     viewModel: ProfileViewModel = hiltViewModel(),
+    logout: ()->Unit,
+    googleSignIn: () -> Unit
 ) {
 
     val context = LocalContext.current
@@ -79,7 +85,7 @@ fun ProfileHomePage(
             MenuEntries.ShippingAdress to {},
             MenuEntries.Support to {},
             MenuEntries.Logout to {
-                viewModel.logout()
+                logout.invoke()
                 navController.navigate(Screens.Profile.route)
             },
         )
@@ -89,7 +95,6 @@ fun ProfileHomePage(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.viewModelScope.launch {
-            viewModel.isAuth()
             viewModel.readUserData()
         }
     }
@@ -101,7 +106,7 @@ fun ProfileHomePage(
         verticalArrangement = Arrangement.spacedBy(Variables.outerItemGap),
         horizontalAlignment = Alignment.Start,
     ) {
-        if (userIsAuth) {
+        if (userIsAuth == ApplicationState.AuthState.Authenticated) {
             displayLoggedInUser(
                 lazyListScope = this,
                 navController = navController,
@@ -113,6 +118,7 @@ fun ProfileHomePage(
                 DisplayLoginPage(
                     navController = navController,
                     viewModel = viewModel,
+                    googleSignIn = googleSignIn
                 )
             }
         }
@@ -123,6 +129,7 @@ fun ProfileHomePage(
 fun DisplayLoginPage(
     navController: NavHostController,
     viewModel: ProfileViewModel,
+    googleSignIn: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -151,8 +158,6 @@ fun DisplayLoginPage(
     var keepLoggedIn by remember {
         mutableStateOf(false)
     }
-
-
 
     Column(
         modifier = Modifier
@@ -268,8 +273,9 @@ fun DisplayLoginPage(
                 modifier = Modifier.weight(1f),
                 socialPlatform = SocialLoginPlatforms.Google
             ) {
-                //TODO Google Login
-
+                    CoroutineScope(Dispatchers.Main).launch{
+                        googleSignIn.invoke()
+                    }
             }
 //            Buttons.SocialLogin(
 //                modifier = Modifier.weight(1f),

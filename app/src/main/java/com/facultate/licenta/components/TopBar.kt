@@ -64,7 +64,9 @@ fun TopBar(
                 //_ set the onClick animation to null
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
-            ) { navigate.invoke() }
+            ) {
+                navigate.invoke()
+            }
     ) {
         if (displayArrow) {
             Icon(

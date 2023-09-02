@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.GoogleSignInStatus
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
 import com.facultate.licenta.utils.MappersTo.userData
@@ -12,6 +13,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -34,7 +36,6 @@ class MainActivityViewModel @Inject constructor(
                 .addOnFailureListener { e ->
                     Log.w("TESTING", e.toString(), e)
                 }
-
         }
     }
 
@@ -77,30 +78,6 @@ class MainActivityViewModel @Inject constructor(
             }
         }
     }
-
-
-
-//    fun addToCart(productId: String, quantity:Int = 1){
-//        viewModelScope.launch{
-//            store.update {applicationState ->
-//                val cartItems = applicationState.cartProducts as MutableList
-//                var itemNotInCart = false
-//                cartItems.forEach { item->
-//                    if (productId == item.productId){
-//                        item.productQuantity += quantity
-//                        itemNotInCart = true
-//                    }
-//                }
-//                if(itemNotInCart){
-//                    cartItems + CartItem(productId = productId, productQuantity = quantity)
-//                }
-//                return@update applicationState.copy(
-//                    cartProducts = cartItems
-//                )
-//            }
-//        }
-//    }
-
 }
 
 data class SpecialProduct(

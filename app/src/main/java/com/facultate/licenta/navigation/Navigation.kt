@@ -1,7 +1,10 @@
 package com.facultate.licenta.navigation
 
+import android.app.Activity.RESULT_OK
 import android.net.Uri
-import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -29,6 +35,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
+import com.facultate.licenta.firebase.GoogleAuthUiClient
 import com.facultate.licenta.screens.cart.CartPage
 import com.facultate.licenta.screens.categories.CategoriesPage
 import com.facultate.licenta.screens.favorites.FavoritesPage
@@ -37,14 +44,24 @@ import com.facultate.licenta.screens.product.ProductPage
 import com.facultate.licenta.screens.profile.AccountDataPage
 import com.facultate.licenta.screens.profile.Orders
 import com.facultate.licenta.screens.profile.ProfileHomePage
+import com.facultate.licenta.screens.profile.ProfileViewModel
 import com.facultate.licenta.screens.profile.RegisterNewUser
 import com.facultate.licenta.screens.profile.ResetPassword
 import com.facultate.licenta.screens.profile.VouchersPage
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import kotlinx.coroutines.launch
 
 @Composable
-fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
+fun NavHost(
+    navController: NavHostController,
+    innerPadding: PaddingValues,
+    lifeCycleScope: LifecycleCoroutineScope,
+    googleAuthUiClient: GoogleAuthUiClient,
+    profileViewModel: ProfileViewModel,
+) {
+
+
     NavHost(
         navController = navController,
         startDestination = Screens.HomePage.route,
@@ -87,7 +104,35 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
             route = "profileGraph"
         ) {
             composable(Screens.Profile.route) { backStackEntry ->
-                ProfileHomePage(navController = navController)
+                val isAuth = profileViewModel.isAuth.collectAsStateWithLifecycle()
+
+                val launcher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartIntentSenderForResult(),
+                    onResult = { result ->
+                        if (result.resultCode == RESULT_OK) {
+                            lifeCycleScope.launch {
+                                val signInResult = googleAuthUiClient.signInWithIntent(
+                                    intent = result.data ?: return@launch
+                                )
+                                profileViewModel.onSignInResult(signInResult)
+                            }
+                        }
+                    }
+                )
+                ProfileHomePage(navController = navController, logout = {
+                    lifeCycleScope.launch {
+                        googleAuthUiClient.signOut()
+                    }
+                }) {
+                    lifeCycleScope.launch {
+                        val signInIntentSender = googleAuthUiClient.signIn()
+                        launcher.launch(
+                            IntentSenderRequest.Builder(
+                                signInIntentSender ?: return@launch
+                            ).build()
+                        )
+                    }
+                }
             }
 
             composable(Screens.Orders.route) { backStackEntry ->
@@ -134,7 +179,13 @@ fun NavHost(navController: NavHostController, innerPadding: PaddingValues) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostController) {
+fun BottomNav(
+    screens: List<Pair<Screens, ImageVector>>,
+    navController: NavHostController,
+    lifecycleScope: LifecycleCoroutineScope,
+    googleAuthUiClient: GoogleAuthUiClient,
+    profileViewModel: ProfileViewModel,
+) {
     Scaffold(
         bottomBar = {
             Column {
@@ -205,6 +256,12 @@ fun BottomNav(screens: List<Pair<Screens, ImageVector>>, navController: NavHostC
             }
         }
     ) { innerPadding ->
-        NavHost(navController = navController, innerPadding = innerPadding)
+        NavHost(
+            navController = navController,
+            innerPadding = innerPadding,
+            lifeCycleScope = lifecycleScope,
+            googleAuthUiClient = googleAuthUiClient,
+            profileViewModel = profileViewModel
+        )
     }
 }

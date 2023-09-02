@@ -3,6 +3,8 @@ package com.facultate.licenta.firebase
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.facultate.licenta.MainActivity
+import com.facultate.licenta.R
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
@@ -12,10 +14,16 @@ import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
 import com.facultate.licenta.utils.MappersTo
 import com.facultate.licenta.utils.MappersTo.cartItem
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.rpc.context.AttributeContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -24,6 +32,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
+import java.util.concurrent.Flow
 import javax.inject.Inject
 
 class Repository @Inject constructor(
@@ -60,20 +69,24 @@ class Repository @Inject constructor(
     }
 
     override suspend fun retrieveUserData(
-        viewModelScope: CoroutineScope,
         email: String,
     ): UserData? = coroutineScope {
         var userData: UserData? = null
 
         val document = firestore.collection("Users").document(email).get().await()
-        userData = MappersTo.userData(document.data)
-
+        Log.d("GOOGLE", "inside of retrieveUserData ${document}")
+        Log.d("GOOGLE", "inside of retrieveUserData check for document.doc ${document.data}")
+        if(document.exists()){
+            Log.d("GOOGLE", "inside of retrieveUserData - document exists ${document}")
+            userData = MappersTo.userData(document.data)
+        }
         return@coroutineScope userData
     }
 
     override suspend fun updateUserData(
         userData: UserData
     ) {
+        Log.d("GOOGLE", "inside of updateuserData ${userData}")
         firestore.collection("Users")
             .document(userData.email)
             .set(
@@ -83,8 +96,12 @@ class Repository @Inject constructor(
                 SetOptions.merge()  //_ Create or merge data
             )
             .addOnSuccessListener {
+                Log.d("GOOGLE", "saved successfully ${userData}")
+
             }
             .addOnFailureListener { exception ->
+                Log.d("GOOGLE", "failed ${userData} and error ${exception.message}")
+
                 saveErrorToDB(exception)
             }
             .await()
@@ -182,7 +199,7 @@ class Repository @Inject constructor(
             document?.reference?.update("cartItems", newCartProducts)?.await()
             println("Updated cartItems: $newCartProducts")
         } catch (e: Exception) {
-            Log.w("TESTING", "Error updating favorite items: ", e)
+            Log.w("TESTING", "Error updating cart items: ", e)
         }
     }
 
@@ -262,6 +279,5 @@ class Repository @Inject constructor(
             Log.w("TESTING", "Error updating favorite items: ", e)
         }
     }
-
 
 }

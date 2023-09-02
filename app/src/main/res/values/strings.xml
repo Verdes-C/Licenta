@@ -11,4 +11,5 @@
     <string name="accountData">Account Data</string>
     <string name="reset_password">Reset password</string>
     <string name="register_user">Register User</string>
+    <string name="google_web_client_id">738866938562-gjdag9f0hki99k7fsamhg37jpkhalar2.apps.googleusercontent.com</string>
 </resources>

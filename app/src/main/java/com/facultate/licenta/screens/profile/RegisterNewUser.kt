@@ -30,6 +30,7 @@ import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.CustomTextField
 import com.facultate.licenta.components.Logo
 import com.facultate.licenta.navigation.Screens
+import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import com.facultate.licenta.utils.validateEmail
@@ -77,7 +78,7 @@ fun RegisterNewUser(
 
     val messsage by viewModel.exceptionMessage.collectAsState()
 
-    if (isAuth) {
+    if (isAuth == ApplicationState.AuthState.Authenticated) {
         navController.navigate(Screens.Profile.route)
     } else {
         LazyColumn(

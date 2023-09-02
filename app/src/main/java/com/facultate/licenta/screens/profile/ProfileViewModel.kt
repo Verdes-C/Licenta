@@ -4,7 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.facultate.licenta.firebase.GoogleAuthUiClient
+import com.facultate.licenta.firebase.SignInResult
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
+import com.facultate.licenta.model.GoogleSignInStatus
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
@@ -14,7 +17,10 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,11 +34,12 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val auth = Firebase.auth
 
-    //    var isAuth: StateFlow<ApplicationState.AuthState> =
-//        store.stateFlow.map { it.authState }.stateIn(
-//            viewModelScope, SharingStarted.Lazily, ApplicationState.AuthState.Unauthenticated()
-//        )
-    var isAuth = MutableStateFlow(false)
+    var isAuth: StateFlow<ApplicationState.AuthState> =
+        store.stateFlow.map { it.authState }.distinctUntilChanged().stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(),
+            ApplicationState.AuthState.Unauthenticated()
+        )
     var userData = store.stateFlow.map { it.userData }.distinctUntilChanged().stateIn(
         viewModelScope,
         SharingStarted.Eagerly, null
@@ -46,64 +53,39 @@ class ProfileViewModel @Inject constructor(
             password = password
         )
         if (response == "") {
-            Log.d("REGISTER",response)
+            Log.d("REGISTER", response)
             actions.updateUserData(userData = UserData(email = email))
-            isAuth.value = true
-        }else if(response == "Not verified"){
+        } else if (response == "Not verified") {
             exceptionMessage.value = "Please verify your email before logging in."
         }
     }
 
     suspend fun logInWithEmailAndPassword(email: String, password: String, context: Context) {
-        if(auth.currentUser?.isEmailVerified == true){
-            auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
-                viewModelScope.launch {
-                    val userData = repository.retrieveUserData(
-                        viewModelScope = viewModelScope,
-                        email = email,
-                    )
-                    actions.updateUserData(userData = userData)
-                    store.read { applicationState ->
-                        viewModelScope.launch {
-                            repository.updateRemoteCart(newCartProducts = applicationState.cartProducts)
-                            repository.updateRemoteFavorites(newFavoriteItems = applicationState.favoriteItems.toSet())
-                            isAuth.value = true
-                        }
+        auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
+            viewModelScope.launch {
+                val userData = repository.retrieveUserData(
+                    email = email,
+                )
+                actions.updateUserData(userData = userData)
+                store.read { applicationState ->
+                    viewModelScope.launch {
+                        repository.updateRemoteCart(newCartProducts = applicationState.cartProducts)
+                        repository.updateRemoteFavorites(newFavoriteItems = applicationState.favoriteItems.toSet())
                     }
                 }
-            }.addOnFailureListener { e ->
-                repository.notifyUserOfError(context = context, message = e.message)
-                repository.saveErrorToDB(exception = e)
-                exceptionMessage.value = e.message!!
             }
-        }else{
-            exceptionMessage.value = "Please verify your email before logging in."
+        }.addOnFailureListener { e ->
+            repository.notifyUserOfError(context = context, message = e.message)
+            repository.saveErrorToDB(exception = e)
+            exceptionMessage.value = e.message!!
         }
     }
 
-
-    fun logout() {
-        viewModelScope.launch {
-            store.update { applicationState ->
-                return@update applicationState.copy(
-                    authState = ApplicationState.AuthState.Unauthenticated(),
-                    userData = null,
-                    cartProducts = listOf(),
-                    favoriteItems = mutableSetOf(),
-                )
-            }
-            auth.signOut()
-            isAuth.value = false
+    fun onSignInResult(result: SignInResult) {
+        if (result.data != null) {
+            println("GOOGLE SIGNIN  ${result.data}")
         }
-    }
-
-    fun isAuth() {
-        viewModelScope.launch {
-            store.read {
-                isAuth.value =
-                    it.authState != ApplicationState.AuthState.Unauthenticated()
-            }
-        }
+        exceptionMessage.value = result.errorMessage ?: ""
     }
 
     suspend fun readUserData(): UserData? {
@@ -140,4 +122,5 @@ class ProfileViewModel @Inject constructor(
     fun resetPassword(email: String) = viewModelScope.launch {
         exceptionMessage.value = repository.resetPassword(email = email)
     }
+
 }

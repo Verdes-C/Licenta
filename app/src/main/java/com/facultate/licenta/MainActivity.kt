@@ -7,20 +7,47 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.facultate.licenta.firebase.GoogleAuthUiClient
+import com.facultate.licenta.hilt.interfaces.FirebaseRepository
 import com.facultate.licenta.navigation.BottomNav
 import com.facultate.licenta.navigation.Screens
+import com.facultate.licenta.redux.Actions
+import com.facultate.licenta.screens.profile.ProfileViewModel
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.compose.ui.res.vectorResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var auth: FirebaseAuth
+    @Inject
+    lateinit var actions: Actions
+    @Inject
+    lateinit var repository: FirebaseRepository
+
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            auth = auth,
+            action = actions,
+            repository = repository,
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext),
+        )
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
+            val profileViewModel : ProfileViewModel = hiltViewModel()
             viewModel.updateUserData()
 
             val screens = listOf(
@@ -31,22 +58,7 @@ class MainActivity : ComponentActivity() {
                 Screens.Profile to ImageVector.vectorResource(id = R.drawable.icon_profile)
             )
             val navController = rememberNavController()
-            BottomNav(screens = screens, navController = navController)
+            BottomNav(screens = screens, navController = navController, lifecycleScope = lifecycleScope, googleAuthUiClient = googleAuthUiClient, profileViewModel = profileViewModel)
         }
     }
-}
-
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Greeting("Android")
 }

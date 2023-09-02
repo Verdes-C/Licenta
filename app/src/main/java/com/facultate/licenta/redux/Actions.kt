@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class Actions @Inject constructor(
     private val store: Store<ApplicationState>,
-    private val repository: Repository
+    private val repository: Repository,
 ) {
 
     suspend fun updateUserData(userData: UserData?) {
@@ -39,6 +39,7 @@ class Actions @Inject constructor(
             } else {
                 newFavoriteItems = userData?.favoriteItems?.toMutableSet() ?: mutableSetOf()
             }
+            Log.d("GOOGLE", "updated loginState ${applicationState.authState}")
             return@update applicationState.copy(
                 authState = ApplicationState.AuthState.Authenticated,
                 userData = userData,
@@ -51,7 +52,7 @@ class Actions @Inject constructor(
 
     suspend fun toggleItemInFavorites(
         productId: String,
-        productCategory: String
+        productCategory: String,
     ): MutableSet<FavoriteItem> {
         var newFavoriteItems: MutableSet<FavoriteItem> = mutableSetOf()
 
@@ -84,7 +85,7 @@ class Actions @Inject constructor(
 
     suspend fun removeItemFromFavorites(
         productId: String,
-        productCategory: String
+        productCategory: String,
     ): MutableSet<FavoriteItem> {
         var newFavoriteItems: MutableSet<FavoriteItem> = mutableSetOf()
         val item = FavoriteItem(productId = productId, category = productCategory)
@@ -151,6 +152,18 @@ class Actions @Inject constructor(
         store.update { applicationState ->
             return@update applicationState.copy(
                 cartProducts = listOf<CartItem>()
+            )
+        }
+    }
+
+    suspend fun signOut() {
+        store.update { applicationState ->
+            return@update applicationState.copy(
+                authState = ApplicationState.AuthState.Unauthenticated(),
+                userData = UserData(email = ""),
+                search = "",
+                cartProducts = emptyList(),
+                favoriteItems = emptySet()
             )
         }
     }

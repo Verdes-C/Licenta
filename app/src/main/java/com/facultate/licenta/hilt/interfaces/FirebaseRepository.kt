@@ -6,17 +6,20 @@ import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.UserData
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.AuthResult
+import com.google.rpc.context.AttributeContext
 import kotlinx.coroutines.CoroutineScope
+import java.util.concurrent.Flow
 
 interface FirebaseRepository {
     suspend fun signUpUsingEmailAndPassword(
         viewModelScope: CoroutineScope,
         email: String,
         password: String
-    ):String
+    ): String
 
     suspend fun retrieveUserData(
-        viewModelScope: CoroutineScope,
         email: String,
     ): UserData?
 
@@ -43,5 +46,5 @@ interface FirebaseRepository {
     suspend fun updateRemoteCart(newCartProducts: List<CartItem>)
     fun saveErrorToDB(exception: Exception)
     fun notifyUserOfError(context: Context, message: String?)
-     suspend fun resetPassword(email: String): String
+    suspend fun resetPassword(email: String): String
 }
