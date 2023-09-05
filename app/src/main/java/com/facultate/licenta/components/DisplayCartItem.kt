@@ -164,7 +164,7 @@ fun DisplayCartItem(
                     Text(
                         text = "$${
                             Utils.calculateTotal(
-                                price = cartItem.productPrice,
+                                price = cartItem.productPrice - cartItem.productPrice * cartItem.productDiscount,
                                 quantity = cartItem.productQuantity
                             )
                         }",

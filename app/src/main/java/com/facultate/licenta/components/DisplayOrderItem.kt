@@ -28,6 +28,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.facultate.licenta.R
 import com.facultate.licenta.model.Order
 import com.facultate.licenta.model.OrderStatus
@@ -35,7 +37,7 @@ import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
 @Composable
-fun DisplayOrderItem(orderItem: Order) {
+fun DisplayOrderItem(orderItem: Order, navController:NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -76,16 +78,15 @@ fun DisplayOrderItem(orderItem: Order) {
         ) {
             items(items = orderItem.products) { productBought ->
                 //TODO MODIFY FOR IMAGE
-                Image(
-                    painter = painterResource(id = R.drawable.image_placeholder),
-                    contentDescription = "image description",
+                AsyncImage(
+                    model = productBought.productImage,
+                    contentDescription = productBought.productImageDescription,
                     modifier = Modifier
                         .requiredSize(size = 60.dp)
                         .clickable(
-//                                interactionSource = MutableInteractionSource(),
-//                                indication = null
+
                         ) {
-                            //TODO send to product
+                            navController.navigate("product/${productBought.productCategory}/${productBought.productId}")
                         }
                 )
             }

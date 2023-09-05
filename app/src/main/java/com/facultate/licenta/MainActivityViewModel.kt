@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.model.GoogleSignInStatus
+import com.facultate.licenta.model.Order
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
 import com.facultate.licenta.utils.MappersTo.userData
@@ -14,6 +15,11 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -43,6 +49,7 @@ class MainActivityViewModel @Inject constructor(
         var favoriteItems: Set<FavoriteItem> = setOf<FavoriteItem>()
         var cartItems: List<CartItem> = listOf<CartItem>()
         var isAuthenticated: ApplicationState.AuthState = ApplicationState.AuthState.Unauthenticated()
+        var ordersList: List<Order> = listOf()
         viewModelScope.launch {
             val email = auth.currentUser?.email
             val userData = if (email != null) {
@@ -61,19 +68,20 @@ class MainActivityViewModel @Inject constructor(
 
             if (auth.currentUser != null) {
                 favoriteItems = userData?.favoriteItems!!
-                cartItems = userData?.cartItem!!
+                cartItems = userData.cartItem
                 isAuthenticated = ApplicationState.AuthState.Authenticated
+                ordersList = userData.orders
             } else {
                 emptySet<FavoriteItem>() // Or handle the case where userData is null
             }
 
             store.update { applicationState ->
-                Log.d("TESTING", "update -> ${userData.toString()}")
                 applicationState.copy(
                     authState = isAuthenticated,
                     userData = userData,
                     favoriteItems = favoriteItems.toMutableSet(),
-                    cartProducts = cartItems
+                    cartProducts = cartItems,
+                    orders = ordersList
                 )
             }
         }

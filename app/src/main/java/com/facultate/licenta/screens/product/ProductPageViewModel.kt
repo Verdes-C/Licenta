@@ -64,9 +64,6 @@ class ProductPageViewModel @Inject constructor(
             }
         }
     }
-
-    //_ TODO tidy up
-
     suspend fun getRecommendedProducts() = coroutineScope {
         val recommendationsQueryDeferred = async {
             fireStore.collection("Find Something New").get().await()
@@ -92,8 +89,6 @@ class ProductPageViewModel @Inject constructor(
 
         }
     }
-
-
     suspend fun toggleFavorite(productId: String, productCategory: String) {
         val newFavoriteItems = actions.toggleItemInFavorites(productId, productCategory)
         isFavorite.value = newFavoriteItems.contains(
@@ -103,7 +98,6 @@ class ProductPageViewModel @Inject constructor(
         )
         repository.updateRemoteFavorites(newFavoriteItems)
     }
-
     suspend fun addToCart(
         productId: String, productCategory: String, discount: Double, quantity: Int
     ) {
@@ -125,6 +119,4 @@ class ProductPageViewModel @Inject constructor(
         actions.updateCart(newCartProducts = newCartItems.toList<CartItem>())
         repository.updateRemoteCart(newCartProducts = newCartItems.toList<CartItem>())
     }
-
-
 }

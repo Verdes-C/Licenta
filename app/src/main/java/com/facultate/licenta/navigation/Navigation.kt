@@ -6,10 +6,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
@@ -20,7 +22,9 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -200,6 +204,8 @@ fun BottomNav(
     googleAuthUiClient: GoogleAuthUiClient,
     profileViewModel: ProfileViewModel,
 ) {
+    val cartCount by profileViewModel.cartCount.collectAsState()
+
     Scaffold(
         bottomBar = {
             Column {
@@ -227,11 +233,24 @@ fun BottomNav(
                             alwaysShowLabel = false,
                             unselectedContentColor = Variables.grey6,
                             icon = {
-                                Icon(
-                                    imageVector = screen.second,
-                                    contentDescription = stringResource(id = screen.first.resourceId),
-                                    modifier = Modifier.size(32.dp)
-                                )
+                                Box(modifier = Modifier.size(40.dp)) {
+                                    Icon(
+                                        imageVector = screen.second,
+                                        contentDescription = stringResource(id = screen.first.resourceId),
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .align(Alignment.Center)
+                                    )
+                                    if(screen.first == Screens.Cart && cartCount>0){
+                                        Text(
+                                            text = "$cartCount", style = Typography.h4.copy(
+                                                color = Variables.red,
+                                            ),
+                                            modifier = Modifier.align(Alignment.TopEnd)
+                                                .offset(x = (5).dp, y = (-5).dp)
+                                        )
+                                    }
+                                }
                             },
                             label = {
                                 Text(

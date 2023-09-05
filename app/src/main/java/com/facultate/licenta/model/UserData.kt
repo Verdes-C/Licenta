@@ -13,5 +13,6 @@ data class UserData(
     var state: String = "",
     var favoriteItems: Set<FavoriteItem> = setOf(),
     var cartItem: List<CartItem> = listOf<CartItem>(),
+    var orders: List<Order> = listOf(),
 //    var cardPayment: CardPayment = CardPayment() SOON
 )

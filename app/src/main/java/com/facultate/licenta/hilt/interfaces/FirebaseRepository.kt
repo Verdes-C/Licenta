@@ -4,11 +4,9 @@ import android.content.Context
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Order
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.UserData
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.AuthResult
-import com.google.rpc.context.AttributeContext
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Flow
 
@@ -49,4 +47,6 @@ interface FirebaseRepository {
     fun saveErrorToDB(exception: Exception)
     fun notifyUserOfError(context: Context, message: String?)
     suspend fun resetPassword(email: String): String
+
+    suspend fun saveOrder(newOrder: Order, email: String)
 }

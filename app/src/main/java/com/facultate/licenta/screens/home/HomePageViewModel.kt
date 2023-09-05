@@ -47,7 +47,6 @@ class HomePageViewModel @Inject constructor(
             findNew.value = findNewDeferred.await()
         }
     }
-
     suspend fun addToCart(cartItem: CartItemShort, discount: Double = 0.0, quantity: Int = 1) =
         coroutineScope {
             val newCartItems = actions.getCartItems().toMutableList()
@@ -69,7 +68,6 @@ class HomePageViewModel @Inject constructor(
             actions.updateCart(newCartProducts = newCartItems.toList<CartItem>())
             repository.updateRemoteCart(newCartProducts = newCartItems.toList<CartItem>())
         }
-
     private suspend fun fetchProducts(collection: String): DataState<List<Product>> {
         return try {
             DataState.Success(repository.getSpecialProducts(collection = collection))
@@ -77,20 +75,14 @@ class HomePageViewModel @Inject constructor(
             DataState.Error(e)
         }
     }
-
 }
 
 fun calculateRating(reviews: List<Review>): Double {
 
     return Utils.calculateRating(reviews = reviews)
 }
-
-
 sealed class DataState<out T> {
     data class Success<T>(val data: T) : DataState<T>()
     data class Error(val exception: Throwable) : DataState<Nothing>()
     object Loading : DataState<Nothing>()
 }
-
-
-

@@ -1,10 +1,12 @@
 package com.facultate.licenta.model
 
+import java.util.UUID
+
 data class Order(
-    val useremail: String,
-    val orderNumber: Int,
+    val userEmail: String,
+    val orderNumber: UUID,
     val totalPrice: Double,
-    val fullAdress: String,
+    val fullAddress: String,
     val products: List<CartItem>,
     val status: OrderStatus = OrderStatus.AwaitingPayment,
 )
@@ -12,8 +14,6 @@ data class Order(
 sealed class OrderStatus {
     object AwaitingPayment : OrderStatus()
     object Paid : OrderStatus()
-    object AwaitingShipment : OrderStatus()
     object Shipped : OrderStatus()
-    object InDelivery : OrderStatus()
     object Delivered : OrderStatus()
 }

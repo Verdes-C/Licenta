@@ -3,13 +3,11 @@ package com.facultate.licenta.firebase
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.ui.text.toLowerCase
-import com.facultate.licenta.MainActivity
-import com.facultate.licenta.R
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Order
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
@@ -17,16 +15,11 @@ import com.facultate.licenta.utils.MappersTo
 import com.facultate.licenta.utils.MappersTo.cartItem
 import com.facultate.licenta.utils.MappersTo.collectionEntry
 import com.facultate.licenta.utils.MappersTo.product
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.AuthResult
+import com.facultate.licenta.utils.mapOrderToFirebaseData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.rpc.context.AttributeContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -35,8 +28,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
-import java.util.Locale
-import java.util.concurrent.Flow
 import javax.inject.Inject
 
 class Repository @Inject constructor(
@@ -87,7 +78,6 @@ class Repository @Inject constructor(
     override suspend fun updateUserData(
         userData: UserData,
     ) {
-        Log.d("GOOGLE", "inside of updateuserData ${userData}")
         firestore.collection("Users")
             .document(userData.email)
             .set(
@@ -97,11 +87,9 @@ class Repository @Inject constructor(
                 SetOptions.merge()  //_ Create or merge data
             )
             .addOnSuccessListener {
-                Log.d("GOOGLE", "saved successfully ${userData}")
 
             }
             .addOnFailureListener { exception ->
-                Log.d("GOOGLE", "failed ${userData} and error ${exception.message}")
 
                 saveErrorToDB(exception)
             }
@@ -165,8 +153,6 @@ class Repository @Inject constructor(
 
     override suspend fun getSearchProducts(category: String?, searchInput: String): List<Product> {
         val checks = searchInput.split(" ")
-        Log.d("TESTING", "inside of the getfunction -> checks ${checks}")
-        Log.d("TESTING", "inside of the getfunction -> category ${category}")
         val collectionList = listOf(
             "Art Brush",
             "Calligraphy Brush",
@@ -197,24 +183,14 @@ class Repository @Inject constructor(
                     }
                 }.toMutableList()
             }
-            Log.d("TESTING", "inside of the getfunction -> category == null ${resultItems}")
             return resultItems.toList()
         } else {
             val documents = firestore.collection(category).get().await()
             documents.forEach { document ->
                 checks.forEach { check ->
-                    Log.d(
-                        "TESTING",
-                        " check = ${check}"
-                    )
-                    Log.d(
-                        "TESTING",
-                        "product name = ${document.data["productName"].toString().lowercase()}"
-                    )
-                    Log.d(
-                        "TESTING",
-                        " result = ${check in document.data["productName"].toString().lowercase()}"
-                    )
+
+
+
                     if (check in document.data["productName"].toString().lowercase()) {
                         resultItems.add(
                             product(
@@ -345,6 +321,29 @@ class Repository @Inject constructor(
             println("Updated favoriteItems: $newFavoriteItems")
         } catch (e: Exception) {
             Log.w("TESTING", "Error updating favorite items: ", e)
+        }
+    }
+
+    override suspend fun saveOrder(newOrder: Order, email: String) {
+        val orderData = mapOrderToFirebaseData(newOrder)
+
+        val userDocument = firestore.collection("Users").document(email)
+
+        firestore.runTransaction { transaction ->
+            val userData = transaction.get(userDocument)
+
+            val ordersList = userData.get("orders") as? MutableList<HashMap<String, Any>> ?: mutableListOf()
+
+            ordersList.add(orderData as HashMap<String, Any>)
+
+            transaction.update(userDocument, "orders", ordersList)
+        }.addOnSuccessListener {
+            // Transaction succeeded
+            println("added")
+        }.addOnFailureListener { e ->
+            // Transaction failed
+            println("$e")
+
         }
     }
 

@@ -8,6 +8,7 @@ import com.facultate.licenta.firebase.GoogleAuthUiClient
 import com.facultate.licenta.firebase.SignInResult
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
 import com.facultate.licenta.model.GoogleSignInStatus
+import com.facultate.licenta.model.Order
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
@@ -45,6 +46,14 @@ class ProfileViewModel @Inject constructor(
         SharingStarted.Eagerly, null
     )
     var exceptionMessage: MutableStateFlow<String> = MutableStateFlow("")
+
+    val cartCount: StateFlow<Int> =
+        store.stateFlow.map { it.cartProducts.size }.distinctUntilChanged().stateIn(
+            viewModelScope, SharingStarted.Eagerly, 0
+        )
+
+    val orders: StateFlow<List<Order>> = store.stateFlow.map { it.orders }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
 
     suspend fun signUpUsingCredentials(email: String, password: String) {
         val response = repository.signUpUsingEmailAndPassword(

@@ -224,7 +224,7 @@ fun ProductPage(
                             Text(
                                 text = "$${
                                     Utils.calculateTotal(
-                                        price = product!!.price,
+                                        price = product!!.price - product!!.discount* product!!.price,
                                         quantity = quantity
                                     )
                                 }", style = Typography.h4.copy(

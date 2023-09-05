@@ -6,12 +6,16 @@ import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.model.CollectionEntry
 import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Order
+import com.facultate.licenta.model.OrderStatus
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.Review
 import com.facultate.licenta.model.TagData
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.QueryDocumentSnapshot
+import java.util.UUID
 
 
 object MappersTo {
@@ -72,7 +76,7 @@ object MappersTo {
             specifications = null,
             price = collectionEntry.tagData.productPrice,
             discount = discount,
-            id = collectionEntry.id
+            id = collectionEntry.id,
         )
     }
 
@@ -124,7 +128,8 @@ object MappersTo {
             "city" to userData.city,
             "state" to userData.state,
             "favoriteItems" to userData.favoriteItems.toList(),
-            "cartItems" to userData.cartItem.toList()
+            "cartItems" to userData.cartItem.toList(),
+            "orders" to userData.orders
         )
     }
 
@@ -145,8 +150,47 @@ object MappersTo {
             favoriteItems = extractFavoriteItem(
                 hashMap = hashMap
             ),
-            cartItem = extractCartItem(hashMap = hashMap)
+            cartItem = extractCartItem(hashMap = hashMap),
+            orders = extractOrders(hashMap = hashMap)
         )
+    }
+
+    fun extractOrders(hashMap: MutableMap<String, Any>): List<Order> {
+        val ordersList = mutableListOf<Order>()
+
+        val orders = hashMap["orders"] as? List<HashMap<String, Any>>
+
+        orders?.forEach { orderMap ->
+            val userEmail = orderMap["userEmail"] as? String
+            val orderNumber = orderMap["orderNumber"]?.let { UUID.fromString(it as String) }
+            val totalPrice = orderMap["totalPrice"] as? Double
+            val fullAddress = orderMap["fullAddress"] as? String
+            val statusString = orderMap["status"] as? String
+            val status = when (statusString) {
+                "Paid" -> OrderStatus.Paid
+                "Shipped" -> OrderStatus.Shipped
+                "Delivered" -> OrderStatus.Delivered
+                else -> OrderStatus.AwaitingPayment
+            }
+            val productsList = (orderMap["products"] as? List<HashMap<String, Any>>)?.map { productMap ->
+                CartItem(
+                    productId = productMap["productId"] as String,
+                    productName = productMap["productName"] as String,
+                    productImage = productMap["productImage"] as String,
+                    productImageDescription = productMap["productImageDescription"] as String,
+                    productPrice = productMap["productPrice"] as Double,
+                    productDiscount = productMap["productDiscount"] as Double,
+                    productCategory = productMap["productCategory"] as String,
+                    productQuantity = (productMap["productQuantity"] as Long).toInt(),
+                    rating = productMap["rating"] as Double
+                )
+            }
+            if (userEmail != null && orderNumber != null && totalPrice != null && fullAddress != null && productsList != null) {
+                val order = Order(userEmail, orderNumber, totalPrice, fullAddress, productsList, status)
+                ordersList.add(order)
+            }
+        }
+        return ordersList
     }
 
     fun favoriteItems(favoriteItems: Set<Pair<String, String>>): MutableSet<FavoriteItem> {
@@ -208,6 +252,38 @@ fun extractCartItem(hashMap: MutableMap<String, Any>?): List<CartItem> {
             emptyList()
         }
     }
+}
+
+fun mapOrderToFirebaseData(order: Order): MutableMap<String, Any> {
+    val orderData = mutableMapOf<String, Any>()
+
+    orderData["userEmail"] = order.userEmail
+    orderData["orderNumber"] = order.orderNumber.toString()
+    orderData["totalPrice"] = order.totalPrice
+    orderData["fullAddress"] = order.fullAddress
+    orderData["status"] = when (order.status) {
+        is OrderStatus.Paid -> "Paid"
+        is OrderStatus.Shipped -> "Shipped"
+        is OrderStatus.Delivered -> "Delivered"
+        else -> "AwaitingPayment"
+    }
+
+    val productsData = order.products.map { product ->
+        mutableMapOf(
+            "productId" to product.productId,
+            "productName" to product.productName,
+            "productImage" to product.productImage,
+            "productImageDescription" to product.productImageDescription,
+            "productPrice" to product.productPrice,
+            "productDiscount" to product.productDiscount,
+            "productCategory" to product.productCategory,
+            "productQuantity" to product.productQuantity,
+            "rating" to product.rating
+        )
+    }
+    orderData["products"] = productsData
+
+    return orderData
 }
 
 

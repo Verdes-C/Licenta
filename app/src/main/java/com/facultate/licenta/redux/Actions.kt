@@ -4,6 +4,7 @@ import android.util.Log
 import com.facultate.licenta.firebase.Repository
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.FavoriteItem
+import com.facultate.licenta.model.Order
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.UserData
 import kotlinx.coroutines.CoroutineScope
@@ -39,7 +40,6 @@ class Actions @Inject constructor(
             } else {
                 newFavoriteItems = userData?.favoriteItems?.toMutableSet() ?: mutableSetOf()
             }
-            Log.d("GOOGLE", "updated loginState ${applicationState.authState}")
             return@update applicationState.copy(
                 authState = ApplicationState.AuthState.Authenticated,
                 userData = userData,
@@ -89,12 +89,9 @@ class Actions @Inject constructor(
     ): MutableSet<FavoriteItem> {
         var newFavoriteItems: MutableSet<FavoriteItem> = mutableSetOf()
         val item = FavoriteItem(productId = productId, category = productCategory)
-        Log.d("TESTING", "item = ${item.toString()}")
         store.update { applicationState ->
             newFavoriteItems = applicationState.favoriteItems.toMutableSet()
-            Log.d("TESTING", newFavoriteItems.toString())
             newFavoriteItems.remove(item)
-            Log.d("TESTING", "Once removed: ${newFavoriteItems.toString()}")
             return@update applicationState.copy(
                 favoriteItems = newFavoriteItems
             )
@@ -135,7 +132,6 @@ class Actions @Inject constructor(
     }
 
     suspend fun updateSearchResults(searchResultsList: List<Product>) {
-        Log.d("TESTING", "inside of the updateSearchResults${searchResultsList}")
         store.update { applicationState ->
             return@update applicationState.copy(
                 searchResults = searchResultsList
@@ -174,6 +170,17 @@ class Actions @Inject constructor(
                 favoriteItems = emptySet()
             )
         }
+    }
+
+    suspend fun saveOrderAndClear(newOrder: Order) {
+        store.update { applicationState ->
+            val orders = applicationState.orders.toMutableList()
+            orders.add(newOrder)
+            return@update applicationState.copy(
+                orders = orders,
+            )
+        }
+
     }
 
 }

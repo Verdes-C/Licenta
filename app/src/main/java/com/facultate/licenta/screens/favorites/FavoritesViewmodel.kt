@@ -21,12 +21,10 @@ class FavoritesViewmodel @Inject constructor(
 ) : ViewModel() {
 
     var favoriteItems = MutableStateFlow<List<Product>>(listOf())
-
     suspend fun getFavoriteItems() {
         val favoriteItemsResults = actions.getFavoriteItems(viewModelScope)
         favoriteItems.value = favoriteItemsResults
     }
-
     suspend fun removeFromFavorite(productId: String, productCategory: String) {
         val newFavoriteItems = actions.removeItemFromFavorites(
             productId = productId,
@@ -37,7 +35,6 @@ class FavoritesViewmodel @Inject constructor(
         actions.removeItemFromFavorites(productId = productId, productCategory = productCategory)
         repository.updateRemoteFavorites(newFavoriteItems = newFavoriteItems)
     }
-
     suspend fun addToCart(
         productId: String,
         productCategory: String,

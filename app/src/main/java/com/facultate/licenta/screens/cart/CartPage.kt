@@ -31,7 +31,6 @@ import com.facultate.licenta.components.Buttons
 import com.facultate.licenta.components.DisplayCartItem
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
-import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
@@ -84,7 +83,7 @@ fun CartPage(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Total: $${Utils.calculateProductTotalPrice(cartList = cartItems)}",
+                        text = "Total: $${Utils.calculateCartTotalPrice(cartList = cartItems)}",
                         style = Typography.h4,
                         color = Variables.blue3
                     )
@@ -95,7 +94,7 @@ fun CartPage(
                     }
                 }
                 Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
-                    //TODO
+                    viewModel.order()
                 }
             }
         }
