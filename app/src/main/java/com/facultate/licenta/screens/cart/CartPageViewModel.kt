@@ -69,6 +69,7 @@ class CartPageViewModel @Inject constructor(
         val fullAddress = store.read { it.userData }?.let { Utils.getFullAdress(userData = it) }
         if (fullAddress.isNullOrEmpty()) {
             //todo
+            return@launch
         }
 
         val newOrder = Order(
@@ -76,7 +77,7 @@ class CartPageViewModel @Inject constructor(
             orderNumber = UUID.randomUUID(),
             totalPrice = Utils.calculateCartTotalPrice(cartList = cartProducts.value),
             products = cartProducts.value,
-            fullAddress = fullAddress!!
+            fullAddress = fullAddress
         )
         try {
             async {repository.saveOrder(newOrder = newOrder, email = email)}.await()

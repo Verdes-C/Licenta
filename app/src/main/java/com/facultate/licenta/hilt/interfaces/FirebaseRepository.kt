@@ -49,4 +49,6 @@ interface FirebaseRepository {
     suspend fun resetPassword(email: String): String
 
     suspend fun saveOrder(newOrder: Order, email: String)
+    suspend fun getUnfulfilledOrders(): MutableList<Order>
+    suspend fun updateOrder(updatedOrder: Order)
 }

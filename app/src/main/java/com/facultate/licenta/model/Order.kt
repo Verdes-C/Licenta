@@ -8,12 +8,28 @@ data class Order(
     val totalPrice: Double,
     val fullAddress: String,
     val products: List<CartItem>,
-    val status: OrderStatus = OrderStatus.AwaitingPayment,
+    var status: OrderStatus = OrderStatus.Paid,
 )
 
 sealed class OrderStatus {
-    object AwaitingPayment : OrderStatus()
-    object Paid : OrderStatus()
-    object Shipped : OrderStatus()
-    object Delivered : OrderStatus()
+    object AwaitingPayment : OrderStatus(){
+        override fun toString(): String {
+            return "AwaitingPayment"
+        }
+    }
+    object Paid : OrderStatus(){
+        override fun toString(): String {
+            return "Paid"
+        }
+    }
+    object Shipped : OrderStatus(){
+        override fun toString(): String {
+            return "Shipped"
+        }
+    }
+    object Delivered : OrderStatus(){
+        override fun toString(): String {
+            return "Delivered"
+        }
+    }
 }

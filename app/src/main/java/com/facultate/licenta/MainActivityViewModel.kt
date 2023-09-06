@@ -7,9 +7,12 @@ import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.model.GoogleSignInStatus
 import com.facultate.licenta.model.Order
+import com.facultate.licenta.model.OrderStatus
+import com.facultate.licenta.model.UserData
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
 import com.facultate.licenta.utils.MappersTo.userData
+import com.facultate.licenta.utils.extractCartItem
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,6 +25,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -45,45 +49,62 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun updateUserData() {
-        var favoriteItems: Set<FavoriteItem> = setOf<FavoriteItem>()
-        var cartItems: List<CartItem> = listOf<CartItem>()
-        var isAuthenticated: ApplicationState.AuthState = ApplicationState.AuthState.Unauthenticated()
-        var ordersList: List<Order> = listOf()
-        viewModelScope.launch {
-            val email = auth.currentUser?.email
-            val userData = if (email != null) {
-                val documentSnapshot = fireStore.collection("Users")
-                    .document(email)
-                    .get()
-                    .await()
-                if (documentSnapshot.exists()) {
-                    userData(documentSnapshot.data)
-                } else {
-                    null
-                }
-            } else {
-                null
-            }
+    fun updateUserData() = viewModelScope.launch {
+        val email = auth.currentUser?.email
+        val userData = fetchUserData(email)
+        val ordersList = fetchUserOrders(userData?.email)
 
-            if (auth.currentUser != null) {
-                favoriteItems = userData?.favoriteItems!!
-                cartItems = userData.cartItem
-                isAuthenticated = ApplicationState.AuthState.Authenticated
-                ordersList = userData.orders
-            } else {
-                emptySet<FavoriteItem>() // Or handle the case where userData is null
-            }
+        val favoriteItems = userData?.favoriteItems ?: emptySet()
+        val cartItems = userData?.cartItem ?: emptyList()
+        val isAuthenticated = if (auth.currentUser != null) {
+            ApplicationState.AuthState.Authenticated
+        } else {
+            ApplicationState.AuthState.Unauthenticated()
+        }
 
-            store.update { applicationState ->
-                applicationState.copy(
-                    authState = isAuthenticated,
-                    userData = userData,
-                    favoriteItems = favoriteItems.toMutableSet(),
-                    cartProducts = cartItems,
-                    orders = ordersList
+        store.update { applicationState ->
+            applicationState.copy(
+                authState = isAuthenticated,
+                userData = userData,
+                favoriteItems = favoriteItems.toMutableSet(),
+                cartProducts = cartItems,
+                orders = ordersList
+            )
+        }
+    }
+    private suspend fun fetchUserOrders(email: String?): MutableList<Order> {
+        val ordersList: MutableList<Order> = mutableListOf()
+        if (email == null) return ordersList
+
+        val documents = fireStore.collection("Orders").whereEqualTo("userEmail", email).get().await()
+        for (doc in documents) {
+            ordersList.add(
+                Order(
+                    userEmail = doc.data["userEmail"] as String,
+                    orderNumber = UUID.fromString(doc.data["orderNumber"] as String),
+                    totalPrice = doc.data["totalPrice"] as Double,
+                    fullAddress = doc.data["fullAddress"] as String,
+                    status = when (doc.data["status"] as String) {
+                        "Paid" -> OrderStatus.Paid
+                        "Shipped" -> OrderStatus.Shipped
+                        "Delivered" -> OrderStatus.Delivered
+                        else -> OrderStatus.AwaitingPayment
+                    },
+                    products = extractCartItem(doc.data)  // Assuming `extractCartItem` is a function that converts your document data to a CartItem object
                 )
-            }
+            )
+        }
+        return ordersList
+    }
+
+    private suspend fun fetchUserData(email: String?): UserData? {
+        if (email == null) return null
+
+        val document = fireStore.collection("Users").document(email).get().await()
+        return if (document.exists()) {
+            userData(document.data)  // Assuming `userData` is a function that converts your document data to a UserData object
+        } else {
+            null
         }
     }
 }

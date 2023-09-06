@@ -15,6 +15,8 @@ import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QueryDocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.util.UUID
 
 
@@ -151,46 +153,7 @@ object MappersTo {
                 hashMap = hashMap
             ),
             cartItem = extractCartItem(hashMap = hashMap),
-            orders = extractOrders(hashMap = hashMap)
         )
-    }
-
-    fun extractOrders(hashMap: MutableMap<String, Any>): List<Order> {
-        val ordersList = mutableListOf<Order>()
-
-        val orders = hashMap["orders"] as? List<HashMap<String, Any>>
-
-        orders?.forEach { orderMap ->
-            val userEmail = orderMap["userEmail"] as? String
-            val orderNumber = orderMap["orderNumber"]?.let { UUID.fromString(it as String) }
-            val totalPrice = orderMap["totalPrice"] as? Double
-            val fullAddress = orderMap["fullAddress"] as? String
-            val statusString = orderMap["status"] as? String
-            val status = when (statusString) {
-                "Paid" -> OrderStatus.Paid
-                "Shipped" -> OrderStatus.Shipped
-                "Delivered" -> OrderStatus.Delivered
-                else -> OrderStatus.AwaitingPayment
-            }
-            val productsList = (orderMap["products"] as? List<HashMap<String, Any>>)?.map { productMap ->
-                CartItem(
-                    productId = productMap["productId"] as String,
-                    productName = productMap["productName"] as String,
-                    productImage = productMap["productImage"] as String,
-                    productImageDescription = productMap["productImageDescription"] as String,
-                    productPrice = productMap["productPrice"] as Double,
-                    productDiscount = productMap["productDiscount"] as Double,
-                    productCategory = productMap["productCategory"] as String,
-                    productQuantity = (productMap["productQuantity"] as Long).toInt(),
-                    rating = productMap["rating"] as Double
-                )
-            }
-            if (userEmail != null && orderNumber != null && totalPrice != null && fullAddress != null && productsList != null) {
-                val order = Order(userEmail, orderNumber, totalPrice, fullAddress, productsList, status)
-                ordersList.add(order)
-            }
-        }
-        return ordersList
     }
 
     fun favoriteItems(favoriteItems: Set<Pair<String, String>>): MutableSet<FavoriteItem> {
@@ -231,7 +194,7 @@ fun extractCartItem(hashMap: MutableMap<String, Any>?): List<CartItem> {
     if (hashMap == null) {
         return emptyList()
     } else {
-        val items = hashMap["cartItems"]
+        val items = hashMap["products"]
         return if (items is List<*>) {
             items.filterIsInstance<Map<String, Any>>() // Changed to Any since some fields might not be String
                 .map { entry ->

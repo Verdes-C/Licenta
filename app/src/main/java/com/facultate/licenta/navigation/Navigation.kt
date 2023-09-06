@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -241,12 +242,13 @@ fun BottomNav(
                                             .size(32.dp)
                                             .align(Alignment.Center)
                                     )
-                                    if(screen.first == Screens.Cart && cartCount>0){
+                                    if (screen.first == Screens.Cart && cartCount > 0) {
                                         Text(
                                             text = "$cartCount", style = Typography.h4.copy(
                                                 color = Variables.red,
                                             ),
-                                            modifier = Modifier.align(Alignment.TopEnd)
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
                                                 .offset(x = (5).dp, y = (-5).dp)
                                         )
                                     }

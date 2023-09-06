@@ -8,6 +8,7 @@ import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.model.Order
+import com.facultate.licenta.model.OrderStatus
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.screens.home.calculateRating
@@ -15,6 +16,7 @@ import com.facultate.licenta.utils.MappersTo
 import com.facultate.licenta.utils.MappersTo.cartItem
 import com.facultate.licenta.utils.MappersTo.collectionEntry
 import com.facultate.licenta.utils.MappersTo.product
+import com.facultate.licenta.utils.extractCartItem
 import com.facultate.licenta.utils.mapOrderToFirebaseData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -28,6 +30,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 class Repository @Inject constructor(
@@ -190,7 +193,6 @@ class Repository @Inject constructor(
                 checks.forEach { check ->
 
 
-
                     if (check in document.data["productName"].toString().lowercase()) {
                         resultItems.add(
                             product(
@@ -327,24 +329,61 @@ class Repository @Inject constructor(
     override suspend fun saveOrder(newOrder: Order, email: String) {
         val orderData = mapOrderToFirebaseData(newOrder)
 
-        val userDocument = firestore.collection("Users").document(email)
-
-        firestore.runTransaction { transaction ->
-            val userData = transaction.get(userDocument)
-
-            val ordersList = userData.get("orders") as? MutableList<HashMap<String, Any>> ?: mutableListOf()
-
-            ordersList.add(orderData as HashMap<String, Any>)
-
-            transaction.update(userDocument, "orders", ordersList)
-        }.addOnSuccessListener {
-            // Transaction succeeded
-            println("added")
-        }.addOnFailureListener { e ->
-            // Transaction failed
-            println("$e")
-
+        val document =
+            firestore.collection("Orders").document(newOrder.orderNumber.toString()).get().await()
+        document.reference.set(orderData).addOnSuccessListener {
+            firestore.collection("Users").document(newOrder.userEmail).get()
+                .addOnSuccessListener { document ->
+                    val orders = (document.data?.get("orders") as List<String>).toMutableList()
+                    orders.add(newOrder.orderNumber.toString())
+                    document.reference.update("orders", orders)
+                }
         }
     }
 
+    override suspend fun getUnfulfilledOrders(): MutableList<Order> {
+        val orders: MutableList<Order> = mutableListOf()
+        val documents =
+            firestore.collection("Orders").whereNotEqualTo("status", "Delivered").get().await()
+        documents.documents.map { document ->
+            orders.add(
+                Order(
+                    userEmail = document["userEmail"] as String,
+                    orderNumber = UUID.fromString(document["orderNumber"] as String),
+                    totalPrice = document["totalPrice"] as Double,
+                    fullAddress = document["fullAddress"] as String,
+                    status = when (document["status"] as String) {
+                        "Paid" -> OrderStatus.Paid
+                        "Shipped" -> OrderStatus.Shipped
+                        "Delivered" -> OrderStatus.Delivered
+                        else -> OrderStatus.AwaitingPayment
+                    },
+                    products = (document["products"] as List<HashMap<String, Any>>).map { product ->
+                        CartItem(
+                            productId = product["productId"] as? String ?: "",
+                            productName = product["productName"] as? String ?: "",
+                            productImage = product["productImage"] as? String ?: "",
+                            productImageDescription = product["productImageDescription"] as? String
+                                ?: "",
+                            productPrice = (product["productPrice"] as? Number)?.toDouble() ?: 0.0,
+                            productDiscount = (product["productDiscount"] as? Number)?.toDouble()
+                                ?: 0.0,
+                            productCategory = product["productCategory"] as? String ?: "",
+                            productQuantity = (product["productQuantity"] as? Number)?.toInt() ?: 1,
+                            rating = (product["rating"] as? Number)?.toDouble() ?: 0.0
+                        )
+                    }
+                )
+            )
+        }
+        return orders
+    }
+
+    override suspend fun updateOrder(updatedOrder: Order) {
+        val document =
+            firestore.collection("Orders").document(updatedOrder.orderNumber.toString()).get()
+                .await()
+       document.reference.update(mapOrderToFirebaseData(order = updatedOrder)).await()
+    }
 }
+
