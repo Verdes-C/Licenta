@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.facultate.licenta.R
+import com.facultate.licenta.components.DisplaySearchResult
 import com.facultate.licenta.components.HomeScreenProductDisplay
 import com.facultate.licenta.components.MenuEntry
 import com.facultate.licenta.components.TopBar
@@ -31,18 +32,16 @@ import com.facultate.licenta.ui.theme.Variables
 @Composable
 fun SearchResults(
     navController: NavHostController,
-    category: String,
+    category: String?,
+    inputQuery: String = "",
     viewModel: SearchResultsViewModel = hiltViewModel(),
     homePageViewModel: HomePageViewModel = hiltViewModel(),
 ) {
 
     val searchResultProducts by viewModel.searchResults.collectAsState()
-    Log.d(
-        "TESTING", "${searchResultProducts}"
-    )
 
     LaunchedEffect(Unit) {
-        viewModel.getResults(category = category)
+            viewModel.getResults(category = category, searchInput = inputQuery)
     }
 
     Scaffold(
@@ -72,14 +71,14 @@ fun SearchResults(
             horizontalAlignment = Alignment.Start,
         ) {
             items(items = searchResultProducts) { product ->
-                HomeScreenProductDisplay(
+                DisplaySearchResult(
                     productImageDescription = product.description,
                     productName = product.name,
                     productId = product.id,
                     productCategory = product.category,
                     productImage = product.images.first(),
                     productPrice = product.price,
-                    discount = 0.0,
+                    discount = product.discount,
                     viewModel = homePageViewModel
                 ) {
                     val route =

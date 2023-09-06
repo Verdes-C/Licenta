@@ -1,6 +1,7 @@
 package com.facultate.licenta.screens.home
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -29,6 +31,8 @@ fun HomePage(
     navController: NavHostController,
     viewModel: HomePageViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+
     val promotions by viewModel.promotions.collectAsState()
     val newArrivals by viewModel.newArrivals.collectAsState()
     val findNew by viewModel.findNew.collectAsState()
@@ -63,7 +67,14 @@ fun HomePage(
                 horizontalAlignment = Alignment.Start,
             ) {
                 item {
-                    SearchBar()
+                    SearchBar(){searchQuery ->
+                        if(searchQuery.isNotEmpty()){
+                            val route = "search/null/${Uri.encode(searchQuery)}"
+                            navController.navigate(route)
+                        }else{
+                           Toast.makeText(context, "Please input a valid search value", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
                 //_ Promotions section
                 item {

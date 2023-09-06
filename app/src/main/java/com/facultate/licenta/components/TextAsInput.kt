@@ -28,10 +28,11 @@ fun TextAsInput(
     placeholderColor: Color = Color.Black,
     textStyle: TextStyle = Typography.p,
     textColor: Color = Color.Black,
+    value: String = "",
     keyboardAction: ImeAction,
     handleAction: () -> Unit,
 ) {
-    var textValue by remember { mutableStateOf("") }
+    var textValue by remember { mutableStateOf(value) }
 
     TextField(
         maxLines = 1,

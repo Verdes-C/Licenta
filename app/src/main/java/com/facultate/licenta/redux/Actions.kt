@@ -132,6 +132,7 @@ class Actions @Inject constructor(
     }
 
     suspend fun updateSearchResults(searchResultsList: List<Product>) {
+        println(searchResultsList.toString())
         store.update { applicationState ->
             return@update applicationState.copy(
                 searchResults = searchResultsList

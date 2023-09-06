@@ -154,8 +154,8 @@ class Repository @Inject constructor(
         return@coroutineScope results.toList()
     }
 
-    override suspend fun getSearchProducts(category: String?, searchInput: String): List<Product> {
-        val checks = searchInput.split(" ")
+    override suspend fun getSearchProducts(category: String?, searchInput: String?): List<Product> {
+        val checks = searchInput?.lowercase()?.split(" ")
         val collectionList = listOf(
             "Art Brush",
             "Calligraphy Brush",
@@ -168,41 +168,71 @@ class Repository @Inject constructor(
             "Italic & Stub Nib",
             "Luxury Fountain Pen",
         )
+        val promotions = firestore.collection("Promotions").get().await()
+        val promotionsIds = promotions.documents.mapNotNull { document ->
+            if (document.exists()) {
+                return@mapNotNull document.data?.get("productId")
+            } else {
+                null
+            }
+        }
         var resultItems: MutableList<Product> = mutableListOf()
         if (category == null) {
             collectionList.forEach { collection ->
                 val documents = firestore.collection(collection).get().await()
-                resultItems = documents.mapNotNull { document ->
-                    if (checks.any { check ->
-                            check in (document.data["productName"] as String)
-                        }) {
-                        return@mapNotNull product(
-                            collectionEntry = collectionEntry(document),
-                            category = collection,
-                            discount = 0.0
-                        )
-                    } else {
-                        return@mapNotNull null
+                documents.documents.forEach { document ->
+                    if (checks != null) {
+                        if (checks.any { check ->
+                                val docData = document.data?.get("data") as HashMap<String, Any>
+                                val tagData = docData.get("tagData") as HashMap<String,Any>
+                                val productName = tagData["productName"] as String
+                                check in (productName.lowercase().split(" "))
+                            }) {
+                            var discount = 0.0
+                            if ((document.data?.get("id") as String) in promotionsIds) {
+                                discount =
+                                    promotions.documents.mapNotNull {
+                                        if (it.data?.get("productId") as String == document.data!!["id"] as String) {
+                                            return@mapNotNull it.data!!["discount"] as Double
+                                        } else {
+                                            return@mapNotNull null
+                                        }
+                                    }.first().toDouble()
+                            }
+                            resultItems.add(
+                                product(
+                                    collectionEntry = collectionEntry(document),
+                                    category = collection,
+                                    discount = 0.0
+                                )
+                            )
+                        }
                     }
-                }.toMutableList()
+                }
             }
             return resultItems.toList()
         } else {
             val documents = firestore.collection(category).get().await()
-            documents.forEach { document ->
-                checks.forEach { check ->
-
-
-                    if (check in document.data["productName"].toString().lowercase()) {
-                        resultItems.add(
-                            product(
-                                collectionEntry = collectionEntry(document),
-                                category = category,
-                                discount = 0.0
-                            )
-                        )
-                    }
+            documents.documents.forEach() { document ->
+                var discount = 0.0
+                if ((document.data?.get("id") as String) in promotionsIds) {
+                    discount =
+                        promotions.documents.mapNotNull {
+                            if (it.data?.get("productId") as String == document.data!!["id"] as String) {
+                                return@mapNotNull it.data!!["discount"] as Double
+                            } else {
+                                return@mapNotNull null
+                            }
+                        }.first().toDouble()
                 }
+                resultItems.add(
+                    product(
+                        collectionEntry = collectionEntry(document),
+                        category = category,
+                        discount = discount
+                    )
+                )
+                println(discount.toString())
             }
             return resultItems.toList()
         }
@@ -243,7 +273,6 @@ class Repository @Inject constructor(
         try {
             val document = userDocumentReference?.get()?.await()
             document?.reference?.update("cartItems", newCartProducts)?.await()
-            println("Updated cartItems: $newCartProducts")
         } catch (e: Exception) {
             Log.w("TESTING", "Error updating cart items: ", e)
         }
@@ -383,7 +412,7 @@ class Repository @Inject constructor(
         val document =
             firestore.collection("Orders").document(updatedOrder.orderNumber.toString()).get()
                 .await()
-       document.reference.update(mapOrderToFirebaseData(order = updatedOrder)).await()
+        document.reference.update(mapOrderToFirebaseData(order = updatedOrder)).await()
     }
 }
 

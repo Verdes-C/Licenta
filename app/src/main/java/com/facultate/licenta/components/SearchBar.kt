@@ -10,12 +10,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -23,15 +30,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.facultate.licenta.R
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(modifier: Modifier = Modifier) {
+fun SearchBar(modifier: Modifier = Modifier, onSearch: (String)->Unit) {
+    var searchQuery by remember{
+        mutableStateOf("")
+    }
     Row(
-        horizontalArrangement = Arrangement.Center,
+        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(top = Variables.outerItemGap)
@@ -48,21 +60,35 @@ fun SearchBar(modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(size = Variables.cornerRadius)
             )
     ) {
-        TextAsInput(
-            modifier = Modifier
-                .weight(1f)
-                .wrapContentHeight(align = Alignment.CenterVertically),
-            placeholder = "Search ...",
-            placeholderColor = Variables.blue3,
-            textColor = Variables.blue3,
-            textStyle = Typography.pBig.copy(fontWeight = FontWeight.Bold),
-            keyboardAction = ImeAction.Search
-        ) {
-//!            handle search
-        }
+        TextField(
+            maxLines = 1,
+            placeholder = { Text(text = "Search ...", color = Variables.blue3, style = Typography.pBig) },
+            value = searchQuery,
+            onValueChange = { newValue ->
+                searchQuery = newValue
+            },
+            textStyle = Typography.pBig,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search,
+                keyboardType = KeyboardType.Text
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearch(searchQuery)
+                }
+            ),
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.Transparent,
+                textColor = Variables.grey6,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = Variables.grey6
+            ),
+            modifier = modifier.weight(1f)
+        )
         IconButton(
             onClick = {
-                //TODO SEARCH FUNCTION
+                onSearch(searchQuery)
             }
         ) {
             Box(

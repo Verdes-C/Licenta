@@ -23,19 +23,18 @@ class SearchResultsViewModel @Inject constructor(
     private val actions: Actions,
     private val repository: FirebaseRepository,
 ) : ViewModel() {
-    fun getResults(category: String) = viewModelScope.launch {
-        actions.updateSearchResults(
-            searchResultsList = repository.getSearchProducts(
-                category = category,
-                searchInput = "kuretake"
-            )
-        )
-    }
 
     val searchResults: StateFlow<List<Product>> =
         store.stateFlow.map { it.searchResults }.distinctUntilChanged().stateIn(
             viewModelScope, SharingStarted.Eagerly, listOf()
         )
 
-
+    fun getResults(category: String?, searchInput: String) = viewModelScope.launch {
+        actions.updateSearchResults(
+            searchResultsList = repository.getSearchProducts(
+                category = category,
+                searchInput = searchInput
+            )
+        )
+    }
 }

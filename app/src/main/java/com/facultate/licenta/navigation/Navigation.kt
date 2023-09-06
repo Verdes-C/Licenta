@@ -163,14 +163,17 @@ fun NavHost(
 
         }
 
-        composable("search/{category}") { backStackEntry ->
+        composable("search/{category}/{inputQuery}") { backStackEntry ->
             val category = Uri.decode(backStackEntry.arguments?.getString("category"))
-            if (category != null) {
+            if (category != "null") {
                 SearchResults(navController, category)
             } else {
-                //! Handle error
+                val inputQuery = Uri.decode(backStackEntry.arguments?.getString("inputQuery"))
+                SearchResults(navController = navController, category = null, inputQuery = inputQuery)
             }
         }
+
+
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->
 //                val productId = backStackEntry.arguments?.getString("productId")

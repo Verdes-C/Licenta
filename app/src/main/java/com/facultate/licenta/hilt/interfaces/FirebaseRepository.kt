@@ -27,7 +27,7 @@ interface FirebaseRepository {
 
     suspend fun getSpecialProducts(collection: String): List<Product>
 
-    suspend fun getSearchProducts(category: String?, searchInput: String):List<Product>
+    suspend fun getSearchProducts(category: String?, searchInput: String?):List<Product>
     suspend fun getCartItem(
         cartItem: CartItemShort,
         discount: Double,

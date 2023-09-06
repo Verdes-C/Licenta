@@ -1,5 +1,6 @@
 package com.facultate.licenta.components
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
@@ -37,9 +39,6 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
 import com.facultate.licenta.R
 import com.facultate.licenta.model.CartItemShort
 import com.facultate.licenta.screens.home.HomePageViewModel
@@ -50,7 +49,7 @@ import java.util.Locale
 
 
 @Composable
-fun HomeScreenProductDisplay(
+fun DisplaySearchResult(
     productImageDescription: String = "Product Image",
     productName: String = "Ink Pen Second In Line",
     productId: String,
@@ -59,7 +58,7 @@ fun HomeScreenProductDisplay(
     productPrice: Double = 123.24,
     discount: Double = 0.0,
     viewModel: HomePageViewModel,
-    navigateToProduct: () -> Unit
+    navigateToProduct: () -> Unit,
 ) {
 
 
@@ -76,8 +75,8 @@ fun HomeScreenProductDisplay(
                 color = Variables.blue3,
                 shape = RoundedCornerShape(size = Variables.cornerRadius)
             )
-            .width(224.dp)
-            .height(152.dp)
+            .fillMaxWidth()
+            .heightIn(min = 100.dp, max = 160.dp)
             .background(
                 color = Color.White,
                 shape = RoundedCornerShape(size = Variables.cornerRadius)
@@ -103,7 +102,7 @@ fun HomeScreenProductDisplay(
                 contentDescription = productImageDescription,
                 contentScale = ContentScale.FillHeight,
                 modifier = Modifier
-                    .width(84.dp)
+                    .width(140.dp)
                     .height(128.dp)
                     .background(
                         color = Variables.grey1,
@@ -113,17 +112,18 @@ fun HomeScreenProductDisplay(
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End
             ) {
                 Text(
                     modifier = Modifier
-                        .width(108.dp)
-                        .height(36.dp),
+                        .fillMaxWidth(),
                     text = productName,
-                    maxLines = 2,
+                    maxLines = 1,
                     overflow = TextOverflow.Clip,
                     style = Typography.buttonBold,
-                    color = Variables.blue3
+                    color = Variables.blue3,
+                    textAlign = TextAlign.End
                 )
                 Text(
                     text = productCategory,
@@ -139,7 +139,13 @@ fun HomeScreenProductDisplay(
                 ) {
                     if (discount != 0.0) {
                         Text(
-                            text = "$${String.format(Locale.US, "%.2f",productPrice - productPrice * discount)}",
+                            text = "$${
+                                String.format(
+                                    Locale.US,
+                                    "%.2f",
+                                    productPrice - productPrice * discount
+                                )
+                            }",
                             style = Typography.buttonBold,
                             color = Variables.red,
                             modifier = Modifier.weight(1f)
@@ -153,17 +159,18 @@ fun HomeScreenProductDisplay(
                         )
                     } else {
                         Text(
-                            text = "$${String.format(Locale.US, "%.2f",productPrice)}",
+                            text = "$${String.format(Locale.US, "%.2f", productPrice)}",
                             style = Typography.buttonBold,
                             color = Variables.grey6,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.End
                         )
                     }
 
                 }
                 Button(
                     onClick = {
-                        viewModel.viewModelScope.launch{
+                        viewModel.viewModelScope.launch {
                             viewModel.addToCart(
                                 quantity = 1,
                                 discount = discount,
@@ -185,7 +192,7 @@ fun HomeScreenProductDisplay(
                         vertical = 8.dp
                     ),
                     modifier = Modifier
-                        .requiredWidth(width = 107.dp)
+                        .fillMaxWidth()
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(
@@ -194,7 +201,7 @@ fun HomeScreenProductDisplay(
                         ),
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .requiredWidth(width = 107.dp)
+                            .fillMaxWidth()
                     ) {
                         Text(
                             text = "Add to cart",

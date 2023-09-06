@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -25,6 +26,7 @@ import com.facultate.licenta.components.CategorySection
 import com.facultate.licenta.components.SearchBar
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import java.util.Locale
 import kotlin.math.ceil
 
 @Composable
@@ -52,7 +54,7 @@ fun CategoriesPage(
         horizontalAlignment = Alignment.Start,
     ) {
         item {
-            SearchBar()
+            SearchBar(){}
         }
         item {
             Column(
@@ -81,7 +83,7 @@ fun CategoriesPage(
                 ) {
                     items(items = artFountainPensList) { category ->
                         CategoryCard(categoryName = category) {
-                            val route = "search/${category}"
+                            val route = calculateRoute(category = category)
                             navController.navigate(route)
                         }
                     }
@@ -115,7 +117,7 @@ fun CategoriesPage(
                 ) {
                     items(items = calligraphyList) { category ->
                         CategoryCard(categoryName = category) {
-                            val route = "search/${category}"
+                            val route = calculateRoute(category = category)
                             navController.navigate(route)
                         }
                     }
@@ -150,7 +152,7 @@ fun CategoriesPage(
                 ) {
                     items(items = accessoriesList) { category ->
                         CategoryCard(categoryName = category) {
-                            val route = "search/${category}"
+                            val route = calculateRoute(category = category)
                             navController.navigate(route)
                         }
                     }
@@ -160,3 +162,8 @@ fun CategoriesPage(
     }
 }
 
+fun calculateRoute(category: String): String{
+    return "search/${category.split(" ").map {
+        it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+    }.joinToString(" ")}/null"
+}
