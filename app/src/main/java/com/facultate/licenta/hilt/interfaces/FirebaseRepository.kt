@@ -3,6 +3,7 @@ package com.facultate.licenta.hilt.interfaces
 import android.content.Context
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.DataState
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.model.Order
 import com.facultate.licenta.model.Product
@@ -27,19 +28,22 @@ interface FirebaseRepository {
 
     suspend fun getSpecialProducts(collection: String): List<Product>
 
-    suspend fun getSearchProducts(category: String?, searchInput: String?):List<Product>
+    suspend fun getSearchProducts(category: String?, searchInput: String?):DataState<List<Product>>
     suspend fun getCartItem(
         cartItem: CartItemShort,
         discount: Double,
         quantity: Int
     ): CartItem
 
+    suspend fun getProduct(productCategory: String, productId: String): DataState<Product>
+
+    suspend fun getRecommendedProducts(category: String = "Find Something New"): DataState<List<Product>>
+
     suspend fun updateRemoteFavorites(
         newFavoriteItems: Set<FavoriteItem>
     )
 
     suspend fun getFavoriteItems(
-        viewModelScope: CoroutineScope,
         favoriteItems: Set<FavoriteItem>
     ): List<Product>
 
@@ -49,6 +53,6 @@ interface FirebaseRepository {
     suspend fun resetPassword(email: String): String
 
     suspend fun saveOrder(newOrder: Order, email: String)
-    suspend fun getUnfulfilledOrders(): MutableList<Order>
+    suspend fun getUnfulfilledOrders(): List<Order>
     suspend fun updateOrder(updatedOrder: Order)
 }

@@ -1,8 +1,9 @@
-package com.facultate.licenta.screens.Search
+package com.facultate.licenta.screens.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
+import com.facultate.licenta.model.DataState
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
@@ -19,22 +20,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchResultsViewModel @Inject constructor(
-    val store: Store<ApplicationState>,
-    private val actions: Actions,
     private val repository: FirebaseRepository,
 ) : ViewModel() {
 
-    val searchResults: StateFlow<List<Product>> =
-        store.stateFlow.map { it.searchResults }.distinctUntilChanged().stateIn(
-            viewModelScope, SharingStarted.Eagerly, listOf()
-        )
+    val searchResults: MutableStateFlow<DataState<List<Product>>> =
+        MutableStateFlow(DataState.Loading)
 
     fun getResults(category: String?, searchInput: String) = viewModelScope.launch {
-        actions.updateSearchResults(
-            searchResultsList = repository.getSearchProducts(
+        searchResults.value = repository.getSearchProducts(
                 category = category,
                 searchInput = searchInput
             )
-        )
+
     }
 }

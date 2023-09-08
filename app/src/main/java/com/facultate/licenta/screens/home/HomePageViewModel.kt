@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.facultate.licenta.hilt.interfaces.FirebaseRepository
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.DataState
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.model.Review
 import com.facultate.licenta.redux.Actions
@@ -21,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomePageViewModel @Inject constructor(
-    val store: Store<ApplicationState>,
     private val repository: FirebaseRepository,
     private val actions: Actions,
 ) : ViewModel() {
@@ -29,24 +29,16 @@ class HomePageViewModel @Inject constructor(
     val newArrivals = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
     val findNew = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
 
-    fun loadHomeData() {
-        val collections = listOf(
-            "Art Brush",
-            "Calligraphy Brush",
-            "Calligraphy Dip Pen",
-            "Calligraphy Fountain Pen",
+    fun loadHomeData() = viewModelScope.launch {
+        val promotionsDeferred = async { fetchProducts("Promotions") }
+        val newArrivalsDeferred = async { fetchProducts("New Arrivals") }
+        val findNewDeferred = async { fetchProducts("Find Something New") }
 
-            )
-        viewModelScope.launch {
-            val promotionsDeferred = async { fetchProducts("Promotions") }
-            val newArrivalsDeferred = async { fetchProducts("New Arrivals") }
-            val findNewDeferred = async { fetchProducts("Find Something New") }
-
-            promotions.value = promotionsDeferred.await()
-            newArrivals.value = newArrivalsDeferred.await()
-            findNew.value = findNewDeferred.await()
-        }
+        promotions.value = promotionsDeferred.await()
+        newArrivals.value = newArrivalsDeferred.await()
+        findNew.value = findNewDeferred.await()
     }
+
     suspend fun addToCart(cartItem: CartItemShort, discount: Double = 0.0, quantity: Int = 1) =
         coroutineScope {
             val newCartItems = actions.getCartItems().toMutableList()
@@ -56,7 +48,6 @@ class HomePageViewModel @Inject constructor(
                 quantity = quantity
             )
             val existingItem = newCartItems.find { it.productId == item.productId }
-
             if (existingItem != null) {
                 val index = newCartItems.indexOf(existingItem)
                 newCartItems[index] =
@@ -68,6 +59,7 @@ class HomePageViewModel @Inject constructor(
             actions.updateCart(newCartProducts = newCartItems.toList<CartItem>())
             repository.updateRemoteCart(newCartProducts = newCartItems.toList<CartItem>())
         }
+
     private suspend fun fetchProducts(collection: String): DataState<List<Product>> {
         return try {
             DataState.Success(repository.getSpecialProducts(collection = collection))
@@ -78,11 +70,5 @@ class HomePageViewModel @Inject constructor(
 }
 
 fun calculateRating(reviews: List<Review>): Double {
-
     return Utils.calculateRating(reviews = reviews)
-}
-sealed class DataState<out T> {
-    data class Success<T>(val data: T) : DataState<T>()
-    data class Error(val exception: Throwable) : DataState<Nothing>()
-    object Loading : DataState<Nothing>()
 }

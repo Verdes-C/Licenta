@@ -87,8 +87,8 @@ object MappersTo {
         cartItem: CartItemShort,
         discount: Double,
         quantity: Int,
-    ): CartItem? {
-        var newCartItem1: CartItem?
+    ): CartItem {
+        val newCartItem1: CartItem?
         newCartItem1 = CartItem(
             productName = queryData.tagData.productName,
             productCategory = cartItem.category,
@@ -102,21 +102,6 @@ object MappersTo {
         )
         return newCartItem1
     }
-
-    fun mapOfCartItem(cartItem: CartItem): Map<String, Any> {
-        return mapOf(
-            "productName" to cartItem.productName,
-            "productCategory" to cartItem.productCategory,
-            "productImageDescription" to cartItem.productImageDescription,
-            "productImage" to cartItem.productImage,
-            "rating" to cartItem.rating,
-            "productPrice" to cartItem.productPrice,
-            "productDiscount" to cartItem.productDiscount,
-            "productId" to cartItem.productId,
-            "productQuantity" to cartItem.productQuantity
-        )
-    }
-
 
     fun mapOfUserData(userData: UserData): HashMap<String, Any> {
         return hashMapOf(

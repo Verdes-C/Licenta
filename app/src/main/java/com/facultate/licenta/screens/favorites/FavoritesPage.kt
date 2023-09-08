@@ -17,9 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,37 +24,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.facultate.licenta.MainActivityViewModel
 import com.facultate.licenta.R
 import com.facultate.licenta.components.DisplayFavoriteItem
+import com.facultate.licenta.components.DisplayLoading
 import com.facultate.licenta.components.MenuEntries
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.model.DataState
+import com.facultate.licenta.model.Product
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesPage(
     navController: NavHostController,
     viewModel: FavoritesViewmodel = hiltViewModel(),
-    sharedViewModel: MainActivityViewModel = hiltViewModel(),
 ) {
 
     val favoriteItems by viewModel.favoriteItems.collectAsState()
 
-    var finishedLoading by remember {
-        mutableStateOf(false)
-    }
-
     LaunchedEffect(key1 = Unit) {
-        viewModel.viewModelScope.launch {
-            viewModel.getFavoriteItems()
-            finishedLoading = true
-        }
+        viewModel.getFavoriteItems()
     }
 
     Scaffold(
@@ -68,7 +57,7 @@ fun FavoritesPage(
                 menuEntry = MenuEntries.Favorites,
                 navController = navController,
             )
-                {}
+            {}
         }
     ) { paddingValues ->
         LazyColumn(
@@ -82,38 +71,53 @@ fun FavoritesPage(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.Start,
         ) {
-            if (finishedLoading && favoriteItems.isEmpty()) {
+            if (favoriteItems is DataState.Loading) {
                 item {
-                    DisplayEmptyFavorites()
+                    DisplayLoading()
                 }
-            } else if (finishedLoading && favoriteItems.isNotEmpty()) {
-                items(items = favoriteItems) { favoriteItem ->
-                    DisplayFavoriteItem(
-                        modifier = Modifier,
-                        favoritesItem = favoriteItem,
-                        addToCart = {
-                            viewModel.viewModelScope.launch {
+            } else if (favoriteItems is DataState.Error) {
+                val error = (favoriteItems as DataState.Error).exception
+                item {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(text = "${error.message}", style = Typography.pBig)
+                    }
+                }
+            } else if (favoriteItems is DataState.Success) {
+                val favorites = (favoriteItems as DataState.Success<List<Product>>).data
+                if (favorites.isEmpty()) {
+                    item {
+                        DisplayEmptyFavorites()
+                    }
+                } else {
+                    items(items = favorites) { favoriteItem ->
+                        DisplayFavoriteItem(
+                            modifier = Modifier,
+                            favoritesItem = favoriteItem,
+                            addToCart = {
                                 viewModel.addToCart(
                                     productId = favoriteItem.id,
                                     productCategory = favoriteItem.category,
                                     discount = favoriteItem.discount,
                                     quantity = 1
                                 )
-                            }
-                        },
-                        removeFromFavorite = {
-                            viewModel.viewModelScope.launch {
+                            },
+                            removeFromFavorite = {
                                 viewModel.removeFromFavorite(
                                     productId = favoriteItem.id,
                                     productCategory = favoriteItem.category
                                 )
-                            }
-                        }) {
-                        val route =
-                            "${Screens.Product.route}/${Uri.encode(favoriteItem.category)}/${favoriteItem.id}"
-                        navController.navigate(route)
+                            }) {
+                            val route =
+                                "${Screens.Product.route}/${Uri.encode(favoriteItem.category)}/${favoriteItem.id}"
+                            navController.navigate(route)
+                        }
                     }
                 }
+
             }
         }
     }

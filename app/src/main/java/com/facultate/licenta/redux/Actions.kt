@@ -72,15 +72,8 @@ class Actions @Inject constructor(
         return newFavoriteItems
     }
 
-    suspend fun getFavoriteItems(viewModelScope: CoroutineScope): List<Product> {
-        val favoriteItems = store.read { applicationState ->
-            applicationState.favoriteItems
-        }
-
-        return repository.getFavoriteItems(
-            viewModelScope = viewModelScope,
-            favoriteItems = favoriteItems
-        )
+    suspend fun getFavoriteItems(): Set<FavoriteItem> {
+        return store.read { it.favoriteItems }
     }
 
     suspend fun removeItemFromFavorites(
@@ -131,15 +124,6 @@ class Actions @Inject constructor(
         return newCartProducts
     }
 
-    suspend fun updateSearchResults(searchResultsList: List<Product>) {
-        println(searchResultsList.toString())
-        store.update { applicationState ->
-            return@update applicationState.copy(
-                searchResults = searchResultsList
-            )
-        }
-    }
-
     suspend fun removeItemFromCart(productId: String, productCategory: String): List<CartItem> {
         var newCartItems = listOf<CartItem>()
         store.update { applicationState ->
@@ -181,7 +165,12 @@ class Actions @Inject constructor(
                 orders = orders,
             )
         }
+    }
 
+    suspend fun checkIfProductIsFavorite(productId: String): Boolean {
+        return store.read { applicationState ->
+            applicationState.favoriteItems.any { it.productId == productId }
+        }
     }
 
 }

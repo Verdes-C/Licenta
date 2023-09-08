@@ -5,42 +5,59 @@ import androidx.lifecycle.viewModelScope
 import com.facultate.licenta.firebase.Repository
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.DataState
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewmodel @Inject constructor(
     val store: Store<ApplicationState>,
     private val actions: Actions,
-    private val repository: Repository
+    private val repository: Repository,
 ) : ViewModel() {
 
-    var favoriteItems = MutableStateFlow<List<Product>>(listOf())
-    suspend fun getFavoriteItems() {
-        val favoriteItemsResults = actions.getFavoriteItems(viewModelScope)
-        favoriteItems.value = favoriteItemsResults
+    //_ Due to the fact that we need List<Product> to display
+    var favoriteItems = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
+
+    fun getFavoriteItems() = viewModelScope.launch {
+        val favoriteItemsRead = actions.getFavoriteItems()
+
+        try {
+            val result = repository.getFavoriteItems(
+                favoriteItems = favoriteItemsRead
+            )
+            favoriteItems.value = DataState.Success(result)
+        } catch (e: Exception) {
+            favoriteItems.value = DataState.Error(e)
+        }
     }
-    suspend fun removeFromFavorite(productId: String, productCategory: String) {
-        val newFavoriteItems = actions.removeItemFromFavorites(
+
+     fun removeFromFavorite(productId: String, productCategory: String) = viewModelScope.launch{
+        val newFavoriteItems = actions.toggleItemInFavorites(
             productId = productId,
             productCategory = productCategory
         )
-        favoriteItems.value =
-            repository.getFavoriteItems(viewModelScope, favoriteItems = newFavoriteItems)
-        actions.removeItemFromFavorites(productId = productId, productCategory = productCategory)
-        repository.updateRemoteFavorites(newFavoriteItems = newFavoriteItems)
+        try {
+            repository.updateRemoteFavorites(newFavoriteItems = newFavoriteItems)
+            val result = repository.getFavoriteItems(favoriteItems = newFavoriteItems)
+            favoriteItems.value = DataState.Success(result)
+        } catch (e: Exception) {
+            favoriteItems.value = DataState.Error(e)
+        }
     }
-    suspend fun addToCart(
+
+     fun addToCart(
         productId: String,
         productCategory: String,
         discount: Double,
-        quantity: Int
-    ) {
+        quantity: Int,
+    ) = viewModelScope.launch {
         val newCartItems = actions.getCartItems().toMutableList()
         val item = repository.getCartItem(
             cartItem = CartItemShort(

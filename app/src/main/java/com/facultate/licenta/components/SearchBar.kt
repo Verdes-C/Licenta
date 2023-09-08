@@ -38,9 +38,9 @@ import com.facultate.licenta.ui.theme.Variables
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(modifier: Modifier = Modifier, onSearch: (String)->Unit) {
+fun SearchBar(modifier: Modifier = Modifier, initialValue: String = "", onSearch: (String)->Unit) {
     var searchQuery by remember{
-        mutableStateOf("")
+        mutableStateOf(initialValue)
     }
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -79,10 +79,10 @@ fun SearchBar(modifier: Modifier = Modifier, onSearch: (String)->Unit) {
             ),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.Transparent,
-                textColor = Variables.grey6,
+                textColor = Variables.blue3,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = Variables.grey6
+                cursorColor = Variables.blue3
             ),
             modifier = modifier.weight(1f)
         )

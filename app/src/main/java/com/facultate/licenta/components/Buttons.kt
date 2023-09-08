@@ -63,7 +63,7 @@ object Buttons {
             enabled = false,
             shape = RoundedCornerShape(Variables.cornerRadius),
             colors = ButtonDefaults.buttonColors(disabledContainerColor = Variables.grey4),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             modifier = modifier.shadow(
                 elevation = Variables.elevation,
                 spotColor = Variables.shadowColor,
@@ -92,7 +92,7 @@ object Buttons {
             onClick = { onClick.invoke() },
             shape = RoundedCornerShape(Variables.innerItemGap),
             colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-            contentPadding = PaddingValues(horizontal = Variables.innerItemGap, vertical = 2.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             border = BorderStroke(1.dp, Variables.grey6),
             modifier = modifier
         ) {
@@ -113,7 +113,7 @@ object Buttons {
             enabled = false,
             shape = RoundedCornerShape(Variables.cornerRadius),
             colors = ButtonDefaults.buttonColors(disabledContainerColor = Color.Transparent),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             border = BorderStroke(2.dp, Variables.grey3),
             modifier = modifier,
             onClick = { }

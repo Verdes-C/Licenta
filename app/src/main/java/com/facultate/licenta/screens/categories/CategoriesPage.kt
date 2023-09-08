@@ -43,7 +43,7 @@ fun CategoriesPage(
         "Flexible nib", "Art brush", "Italic & stub nib"
     )
     val calligraphyList = listOf(
-        "Calligraphy brush", "Calligraphy dip pen", "Calligraphy fountain pen", "Calligraphy nib"
+        "Calligraphy brush", "Calligraphy dip pen", "Calligraphy fountain pen", "Calligraphy nibs"
     )
     val accessoriesList = listOf(
         "Cardridges", "Ink"
@@ -94,7 +94,7 @@ fun CategoriesPage(
                 ) {
                     items(items = artFountainPensList) { category ->
                         CategoryCard(categoryName = category) {
-                            val route = calculateRoute(category = category)
+                            val route = viewModel.calculateRoute(category = category)
                             navController.navigate(route)
                         }
                     }
@@ -128,7 +128,7 @@ fun CategoriesPage(
                 ) {
                     items(items = calligraphyList) { category ->
                         CategoryCard(categoryName = category) {
-                            val route = calculateRoute(category = category)
+                            val route = viewModel.calculateRoute(category = category)
                             navController.navigate(route)
                         }
                     }
@@ -163,7 +163,7 @@ fun CategoriesPage(
                 ) {
                     items(items = accessoriesList) { category ->
                         CategoryCard(categoryName = category) {
-                            val route = calculateRoute(category = category)
+                            val route = viewModel.calculateRoute(category = category)
                             navController.navigate(route)
                         }
                     }
@@ -173,8 +173,3 @@ fun CategoriesPage(
     }
 }
 
-fun calculateRoute(category: String): String{
-    return "search/${category.split(" ").map {
-        it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
-    }.joinToString(" ")}/null"
-}

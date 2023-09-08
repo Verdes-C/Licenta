@@ -51,23 +51,25 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.facultate.licenta.R
 import com.facultate.licenta.components.Buttons
+import com.facultate.licenta.components.DisplayLoading
 import com.facultate.licenta.components.DisplayRating
 import com.facultate.licenta.components.DisplayReview
 import com.facultate.licenta.components.HomeScreenProductDisplay
 import com.facultate.licenta.components.MenuEntry
 import com.facultate.licenta.components.TopBar
+import com.facultate.licenta.model.DataState
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.screens.home.HomePageViewModel
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
 import com.facultate.licenta.utils.Utils
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 @Composable
 fun ProductPage(
@@ -77,19 +79,14 @@ fun ProductPage(
     viewModel: ProductPageViewModel = hiltViewModel(),
     homePageViewModel: HomePageViewModel = hiltViewModel(),
 ) {
-    val product by viewModel.product.collectAsState()
+    val productState by viewModel.product.collectAsState()
     val isFavorite by viewModel.isFavorite.collectAsState()
-    val recommendations by viewModel.recommendations.collectAsState()
+    val recommendationsState by viewModel.recommendations.collectAsState()
 
 
-    if (product == null) {
-        LaunchedEffect(key1 = product) {
-            viewModel.viewModelScope.launch {
-                viewModel.updateProduct(productCategory = productCategory, productId = productId)
-                viewModel.getRecommendedProducts()
-            }
-
-        }
+    LaunchedEffect(key1 = Unit) {
+            viewModel.updateProduct(productCategory = productCategory, productId = productId)
+            viewModel.getRecommendedProducts()
     }
 
     var quantity by remember {
@@ -103,11 +100,29 @@ fun ProductPage(
         mutableIntStateOf(3)
     }
 
-
     var specificationHeightHidden by remember {
         mutableStateOf(true)
     }
-    if (product != null) {
+
+    if (productState is DataState.Loading) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            DisplayLoading()
+        }
+    } else if (productState is DataState.Error) {
+        val error = (productState as DataState.Error).exception
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = "${error.message}", style = Typography.pBig)
+        }
+    } else if (productState is DataState.Success) {
+        val product = (productState as DataState.Success).data
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -125,8 +140,8 @@ fun ProductPage(
                         modifier = Modifier.padding(top = Variables.outerItemGap),
                         displayArrow = true,
                         menuEntry = MenuEntry(
-                            name = product!!.name,
-                            iconDescription = product!!.name,
+                            name = product.name,
+                            iconDescription = product.name,
                         ),
                         navController = navController,
                     )
@@ -153,12 +168,12 @@ fun ProductPage(
                             horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGap)
                         ) {
                             //TODO modify
-                            items(items = product!!.images) { image ->
+                            items(items = product.images) { image ->
                                 AsyncImage(
                                     model = ImageRequest.Builder(LocalContext.current).data(image)
                                         .crossfade(true).build(),
                                     placeholder = painterResource(R.drawable.image_placeholder),
-                                    contentDescription = "Image for ${product!!.name}",
+                                    contentDescription = "Image for ${product.name}",
                                     contentScale = ContentScale.FillHeight,
                                     modifier = Modifier
                                         .requiredWidth(width = 256.dp)
@@ -189,7 +204,7 @@ fun ProductPage(
                             modifier = Modifier,
                         ) {
                             Text(
-                                text = product!!.name,
+                                text = product.name,
                                 style = Typography.h3,
                                 modifier = Modifier.weight(1f)
                             )
@@ -199,23 +214,21 @@ fun ProductPage(
                                 modifier = Modifier
                                     .size(24.dp)
                                     .clickable {
-                                        viewModel.viewModelScope.launch {
                                             viewModel.toggleFavorite(
                                                 productId = productId,
                                                 productCategory = productCategory
                                             )
-                                        }
                                     })
                         }
 
                         //? category and rating
                         Row {
                             Text(
-                                text = product!!.category,
+                                text = product.category,
                                 style = Typography.caption.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.weight(1f)
                             )
-                            DisplayRating(rating = product!!.rating, iconSize = 20.dp)
+                            DisplayRating(rating = product.rating, iconSize = 20.dp)
                         }
 
                         Row(
@@ -223,9 +236,11 @@ fun ProductPage(
                         ) {
                             Text(
                                 text = "$${
-                                    Utils.calculateTotal(
-                                        price = product!!.price - product!!.discount* product!!.price,
-                                        quantity = quantity
+                                    String.format(
+                                        Locale.US, "%.2f", Utils.calculateTotal(
+                                            price = product.price - product.discount * product.price,
+                                            quantity = quantity
+                                        )
                                     )
                                 }", style = Typography.h4.copy(
                                     fontSize = 23.sp
@@ -268,20 +283,17 @@ fun ProductPage(
                                         Alignment.CenterEnd
                                     )
                             ) {
-                                // TODO add to cart
-                                viewModel.viewModelScope.launch {
-                                    viewModel.addToCart(
-                                        productId = productId,
-                                        productCategory = productCategory,
-                                        quantity = quantity,
-                                        discount = product!!.discount
-                                    )
-                                }
+                                viewModel.addToCart(
+                                    productId = productId,
+                                    productCategory = productCategory,
+                                    quantity = quantity,
+                                    discount = product.discount
+                                )
                             }
                         }
 
                         //? description
-                        Text(text = product!!.description,
+                        Text(text = product.description,
                             style = Typography.p.copy(color = Variables.grey3),
                             maxLines = descriptionMaxLines,
                             overflow = TextOverflow.Ellipsis,
@@ -313,7 +325,8 @@ fun ProductPage(
                         Text(text = "Show more",
                             style = Typography.caption,
                             modifier = Modifier.clickable {
-                                //TODO
+                                val route = "search/${Uri.encode("Find Something New")}/null"
+                                navController.navigate(route)
                             })
                     }
                     LazyRow(
@@ -321,10 +334,20 @@ fun ProductPage(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(Variables.innerItemGap)
                     ) {
-                        if (recommendations.size > 0) {
-                            items(items = recommendations) { product ->
+                        if (recommendationsState is DataState.Loading) {
+                            item {
+                                DisplayLoading()
+                            }
+                        } else if (recommendationsState is DataState.Error) {
+                            val error = (recommendationsState as DataState.Error).exception
+                            item {
+                                Text(text = "${error.message}", style = Typography.pBig)
+                            }
+                        } else if (recommendationsState is DataState.Success) {
+                            val products = (recommendationsState as DataState.Success).data
+                            items(items = products) { product ->
                                 HomeScreenProductDisplay(
-                                    productImageDescription = product!!.description,
+                                    productImageDescription = product.description,
                                     productName = product.name,
                                     productId = product.id,
                                     productCategory = product.category,
@@ -360,18 +383,18 @@ fun ProductPage(
                                 //TODO
                             })
                     }
-                    val endIndex = minOf(4, product!!.reviews.size)
+                    val endIndex = minOf(4, product.reviews.size)
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(Variables.innerItemGapLow),
                         modifier = Modifier.heightIn(
-                            min = 160.dp, max = (product!!.reviews.subList(
+                            min = 160.dp, max = (product.reviews.subList(
                                 fromIndex = 0, toIndex = endIndex
                             ).size * 260 + 60).dp
                         )
                     ) {
-                        if (product!!.reviews.size > 0) {
+                        if (product.reviews.size > 0) {
                             items(
-                                items = product!!.reviews.subList(
+                                items = product.reviews.subList(
                                     fromIndex = 0, toIndex = endIndex
                                 )
                             ) { review ->

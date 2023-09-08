@@ -47,13 +47,13 @@ import com.facultate.licenta.ui.theme.Variables
 @Composable
 fun DisplayAdminOrder(
     orderItem: Order,
+    status: OrderStatus,
     navController: NavHostController,
     indexOutOf: String,
     onStatusChanged: (order: Order) -> Unit
 ) {
-    var orderStatus by remember {
-        mutableStateOf(orderItem.status)
-    }
+    var orderStatus = status
+
     Column(
         modifier = Modifier
             .fillMaxWidth()

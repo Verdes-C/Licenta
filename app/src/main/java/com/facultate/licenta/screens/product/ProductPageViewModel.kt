@@ -1,9 +1,11 @@
 package com.facultate.licenta.screens.product
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.facultate.licenta.firebase.Repository
 import com.facultate.licenta.model.CartItem
 import com.facultate.licenta.model.CartItemShort
+import com.facultate.licenta.model.DataState
 import com.facultate.licenta.model.FavoriteItem
 import com.facultate.licenta.model.Product
 import com.facultate.licenta.redux.Actions
@@ -16,7 +18,9 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -29,67 +33,21 @@ class ProductPageViewModel @Inject constructor(
 ) : ViewModel() {
     val fireStore = Firebase.firestore
 
-    var product = MutableStateFlow<Product?>(null)
+    var product = MutableStateFlow<DataState<Product>>(DataState.Loading)
     val isFavorite = MutableStateFlow(false)
-    val recommendations = MutableStateFlow<List<Product?>>(listOf())
+    val recommendations = MutableStateFlow<DataState<List<Product>>>(DataState.Loading)
 
-    suspend fun updateProduct(productCategory: String, productId: String) = coroutineScope {
-        // Start the first query
-        val queryResult1Deferred = async {
-            fireStore.collection(productCategory).whereEqualTo("id", productId).get().await()
-        }
-
-        // Start the second query
-        val discountQueryDeferred = async {
-            fireStore.collection("Promotions").whereEqualTo("productId", productId).get().await()
-        }
-
-        // Await the results of both queries
-        val queryResult1 = queryResult1Deferred.await()
-        val discountQuery = discountQueryDeferred.await()
-
-        if (queryResult1.documents.isNotEmpty()) {
-            val result = MappersTo.collectionEntry(queryResult1.documents.first())
-            var discount = 0.0
-            if (discountQuery.documents.isNotEmpty()) {
-                val data = discountQuery.documents.first().data
-                discount = data?.get("discount").toString().toDouble()
-            }
-            product.value =
-                product(collectionEntry = result, category = productCategory, discount = discount)
-            store.read { applicationState ->
-                if (applicationState.favoriteItems.any { it.productId == productId }) {
-                    isFavorite.value = true
-                }
-            }
-        }
+     fun updateProduct(productCategory: String, productId: String) = viewModelScope.launch {
+        product.value =
+            repository.getProduct(productCategory = productCategory, productId = productId)
+        isFavorite.value = actions.checkIfProductIsFavorite(productId = productId)
     }
-    suspend fun getRecommendedProducts() = coroutineScope {
-        val recommendationsQueryDeferred = async {
-            fireStore.collection("Find Something New").get().await()
-        }
-        val recommendationsQuery = recommendationsQueryDeferred.await()
 
-        if (recommendationsQuery.documents.isNotEmpty()) {
-            val result = recommendationsQuery.map { queryResult ->
-                val category = queryResult.data["category"] as String
-                val productId = queryResult.data["productId"] as String
-                val document = async {
-                    fireStore.collection(category).whereEqualTo("id", productId).get().await()
-                }.await().documents.first()
-                val collection = MappersTo.collectionEntry(document)
-                val product = product(
-                    collectionEntry = collection,
-                    category = queryResult.data["category"] as String,
-                    discount = queryResult.data["discount"] as Double
-                )
-                return@map product
-            }
-            recommendations.value = result
-
-        }
+     fun getRecommendedProducts() = viewModelScope.launch {
+        recommendations.value = repository.getRecommendedProducts()
     }
-    suspend fun toggleFavorite(productId: String, productCategory: String) {
+
+     fun toggleFavorite(productId: String, productCategory: String) = viewModelScope.launch {
         val newFavoriteItems = actions.toggleItemInFavorites(productId, productCategory)
         isFavorite.value = newFavoriteItems.contains(
             FavoriteItem(
@@ -98,9 +56,10 @@ class ProductPageViewModel @Inject constructor(
         )
         repository.updateRemoteFavorites(newFavoriteItems)
     }
-    suspend fun addToCart(
-        productId: String, productCategory: String, discount: Double, quantity: Int
-    ) {
+
+     fun addToCart(
+        productId: String, productCategory: String, discount: Double, quantity: Int,
+    ) = viewModelScope.launch {
         val newCartItems = actions.getCartItems().toMutableList()
         val item = repository.getCartItem(
             cartItem = CartItemShort(
@@ -112,7 +71,7 @@ class ProductPageViewModel @Inject constructor(
         if (existingItem != null) {
             val index = newCartItems.indexOf(existingItem)
             newCartItems[index] =
-                existingItem.copy(productQuantity = existingItem.productQuantity + 1)
+                existingItem.copy(productQuantity = existingItem.productQuantity + quantity)
         } else {
             newCartItems.add(item)
         }

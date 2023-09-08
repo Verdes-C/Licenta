@@ -48,14 +48,6 @@ fun CartPage(
     val cartItems by viewModel.cartProducts.collectAsState()
     val favoriteItems by viewModel.favoriteItems.collectAsState()
 
-    if (cartItems.isEmpty()) {
-        LaunchedEffect(key1 = cartItems) {
-            viewModel.viewModelScope.launch {
-                viewModel.updateCartProducts()
-            }
-        }
-    }
-
     Scaffold(
         topBar = {
             TopBar(
@@ -87,15 +79,30 @@ fun CartPage(
                         style = Typography.h4,
                         color = Variables.blue3
                     )
-                    Buttons.SecondaryActive(text = "Clear cart") {
-                        viewModel.viewModelScope.launch {
-                            viewModel.clearCart()
+                    if(cartItems.isEmpty()){
+                        Buttons.SecondaryInactive(text = "Clear cart")
+                    }else{
+                        Buttons.SecondaryActive(text = "Clear cart") {
+                            viewModel.viewModelScope.launch {
+                                viewModel.clearCart()
+                            }
                         }
                     }
                 }
-                Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
-                    viewModel.order()
-                }
+               if (cartItems.isEmpty()){
+                   Buttons.PrimaryInactive(text = "Order", modifier = Modifier.fillMaxWidth())
+               }else{
+                   Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
+                       viewModel.order(
+                           redirectToLogin = {
+                               navController.navigate(Screens.Profile.route)
+                           },
+                           redirectToAccountData = {
+                               navController.navigate(Screens.AccountData.route)
+                           }
+                       )
+                   }
+               }
             }
         }
     ) { paddingValues ->
@@ -142,6 +149,7 @@ fun CartPage(
 @Composable
 fun DisplayEmptyCart() {
     Column(
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

@@ -24,20 +24,20 @@ class AdminViewModel @Inject constructor(
     private var _adminOrdersToEdit: MutableStateFlow<List<Order>> = MutableStateFlow(listOf())
     val adminOrdersToEdit: StateFlow<List<Order>> = _adminOrdersToEdit
 
-    suspend fun fetchOrders() = viewModelScope.launch {
+    private fun fetchOrders() = viewModelScope.launch {
         _adminOrdersToEdit.value = repository.getUnfulfilledOrders()
     }
 
     fun updateOrderStatus(updatedOrder: Order) = viewModelScope.launch {
         repository.updateOrder(updatedOrder = updatedOrder)
-        _adminOrdersToEdit.value = _adminOrdersToEdit.value.mapNotNull { order ->
-            if(order.orderNumber != updatedOrder.orderNumber){
-                return@mapNotNull order
-            }else{
-                null
-            }
+        _adminOrdersToEdit.value = _adminOrdersToEdit.value.filter {
+            it.orderNumber != updatedOrder.orderNumber
         }
+    }
 
+
+    init {
+        fetchOrders()
     }
 
 }

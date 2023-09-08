@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,7 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navigation
 import com.facultate.licenta.firebase.GoogleAuthUiClient
-import com.facultate.licenta.screens.Search.SearchResults
+import com.facultate.licenta.screens.search.SearchResults
 import com.facultate.licenta.screens.admins.AdminOrdersPage
 import com.facultate.licenta.screens.cart.CartPage
 import com.facultate.licenta.screens.categories.CategoriesPage

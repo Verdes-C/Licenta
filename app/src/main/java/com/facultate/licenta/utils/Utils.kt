@@ -9,9 +9,9 @@ object Utils {
 
     fun calculateRating(reviews: List<Review>): Double {
         if (reviews.isEmpty()) {
-            return 0.0 // Handle the case of an empty list to avoid division by zero
+            return 0.0
         }
-        val totalRating = reviews.sumByDouble { it.rating.toDouble() / 2 }
+        val totalRating = reviews.sumOf { it.rating / 2 }
         return totalRating / reviews.size
     }
 
@@ -29,7 +29,7 @@ object Utils {
         return roundedTotal.toDouble()
     }
 
-    fun getFullAdress(userData: UserData): String{
+    fun getFullAddress(userData: UserData): String{
         return "${userData.address} ${userData.zipCode} ${userData.city} ${userData.state}"
     }
 

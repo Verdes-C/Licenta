@@ -11,7 +11,10 @@ import com.facultate.licenta.redux.Store
 import com.facultate.licenta.utils.Utils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.UUID
@@ -24,51 +27,44 @@ class CartPageViewModel @Inject constructor(
     private val repository: FirebaseRepository,
 ) : ViewModel() {
 
-    val cartProducts = MutableStateFlow(listOf<CartItem>())
+    val cartProducts = store.stateFlow.map { it.cartProducts }.distinctUntilChanged().stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(), initialValue = listOf()
+    )
+    val favoriteItems = store.stateFlow.map { it.favoriteItems }.distinctUntilChanged().stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(), initialValue = setOf()
+    )
 
-
-    val favoriteItems = MutableStateFlow(store.stateFlow.value.favoriteItems)
-
-    suspend fun updateCartProducts() {
-        cartProducts.value = actions.getCartItems()
-    }
-
-    suspend fun clearCart() {
+    fun clearCart() = viewModelScope.launch {
         actions.clearCart()
-        cartProducts.value = listOf<CartItem>()
         repository.updateRemoteCart(newCartProducts = listOf<CartItem>())
     }
 
-    suspend fun addOrRemoveFromFavorites(productId: String, productCategory: String) {
+     fun addOrRemoveFromFavorites(productId: String, productCategory: String) = viewModelScope.launch {
         val newFavoriteProducts =
             actions.toggleItemInFavorites(productId = productId, productCategory = productCategory)
         repository.updateRemoteFavorites(newFavoriteItems = newFavoriteProducts)
-        favoriteItems.value = newFavoriteProducts
     }
 
-    suspend fun removeFromCart(productId: String, productCategory: String) {
+     fun removeFromCart(productId: String, productCategory: String) = viewModelScope.launch {
         val newCartProducts =
             actions.removeItemFromCart(productId = productId, productCategory = productCategory)
         repository.updateRemoteCart(newCartProducts = newCartProducts)
-        cartProducts.value = newCartProducts
     }
 
-    suspend fun updateCartProduct(productId: String, quantity: Int) {
+     fun updateCartProduct(productId: String, quantity: Int) = viewModelScope.launch {
         val newCartProducts = actions.updateItemFromCart(productId = productId, quantity = quantity)
         repository.updateRemoteCart(newCartProducts = newCartProducts)
-        cartProducts.value = newCartProducts
-        cartProducts.value = newCartProducts
     }
 
-    fun order() = viewModelScope.launch {
+    fun order(redirectToLogin: ()->Unit,redirectToAccountData: ()-> Unit) = viewModelScope.launch {
         val email = store.read { it.userData?.email }
         if (email.isNullOrEmpty()) {
-            //todo
+            redirectToLogin.invoke()
             return@launch
         }
-        val fullAddress = store.read { it.userData }?.let { Utils.getFullAdress(userData = it) }
+        val fullAddress = store.read { it.userData }?.let { Utils.getFullAddress(userData = it) }
         if (fullAddress.isNullOrEmpty()) {
-            //todo
+            redirectToAccountData.invoke()
             return@launch
         }
 
@@ -80,11 +76,11 @@ class CartPageViewModel @Inject constructor(
             fullAddress = fullAddress
         )
         try {
-            async {repository.saveOrder(newOrder = newOrder, email = email)}.await()
+            async { repository.saveOrder(newOrder = newOrder, email = email) }.await()
             async { actions.saveOrderAndClear(newOrder = newOrder) }.await()
             clearCart()
         } catch (e: Exception) {
-            //
+            repository.saveErrorToDB(e)
         }
     }
 
