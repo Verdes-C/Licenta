@@ -89,7 +89,7 @@ fun ResetPassword(
                 CustomTextField(
                     modifier = Modifier.padding(bottom = Variables.innerItemGap),
                     label = "Username or email",
-                    placeholder = "Input your account's username or email",
+                    placeholder = "Input your account's username or email",initialValue = "",
                     onValueChange = { newValue ->
                         usernameOrEmail = newValue
                     }

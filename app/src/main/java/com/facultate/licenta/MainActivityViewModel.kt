@@ -49,7 +49,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun updateUserData() = viewModelScope.launch {
+    private fun updateUserData() = viewModelScope.launch {
         val email = auth.currentUser?.email
         val userData = fetchUserData(email)
         val ordersList = fetchUserOrders(userData?.email)
@@ -90,7 +90,7 @@ class MainActivityViewModel @Inject constructor(
                         "Delivered" -> OrderStatus.Delivered
                         else -> OrderStatus.AwaitingPayment
                     },
-                    products = extractCartItem(doc.data)  // Assuming `extractCartItem` is a function that converts your document data to a CartItem object
+                    products = extractCartItem(doc.data)
                 )
             )
         }
@@ -106,6 +106,10 @@ class MainActivityViewModel @Inject constructor(
         } else {
             null
         }
+    }
+
+    init {
+        updateUserData()
     }
 }
 

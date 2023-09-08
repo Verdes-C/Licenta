@@ -25,10 +25,7 @@ fun Orders(
     navController: NavHostController,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
-
     val orders by viewModel.orders.collectAsState()
-
-
 
     LazyColumn(
         modifier = Modifier

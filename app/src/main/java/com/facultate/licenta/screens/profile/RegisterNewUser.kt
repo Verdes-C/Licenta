@@ -76,7 +76,7 @@ fun RegisterNewUser(
 
     val isAuth by viewModel.isAuth.collectAsState()
 
-    val messsage by viewModel.exceptionMessage.collectAsState()
+    val message by viewModel.exceptionMessage.collectAsState()
 
     if (isAuth == ApplicationState.AuthState.Authenticated) {
         navController.navigate(Screens.Profile.route)
@@ -103,7 +103,7 @@ fun RegisterNewUser(
             }
 
             item {
-                //_ Reset form
+                //_ Register form
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,9 +147,9 @@ fun RegisterNewUser(
                         isPassword = true
                     )
 
-                    if (messsage.isNotEmpty()) {
+                    if (message.isNotEmpty()) {
                         Text(
-                            text = "Error: $messsage", style = Typography.p.copy(
+                            text = "Error: $message", style = Typography.p.copy(
                                 color = Color.Red
                             ),
                             modifier = Modifier.fillMaxWidth()

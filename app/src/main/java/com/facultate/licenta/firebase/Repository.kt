@@ -41,19 +41,19 @@ class Repository @Inject constructor(
         viewModelScope: CoroutineScope,
         email: String,
         password: String,
-    ): String {
-        var message: String = ""
+    ): String = coroutineScope {
+        var message = ""
         try {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { result ->
                     if (result.isSuccessful) {
                         viewModelScope.launch {
                             updateUserData(userData = UserData(email = email))
-                            try {
+                            message = try {
                                 auth.currentUser?.sendEmailVerification()
-                                message = "Not verified"
+                                "Not verified"
                             } catch (error: Exception) {
-                                message = error.message!!
+                                error.message!!
                             }
                         }
                     }
@@ -63,7 +63,7 @@ class Repository @Inject constructor(
         } catch (e: Exception) {
             message = e.message!!
         }
-        return message
+        return@coroutineScope message
     }
 
     override suspend fun retrieveUserData(
@@ -93,7 +93,6 @@ class Repository @Inject constructor(
 
             }
             .addOnFailureListener { exception ->
-
                 saveErrorToDB(exception)
             }
             .await()

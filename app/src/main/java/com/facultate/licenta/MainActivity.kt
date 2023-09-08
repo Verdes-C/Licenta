@@ -48,7 +48,6 @@ class MainActivity : ComponentActivity() {
             val viewModel: MainActivityViewModel = hiltViewModel()
             val profileViewModel : ProfileViewModel = hiltViewModel()
 
-            viewModel.updateUserData()
 
             val screens = listOf(
                 Screens.HomePage to ImageVector.vectorResource(id = R.drawable.icon_home),

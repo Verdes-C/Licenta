@@ -91,12 +91,6 @@ fun ProfileHomePage(
     val userIsAuth by viewModel.isAuth.collectAsState()
     val userData by viewModel.userData.collectAsState()
 
-    LaunchedEffect(key1 = Unit) {
-        viewModel.viewModelScope.launch {
-            viewModel.readUserData()
-        }
-    }
-
     LazyColumn(
         modifier = Modifier
             .background(color = Variables.grey1)
@@ -183,6 +177,7 @@ fun DisplayLoginPage(
             label = emailValidationFailed.second.ifEmpty { "Email" },
             placeholder = "example@gmail.com",
             isError = emailValidationFailed.first,
+            initialValue = "",
             modifier = Modifier.fillMaxWidth()
         ) { newValue ->
             if (emailValidationFailed.first) emailValidationFailed = false to ""
@@ -203,6 +198,7 @@ fun DisplayLoginPage(
             isError = passwordValidationFailed.first,
             placeholder = "password",
             modifier = Modifier.fillMaxWidth(),
+            initialValue = "",
             isPassword = true
         ) { newValue ->
             if (passwordValidationFailed.first) passwordValidationFailed = false to ""
@@ -246,14 +242,11 @@ fun DisplayLoginPage(
             if (
                 validateEmail(email) && validatePassword(password)
             ) {
-                viewModel.viewModelScope.launch {
-                    viewModel.logInWithEmailAndPassword(
-                        email = email,
-                        password = password,
-                        context = context
-                    )
-                }
-                //todo validation for wrong credentials
+                viewModel.logInWithEmailAndPassword(
+                    email = email,
+                    password = password,
+                    context = context
+                )
             }
         }
 
@@ -275,12 +268,6 @@ fun DisplayLoginPage(
                     googleSignIn.invoke()
                 }
             }
-//            Buttons.SocialLogin(
-//                modifier = Modifier.weight(1f),
-//                socialPlatform = SocialLoginPlatforms.Facebook
-//            ) {
-//                //TODO Facebook Login
-//            }
         }
     }
 

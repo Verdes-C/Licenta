@@ -84,8 +84,6 @@ fun AccountDataPage(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.viewModelScope.launch {
-//            viewModel.readUserData()
-//            println(userData)
             firstName = userData.value?.firstName ?: ""
             lastName = userData.value?.lastName ?: ""
             email = userData.value?.email ?: ""

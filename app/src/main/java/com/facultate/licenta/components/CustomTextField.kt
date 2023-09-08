@@ -40,13 +40,20 @@ fun CustomTextField(
     isPassword: Boolean = false,
     onValueChange: (newValue: String) -> Unit,
 ) {
+    var value by remember {
+        mutableStateOf("")
+    }
+    if (initialValue.isNotEmpty()) {
+        value = initialValue
+    }
     TextField(
         modifier = modifier
             .heightIn(min = 56.dp, max = 80.dp)
             .fillMaxWidth(),
-        value = initialValue,
+        value = value,
         isError = isError,
         onValueChange = { newValue ->
+            value = newValue
             onValueChange(newValue)
         },
         label = {

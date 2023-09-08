@@ -35,7 +35,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel() {
     private val auth = Firebase.auth
 
-    var isAuth: StateFlow<ApplicationState.AuthState> =
+    var isAuth =
         store.stateFlow.map { it.authState }.distinctUntilChanged().stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
@@ -43,19 +43,19 @@ class ProfileViewModel @Inject constructor(
         )
     var userData = store.stateFlow.map { it.userData }.distinctUntilChanged().stateIn(
         viewModelScope,
-        SharingStarted.Eagerly, null
+        SharingStarted.WhileSubscribed(), null
     )
     var exceptionMessage: MutableStateFlow<String> = MutableStateFlow("")
 
-    val cartCount: StateFlow<Int> =
+    val cartCount =
         store.stateFlow.map { it.cartProducts.size }.distinctUntilChanged().stateIn(
-            viewModelScope, SharingStarted.Eagerly, 0
+            viewModelScope, SharingStarted.WhileSubscribed(), 0
         )
 
-    val orders: StateFlow<List<Order>> = store.stateFlow.map { it.orders }.distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+    val orders = store.stateFlow.map { it.orders }.distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), listOf())
 
-    suspend fun signUpUsingCredentials(email: String, password: String) {
+     fun signUpUsingCredentials(email: String, password: String) = viewModelScope.launch {
         val response = repository.signUpUsingEmailAndPassword(
             viewModelScope = viewModelScope,
             email = email,
@@ -64,12 +64,12 @@ class ProfileViewModel @Inject constructor(
         if (response == "") {
             Log.d("REGISTER", response)
             actions.updateUserData(userData = UserData(email = email))
-        } else if (response == "Not verified") {
-            exceptionMessage.value = "Please verify your email before logging in."
+        } else{
+            exceptionMessage.value = response
         }
     }
 
-    suspend fun logInWithEmailAndPassword(email: String, password: String, context: Context) {
+     fun logInWithEmailAndPassword(email: String, password: String, context: Context) = viewModelScope.launch{
         auth.signInWithEmailAndPassword(email, password).addOnSuccessListener {
             viewModelScope.launch {
                 val userData = repository.retrieveUserData(
@@ -97,15 +97,8 @@ class ProfileViewModel @Inject constructor(
         exceptionMessage.value = result.errorMessage ?: ""
     }
 
-    suspend fun readUserData(): UserData? {
-        val toReturn = store.read {
-            it.userData
-        }
-        return toReturn
 
-    }
-
-    suspend fun updateUserDetails(userData: UserData) = viewModelScope.launch {
+     fun updateUserDetails(userData: UserData) = viewModelScope.launch {
         var newUserData: UserData? = null
         store.update { applicationState ->
             val oldUserData = applicationState.userData
