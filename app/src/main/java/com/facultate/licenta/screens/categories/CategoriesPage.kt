@@ -1,5 +1,7 @@
 package com.facultate.licenta.screens.categories
 
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,6 +37,7 @@ fun CategoriesPage(
     navController: NavHostController,
     viewModel: CategoriesViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
 
     val artFountainPensList = listOf(
         "Flexible nib", "Art brush", "Italic & stub nib"
@@ -54,7 +58,14 @@ fun CategoriesPage(
         horizontalAlignment = Alignment.Start,
     ) {
         item {
-            SearchBar(){}
+            SearchBar(){searchQuery ->
+                if(searchQuery.isNotEmpty() && searchQuery.replace(" ","") != ""){
+                    val route = "search/null/${Uri.encode(searchQuery)}"
+                    navController.navigate(route)
+                }else{
+                    Toast.makeText(context, "Please input a valid search value", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
         item {
             Column(

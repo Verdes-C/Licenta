@@ -106,18 +106,19 @@ class ProfileViewModel @Inject constructor(
     }
 
     suspend fun updateUserDetails(userData: UserData) = viewModelScope.launch {
-        var newUserData: UserData?
+        var newUserData: UserData? = null
         store.update { applicationState ->
             val oldUserData = applicationState.userData
             newUserData = UserData(
-                firstName = if (userData.firstName.isNotEmpty()) userData.firstName else oldUserData!!.firstName,
-                lastName = if (userData.lastName.isNotEmpty()) userData.lastName else oldUserData!!.lastName,
-                email = if (userData.email.isNotEmpty()) userData.email else oldUserData!!.email,
-                phoneNumber = if (userData.phoneNumber.isNotEmpty()) userData.phoneNumber else oldUserData!!.phoneNumber,
-                address = if (userData.address.isNotEmpty()) userData.address else oldUserData!!.address,
-                zipCode = if (userData.zipCode.isNotEmpty()) userData.zipCode else oldUserData!!.zipCode,
-                city = if (userData.city.isNotEmpty()) userData.city else oldUserData!!.city,
-                state = if (userData.state.isNotEmpty()) userData.state else oldUserData!!.state,
+                accountType = userData.accountType.ifBlank { oldUserData!!.accountType },
+                firstName = userData.firstName.ifBlank { oldUserData!!.firstName },
+                lastName = userData.lastName.ifBlank { oldUserData!!.lastName },
+                email = userData.email.ifBlank { oldUserData!!.email },
+                phoneNumber = userData.phoneNumber.ifBlank { oldUserData!!.phoneNumber },
+                address = userData.address.ifBlank { oldUserData!!.address },
+                zipCode = userData.zipCode.ifBlank { oldUserData!!.zipCode },
+                city = userData.city.ifBlank { oldUserData!!.city },
+                state = userData.state.ifBlank { oldUserData!!.state },
                 favoriteItems = oldUserData!!.favoriteItems,
                 cartItem = oldUserData.cartItem
             )
@@ -125,7 +126,7 @@ class ProfileViewModel @Inject constructor(
                 userData = newUserData
             )
         }
-        repository.updateUserData(userData = userData)
+        newUserData?.let { repository.updateUserData(userData = it) }
     }
 
     fun resetPassword(email: String) = viewModelScope.launch {

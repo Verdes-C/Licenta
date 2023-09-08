@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -39,18 +40,14 @@ fun CustomTextField(
     isPassword: Boolean = false,
     onValueChange: (newValue: String) -> Unit,
 ) {
-    var inputValue by remember {
-        mutableStateOf(initialValue)
-    }
     TextField(
         modifier = modifier
             .heightIn(min = 56.dp, max = 80.dp)
             .fillMaxWidth(),
-        value = inputValue,
+        value = initialValue,
         isError = isError,
         onValueChange = { newValue ->
             onValueChange(newValue)
-            inputValue = newValue
         },
         label = {
             Text(

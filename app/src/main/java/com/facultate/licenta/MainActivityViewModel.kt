@@ -102,7 +102,7 @@ class MainActivityViewModel @Inject constructor(
 
         val document = fireStore.collection("Users").document(email).get().await()
         return if (document.exists()) {
-            userData(document.data)  // Assuming `userData` is a function that converts your document data to a UserData object
+            userData(document.data)
         } else {
             null
         }

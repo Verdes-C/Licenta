@@ -10,4 +10,7 @@ plugins {
 
     //_ Dagger Hilt
     id 'com.google.dagger.hilt.android' version '2.46.1' apply false
+
+    //_ Firebase Crashlytics
+    id("com.google.firebase.crashlytics") version "2.9.9" apply false
 }

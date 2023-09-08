@@ -38,13 +38,14 @@ import com.facultate.licenta.components.TopBar
 import com.facultate.licenta.model.UserData
 import com.facultate.licenta.ui.theme.Typography
 import com.facultate.licenta.ui.theme.Variables
+import com.facultate.licenta.utils.validateEmail
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDataPage(
     navController: NavHostController,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
 
     val context = LocalContext.current
@@ -77,7 +78,11 @@ fun AccountDataPage(
         mutableStateOf("")
     }
 
-    LaunchedEffect(key1 = userData) {
+    var emailValidationFailed by remember{
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(key1 = Unit) {
         viewModel.viewModelScope.launch {
 //            viewModel.readUserData()
 //            println(userData)
@@ -100,7 +105,7 @@ fun AccountDataPage(
                 menuEntry = MenuEntries.AccountData,
                 navController = navController,
             )
-                {}
+            {}
         }
     ) { paddingValues ->
         LazyColumn(
@@ -116,51 +121,46 @@ fun AccountDataPage(
             item {
                 Text(text = "Personal information", style = Typography.h3)
             }
+
             item {
-                LazyVerticalGrid(
-                    modifier = Modifier.height(124.dp),
-                    columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                CustomTextField(
+                    label = "First name",
+                    placeholder = "First name",
+                    initialValue = firstName
+                ) { newValue ->
+                    firstName = newValue
+                    println(firstName)
+                }
+            }
 
-                    item {
-                        CustomTextField(
-                            label = "First name",
-                            placeholder = firstName
-                        ) { newValue ->
-                            firstName = newValue
-                            println(firstName)
-                        }
-                    }
+            item {
+                CustomTextField(
+                    label = "Last name",
+                    placeholder = lastName,
+                    initialValue = lastName
+                ) { newValue ->
+                    lastName = newValue
+                }
+            }
 
-                    item {
-                        CustomTextField(
-                            label = "Last name",
-                            placeholder = lastName
-                        ) { newValue ->
-                            lastName = newValue
-                        }
-                    }
+            item {
+                CustomTextField(
+                    label = "Email",
+                    placeholder = email,
+                    initialValue = email,
+                    isError = emailValidationFailed
+                ) { newValue ->
+                    email = newValue
+                }
+            }
 
-                    item {
-                        CustomTextField(
-                            label = "Email",
-                            placeholder = email
-                        ) { newValue ->
-                            email = newValue
-                        }
-                    }
-
-                    item {
-                        CustomTextField(
-                            label = "Phone number",
-                            placeholder = phoneNumber
-                        ) { newValue ->
-                            phoneNumber = newValue
-                        }
-                    }
-
+            item {
+                CustomTextField(
+                    label = "Phone number",
+                    placeholder = phoneNumber,
+                    initialValue = phoneNumber
+                ) { newValue ->
+                    phoneNumber = newValue
                 }
             }
 
@@ -169,57 +169,45 @@ fun AccountDataPage(
                 Text(text = "Main Shipping address", style = Typography.h4)
             }
             item {
-                LazyVerticalGrid(
-                    modifier = Modifier.height(124.dp),
-                    columns = GridCells.Fixed(2),
-                    verticalArrangement = Arrangement.spacedBy(Variables.innerItemGap),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        CustomTextField(
-                            label = "Address",
-                            placeholder = address
-                        ) { newValue ->
-                            address = newValue
-                        }
-                    }
-
-                    item {
-                        CustomTextField(
-                            label = "ZIP code",
-                            placeholder = zipCode
-                        ) { newValue ->
-                            zipCode = newValue
-                        }
-                    }
-
-                    item {
-                        CustomTextField(
-                            label = "City",
-                            placeholder = city
-                        ) { newValue ->
-                            city = newValue
-                        }
-                    }
-
-                    item {
-                        CustomTextField(
-                            label = "State",
-                            placeholder = state
-                        ) { newValue ->
-                            state = newValue
-                        }
-                    }
+                CustomTextField(
+                    label = "Address",
+                    placeholder = address,
+                    initialValue = address
+                ) { newValue ->
+                    address = newValue
                 }
             }
 
-            //_ Payment information
             item {
-                Text(text = "Main payment method", style = Typography.h4)
+                CustomTextField(
+                    label = "ZIP code",
+                    placeholder = zipCode,
+                    initialValue = zipCode
+                ) { newValue ->
+                    zipCode = newValue
+                }
             }
+
             item {
-                DisplayCardPaymentDetails(userData = UserData(email = ""))
+                CustomTextField(
+                    label = "City",
+                    placeholder = city,
+                    initialValue = city
+                ) { newValue ->
+                    city = newValue
+                }
             }
+
+            item {
+                CustomTextField(
+                    label = "State",
+                    placeholder = state,
+                    initialValue = state
+                ) { newValue ->
+                    state = newValue
+                }
+            }
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -228,9 +216,17 @@ fun AccountDataPage(
                 ) {
                     Buttons.PrimaryActive(modifier = Modifier.fillMaxWidth(), text = "Save data") {
                         //TODO  save data
+                        if(!validateEmail(email  = email)){
+                            Toast.makeText(
+                                context, "Please provide a valid email address", Toast.LENGTH_LONG
+                            ).show()
+                            emailValidationFailed = true
+                            return@PrimaryActive
+                        }
                         viewModel.viewModelScope.launch {
                             viewModel.updateUserDetails(
                                 userData = UserData(
+                                    accountType = userData.value?.accountType?: "user",
                                     firstName = firstName,
                                     lastName = lastName,
                                     email = email,
