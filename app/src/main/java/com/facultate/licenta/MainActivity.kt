@@ -1,12 +1,21 @@
 package com.facultate.licenta
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.Button
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
@@ -16,6 +25,7 @@ import com.facultate.licenta.navigation.BottomNav
 import com.facultate.licenta.navigation.Screens
 import com.facultate.licenta.redux.Actions
 import com.facultate.licenta.screens.profile.ProfileViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,8 +36,10 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var auth: FirebaseAuth
+
     @Inject
     lateinit var actions: Actions
+
     @Inject
     lateinit var repository: FirebaseRepository
 
@@ -41,12 +53,13 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @OptIn(ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             val viewModel: MainActivityViewModel = hiltViewModel()
-            val profileViewModel : ProfileViewModel = hiltViewModel()
+            val profileViewModel: ProfileViewModel = hiltViewModel()
 
 
             val screens = listOf(
@@ -57,7 +70,17 @@ class MainActivity : ComponentActivity() {
                 Screens.Profile to ImageVector.vectorResource(id = R.drawable.icon_profile)
             )
             val navController = rememberNavController()
-            BottomNav(screens = screens, navController = navController, lifecycleScope = lifecycleScope, googleAuthUiClient = googleAuthUiClient, profileViewModel = profileViewModel)
+            BottomNav(
+                screens = screens,
+                navController = navController,
+                lifecycleScope = lifecycleScope,
+                googleAuthUiClient = googleAuthUiClient,
+                profileViewModel = profileViewModel
+            )
         }
     }
 }
+
+
+
+

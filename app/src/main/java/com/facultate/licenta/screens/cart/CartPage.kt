@@ -1,6 +1,12 @@
 package com.facultate.licenta.screens.cart
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -18,11 +25,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
@@ -38,12 +49,29 @@ import com.facultate.licenta.ui.theme.Variables
 import com.facultate.licenta.utils.Utils
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartPage(
     navController: NavHostController,
     viewModel: CartPageViewModel = hiltViewModel(),
 ) {
+    //_ Permission
+    val context = LocalContext.current
+    val hasNotificationPermission = remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            hasNotificationPermission.value = isGranted
+        })
 
     val cartItems by viewModel.cartProducts.collectAsState()
     val favoriteItems by viewModel.favoriteItems.collectAsState()
@@ -79,30 +107,37 @@ fun CartPage(
                         style = Typography.h4,
                         color = Variables.blue3
                     )
-                    if(cartItems.isEmpty()){
+                    if (cartItems.isEmpty()) {
                         Buttons.SecondaryInactive(text = "Clear cart")
-                    }else{
+                    } else {
                         Buttons.SecondaryActive(text = "Clear cart") {
+
+
                             viewModel.viewModelScope.launch {
                                 viewModel.clearCart()
                             }
                         }
                     }
                 }
-               if (cartItems.isEmpty()){
-                   Buttons.PrimaryInactive(text = "Order", modifier = Modifier.fillMaxWidth())
-               }else{
-                   Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
-                       viewModel.order(
-                           redirectToLogin = {
-                               navController.navigate(Screens.Profile.route)
-                           },
-                           redirectToAccountData = {
-                               navController.navigate(Screens.AccountData.route)
-                           }
-                       )
-                   }
-               }
+                if (cartItems.isEmpty()) {
+                    Buttons.PrimaryInactive(text = "Order", modifier = Modifier.fillMaxWidth())
+                } else {
+                    Buttons.PrimaryActive(text = "Order", modifier = Modifier.fillMaxWidth()) {
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+
+                        viewModel.order(
+                            redirectToLogin = {
+                                navController.navigate(Screens.Profile.route)
+                            },
+                            redirectToAccountData = {
+                                navController.navigate(Screens.AccountData.route)
+                            }
+                        )
+                    }
+                }
             }
         }
     ) { paddingValues ->
@@ -169,4 +204,5 @@ fun DisplayEmptyCart() {
         )
     }
 }
+
 

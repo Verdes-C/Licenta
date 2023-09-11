@@ -37,6 +37,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.facultate.licenta.firebase.GoogleAuthUiClient
 import com.facultate.licenta.screens.search.SearchResults
@@ -140,7 +141,14 @@ fun NavHost(
                 }
             }
 
-            composable(Screens.Orders.route) { backStackEntry ->
+            composable(Screens.Orders.route,
+                deepLinks = listOf(
+                    navDeepLink {
+                        uriPattern = "inkquill://${Screens.Orders.route}"
+                    }
+                )
+            ) { backStackEntry ->
+
                 Orders(navController = navController)
             }
 
@@ -168,10 +176,13 @@ fun NavHost(
                 SearchResults(navController, category)
             } else {
                 val inputQuery = Uri.decode(backStackEntry.arguments?.getString("inputQuery"))
-                SearchResults(navController = navController, category = null, inputQuery = inputQuery)
+                SearchResults(
+                    navController = navController,
+                    category = null,
+                    inputQuery = inputQuery
+                )
             }
         }
-
 
 
 //            composable("${Screens.Product.route}/{productId}/${Screens.Reviews.route}") { backStackEntry ->

@@ -15,6 +15,8 @@ import com.facultate.licenta.redux.ApplicationState
 import com.facultate.licenta.redux.Store
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.FirebaseMessagingService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
@@ -75,7 +78,13 @@ class ProfileViewModel @Inject constructor(
                 val userData = repository.retrieveUserData(
                     email = email,
                 )
-                actions.updateUserData(userData = userData)
+                val token = FirebaseMessaging.getInstance().token.await()
+                if (userData != null) {
+                    if(userData.fcmToken != token) {
+                        userData.fcmToken = token
+                        repository.updateUserData(userData = userData)
+                    }
+                }
                 store.read { applicationState ->
                     viewModelScope.launch {
                         repository.updateRemoteCart(newCartProducts = applicationState.cartProducts)
@@ -91,8 +100,26 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onSignInResult(result: SignInResult) {
-        if (result.data != null) {
-            println("GOOGLE SIGNIN  ${result.data}")
+        if (result.data?.email != null) {
+            viewModelScope.launch {
+                val userData = repository.retrieveUserData(
+                    email = result.data.email,
+                )
+                val token = FirebaseMessaging.getInstance().token.await()
+                if (userData != null) {
+                    if(userData.fcmToken != token) {
+                        userData.fcmToken = token
+                        repository.updateUserData(userData = userData)
+                    }
+                }
+                actions.updateUserData(userData = userData)
+                store.read { applicationState ->
+                    viewModelScope.launch {
+                        repository.updateRemoteCart(newCartProducts = applicationState.cartProducts)
+                        repository.updateRemoteFavorites(newFavoriteItems = applicationState.favoriteItems.toSet())
+                    }
+                }
+            }
         }
         exceptionMessage.value = result.errorMessage ?: ""
     }
@@ -113,7 +140,8 @@ class ProfileViewModel @Inject constructor(
                 city = userData.city.ifBlank { oldUserData!!.city },
                 state = userData.state.ifBlank { oldUserData!!.state },
                 favoriteItems = oldUserData!!.favoriteItems,
-                cartItem = oldUserData.cartItem
+                cartItem = oldUserData.cartItem,
+                fcmToken = oldUserData.fcmToken
             )
             return@update applicationState.copy(
                 userData = newUserData

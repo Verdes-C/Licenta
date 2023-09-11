@@ -46,7 +46,7 @@ fun Orders(
             {}
         }
 
-        items(items = orders) { order ->
+        items(items = orders.sortedBy { it.date }) { order ->
             DisplayOrderItem(orderItem = order, navController = navController)
         }
 

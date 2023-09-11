@@ -90,7 +90,8 @@ class MainActivityViewModel @Inject constructor(
                         "Delivered" -> OrderStatus.Delivered
                         else -> OrderStatus.AwaitingPayment
                     },
-                    products = extractCartItem(doc.data)
+                    products = extractCartItem(doc.data),
+                    date = doc.data["date"].toString()
                 )
             )
         }

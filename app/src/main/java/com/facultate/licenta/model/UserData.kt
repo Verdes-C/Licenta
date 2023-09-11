@@ -14,5 +14,6 @@ data class UserData(
     var favoriteItems: Set<FavoriteItem> = setOf(),
     var cartItem: List<CartItem> = listOf<CartItem>(),
     var orders: List<Order> = listOf(),
+    var fcmToken: String = ""
 //    var cardPayment: CardPayment = CardPayment() SOON
 )

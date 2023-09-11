@@ -116,7 +116,8 @@ object MappersTo {
             "state" to userData.state,
             "favoriteItems" to userData.favoriteItems.toList(),
             "cartItems" to userData.cartItem.toList(),
-            "orders" to userData.orders
+            "orders" to userData.orders,
+            "fcmToken" to userData.fcmToken
         )
     }
 
@@ -138,6 +139,7 @@ object MappersTo {
                 hashMap = hashMap
             ),
             cartItem = extractCartItem(hashMap = hashMap),
+            fcmToken = hashMap["fcmToken"].toString()
         )
     }
 
@@ -215,6 +217,7 @@ fun mapOrderToFirebaseData(order: Order): MutableMap<String, Any> {
         is OrderStatus.Delivered -> "Delivered"
         else -> "AwaitingPayment"
     }
+    orderData["date"] = order.date
 
     val productsData = order.products.map { product ->
         mutableMapOf(

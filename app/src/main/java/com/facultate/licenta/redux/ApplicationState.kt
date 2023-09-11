@@ -12,7 +12,8 @@ data class ApplicationState(
     val searchResults: List<Product> = listOf(),
     val cartProducts: List<CartItem> = listOf(),
     val favoriteItems: Set<FavoriteItem> = setOf(),
-    val orders: List<Order> = listOf()
+    val orders: List<Order> = listOf(),
+    val fcmToken: String = ""
 ) {
 
     sealed interface AuthState {

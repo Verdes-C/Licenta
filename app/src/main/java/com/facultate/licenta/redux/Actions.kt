@@ -173,4 +173,12 @@ class Actions @Inject constructor(
         }
     }
 
+    suspend fun saveFcmToken(token: String) {
+        store.update {applicationState->
+            return@update applicationState.copy(
+                fcmToken = token
+            )
+        }
+    }
+
 }
